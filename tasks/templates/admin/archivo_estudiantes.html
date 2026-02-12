@@ -1,0 +1,227 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+<style>
+    :root {
+        --vault-bg: #F8FAFC;
+        --vault-card: #FFFFFF;
+        --vault-border: #E2E8F0;
+        --vault-accent: #64748B;
+    }
+
+    body { background-color: var(--vault-bg); font-family: 'Inter', sans-serif; }
+
+    .vault-card {
+        border: 1px solid var(--vault-border);
+        border-radius: 12px;
+        background: var(--vault-card);
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    }
+
+    .filter-bar {
+        background: #F1F5F9;
+        border-radius: 12px;
+        padding: 20px;
+        border: 1px solid #CBD5E1;
+    }
+
+    .table-archive thead th {
+        background-color: #F8FAFC;
+        color: #475569;
+        font-weight: 700;
+        text-transform: uppercase;
+        font-size: 0.75rem;
+        letter-spacing: 0.05em;
+        border-bottom: 2px solid #E2E8F0;
+    }
+
+    .badge-year {
+        background-color: #E2E8F0;
+        color: #334155;
+        font-weight: 700;
+        border: 1px solid #CBD5E1;
+    }
+
+    .btn-doc {
+        transition: all 0.2s ease;
+        border-radius: 8px;
+    }
+    .btn-doc:hover { transform: translateY(-2px); }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    
+    <div class="d-flex justify-content-between align-items-end mb-5 animate__animated animate__fadeIn">
+        <div>
+            <h6 class="text-uppercase fw-bold text-muted small ls-1 mb-1">Sistema de Retención Documental</h6>
+            <h1 class="fw-bold text-dark mb-0">
+                <i class="fas fa-archive text-secondary me-2"></i>Archivo Histórico
+            </h1>
+            <p class="text-muted mt-2 mb-0">Custodia centralizada de expedientes de retiro y registros inactivos.</p>
+        </div>
+        <div class="text-end">
+            <span class="d-block h2 fw-bold text-dark mb-0">{{ total_boletines|default:"0" }}</span>
+            <span class="text-uppercase small fw-bold text-muted">Expedientes Archivados</span>
+        </div>
+    </div>
+
+    <div class="filter-bar mb-5 shadow-sm animate__animated animate__fadeInUp">
+        <form method="GET" action="{% url 'admin_ex_estudiantes' %}" class="row g-3 align-items-end">
+            <div class="col-md-5">
+                <label class="form-label fw-bold text-muted small text-uppercase">Búsqueda Rápida</label>
+                <div class="input-group">
+                    <span class="input-group-text bg-white border-0"><i class="fas fa-search text-muted"></i></span>
+                    <input type="text" class="form-control border-0" id="q" name="q" value="{{ current_q|default:'' }}" placeholder="Nombre, Apellido o ID del estudiante...">
+                </div>
+            </div>
+            
+            <div class="col-md-3">
+                <label class="form-label fw-bold text-muted small text-uppercase">Año Lectivo</label>
+                <select class="form-select border-0" name="anio">
+                    <option value="">-- Histórico Completo --</option>
+                    {% for anio in anios_disponibles %}
+                        <option value="{{ anio }}" {% if anio == current_anio %}selected{% endif %}>{{ anio }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <div class="col-md-2">
+                <label class="form-label fw-bold text-muted small text-uppercase">Grado</label>
+                <select class="form-select border-0" name="grado">
+                    <option value="">-- Todos --</option>
+                    {% for val, txt in grados_disponibles %}
+                        <option value="{{ val }}" {% if val == current_grado %}selected{% endif %}>{{ txt }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-secondary w-100 fw-bold">
+                    <i class="fas fa-filter me-2"></i>Filtrar
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <div class="vault-card overflow-hidden animate__animated animate__fadeInUp">
+        <div class="table-responsive">
+            <table class="table table-archive table-hover align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th class="ps-4 py-3">Identidad del Estudiante</th>
+                        <th>Registro Académico</th>
+                        <th>Metadatos de Retiro</th>
+                        <th class="text-center">Boletín Final</th>
+                        <th class="text-center">Hoja de Vida</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white">
+                    {% for boletin in page_obj %}
+                        <tr class="border-bottom">
+                            <td class="ps-4 py-3">
+                                <div class="d-flex align-items-center gap-3">
+                                    <div class="bg-light text-secondary rounded-circle d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                                        <i class="fas fa-user-slash"></i>
+                                    </div>
+                                    <div>
+                                        <span class="d-block fw-bold text-dark">{{ boletin.nombre_estudiante }}</span>
+                                        <code class="text-muted small">ID: {{ boletin.username_estudiante }}</code>
+                                    </div>
+                                </div>
+                            </td>
+
+                            <td>
+                                <span class="badge badge-year rounded-pill px-3 mb-1">
+                                    Ciclo {{ boletin.anio_lectivo_archivado }}
+                                </span>
+                                <div class="small text-muted fw-bold">
+                                    {{ boletin.get_grado_archivado_display }} <span class="mx-1">•</span> Sección {{ boletin.seccion_archivada }}
+                                </div>
+                            </td>
+
+                            <td>
+                                <div class="small text-muted">
+                                    <div class="mb-1">
+                                        <i class="far fa-calendar-alt me-2 text-secondary"></i>{{ boletin.fecha_eliminado|date:"d M, Y" }}
+                                    </div>
+                                    <div class="fst-italic text-secondary" style="font-size: 0.75rem;">
+                                        Autor: {{ boletin.eliminado_por.get_full_name|default:boletin.eliminado_por.username|default:"Sistema Auto" }}
+                                    </div>
+                                </div>
+                            </td>
+
+                            <td class="text-center">
+                                {% if boletin.archivo_pdf %}
+                                    <a href="{{ boletin.archivo_pdf.url }}" class="btn btn-outline-danger btn-sm btn-doc" target="_blank" title="Expediente Académico">
+                                        <i class="fas fa-file-pdf me-1"></i> PDF
+                                    </a>
+                                {% else %}
+                                    <span class="text-muted small opacity-50">—</span>
+                                {% endif %}
+                            </td>
+
+                            <td class="text-center">
+                                {% if boletin.observador_vinculado and boletin.observador_vinculado.archivo_pdf %}
+                                    <a href="{{ boletin.observador_vinculado.archivo_pdf.url }}" class="btn btn-outline-dark btn-sm btn-doc" target="_blank" title="Expediente Disciplinario">
+                                        <i class="fas fa-user-shield me-1"></i> Ver
+                                    </a>
+                                {% else %}
+                                    <span class="badge bg-light text-muted border border-light fw-normal">No Disponible</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="text-center py-5">
+                            <div class="opacity-25 mb-3">
+                                <i class="fas fa-folder-open fa-4x text-secondary"></i>
+                            </div>
+                            <h5 class="fw-bold text-muted">Bóveda Vacía</h5>
+                            <p class="text-muted small mb-0">No se encontraron expedientes con los criterios seleccionados.</p>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        {% if page_obj.has_other_pages %}
+        <div class="card-footer bg-white border-top p-3">
+            <nav aria-label="Navegación de archivo">
+                <ul class="pagination justify-content-center mb-0 pagination-sm">
+                    {% if page_obj.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link text-secondary" href="?page={{ page_obj.previous_page_number }}&q={{ current_q }}&grado={{ current_grado }}&anio={{ current_anio }}">
+                                <i class="fas fa-chevron-left"></i>
+                            </a>
+                        </li>
+                    {% endif %}
+                    
+                    <li class="page-item disabled">
+                        <span class="page-link text-dark fw-bold border-0">Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}</span>
+                    </li>
+
+                    {% if page_obj.has_next %}
+                        <li class="page-item">
+                            <a class="page-link text-secondary" href="?page={{ page_obj.next_page_number }}&q={{ current_q }}&grado={{ current_grado }}&anio={{ current_anio }}">
+                                <i class="fas fa-chevron-right"></i>
+                            </a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+        {% endif %}
+    </div>
+    
+    <div class="text-center mt-5">
+        <a href="{% url 'admin_dashboard' %}" class="btn btn-link text-muted text-decoration-none small">
+            <i class="fas fa-arrow-left me-1"></i> Regresar al Centro de Mando
+        </a>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,20 @@
+                List of relations
+ Schema |          Name           | Type  | Owner 
+--------+-------------------------+-------+-------
+ public | tasks_activeuser        | table | admin
+ public | tasks_actividadsemanal  | table | admin
+ public | tasks_answer            | table | admin
+ public | tasks_asignacionmateria | table | admin
+ public | tasks_chatroom          | table | admin
+ public | tasks_comentariodocente | table | admin
+ public | tasks_convivencia       | table | admin
+ public | tasks_curso             | table | admin
+ public | tasks_logroperiodo      | table | admin
+ public | tasks_materia           | table | admin
+ public | tasks_matricula         | table | admin
+ public | tasks_nota              | table | admin
+ public | tasks_perfil            | table | admin
+ public | tasks_periodo           | table | admin
+ public | tasks_question          | table | admin
+(15 rows)
+

@@ -1,0 +1,169 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="card p-5 shadow-lg border-0">
+        
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h2 class="text-primary fw-bold"><i class="fas fa-chalkboard-teacher me-2"></i>Gestión Académica</h2>
+                <p class="text-muted mb-0">Crea materias, registra docentes y asigna cargas académicas.</p>
+            </div>
+            <button type="button" class="btn btn-success fw-bold px-4 shadow-sm" data-bs-toggle="modal" data-bs-target="#crearDocenteModal">
+                <i class="fas fa-user-plus me-2"></i>Nuevo Docente
+            </button>
+        </div>
+        <hr>
+
+        <h4 class="mt-2 mb-3 text-dark fw-bold"><i class="fas fa-book me-2"></i>Crear Nueva Materia</h4>
+        <div class="bg-light p-4 rounded-3 mb-5 border">
+            <form method="POST">
+                {% csrf_token %}
+                <input type="hidden" name="crear_materia" value="1">
+                <div class="row g-3 align-items-end">
+                    <div class="col-md-5">
+                        <label for="nombre_materia" class="form-label fw-bold">Nombre de la Materia</label>
+                        <input type="text" class="form-control" id="nombre_materia" name="nombre" placeholder="Ej: Matemáticas Avanzadas" required>
+                    </div>
+                    <div class="col-md-5">
+                        <label for="curso_materia" class="form-label fw-bold">Curso</label>
+                        <select class="form-select" id="curso_materia" name="curso_id" required>
+                            <option value="">Selecciona un curso</option>
+                            {% for curso in cursos %}
+                                <option value="{{ curso.id }}">{{ curso.nombre }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <button type="submit" class="btn btn-primary w-100 fw-bold">
+                            <i class="fas fa-plus me-1"></i> Crear
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <h4 class="mb-3 text-dark fw-bold"><i class="fas fa-link me-2"></i>Asignar Carga Académica</h4>
+        <div class="bg-light p-4 rounded-3 mb-5 border">
+            <form method="POST">
+                {% csrf_token %}
+                <input type="hidden" name="asignar_docente" value="1">
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <label for="docente_asignar" class="form-label fw-bold">Docente</label>
+                        <select class="form-select" id="docente_asignar" name="docente_id" required>
+                            <option value="">Selecciona un docente</option>
+                            {% for docente in docentes %}
+                                <option value="{{ docente.id }}">{{ docente.get_full_name|default:docente.username }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <div class="col-md-4">
+                        <label for="materia_asignar" class="form-label fw-bold">Materia (y Curso)</label>
+                        <select class="form-select" id="materia_asignar" name="materia_id" required>
+                            <option value="">Selecciona una materia</option>
+                            {% for materia in materias %}
+                                <option value="{{ materia.id }}">{{ materia.nombre }} - {{ materia.curso.nombre }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="col-md-4 d-flex align-items-end">
+                        <button type="submit" class="btn btn-success w-100 fw-bold">
+                            <i class="fas fa-check-circle me-1"></i> Asignar Docente
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <h4 class="mb-3 text-secondary fw-bold">Asignaciones Actuales</h4>
+        <div class="table-responsive">
+            <table class="table table-hover table-bordered align-middle">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Docente</th>
+                        <th>Usuario</th>
+                        <th>Materia</th>
+                        <th>Curso</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for asignacion in asignaciones %}
+                    <tr>
+                        <td class="fw-bold text-primary">{{ asignacion.docente.get_full_name|default:asignacion.docente.username }}</td>
+                        <td><code>{{ asignacion.docente.username }}</code></td>
+                        <td>{{ asignacion.materia.nombre }}</td>
+                        <td><span class="badge bg-secondary">{{ asignacion.curso.nombre }}</span></td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="4" class="text-center text-muted py-3">No hay asignaciones registradas.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="crearDocenteModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title fw-bold"><i class="fas fa-user-tie me-2"></i>Registrar Nuevo Docente</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form method="POST">
+                {% csrf_token %}
+                <input type="hidden" name="crear_profesor" value="1">
+                
+                <div class="modal-body">
+                    <div class="alert alert-warning d-flex align-items-center mb-3" role="alert">
+                        <i class="fas fa-lock me-2 fs-4"></i>
+                        <div class="small">
+                            El docente se creará con la contraseña temporal: <strong>123456</strong> (o la definida por el sistema) y deberá cambiarla al iniciar sesión.
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Usuario (Login)</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fas fa-user"></i></span>
+                            <input type="text" name="username" class="form-control" required placeholder="Ej: lrodriguez" autocomplete="off">
+                        </div>
+                        <div class="form-text">Debe ser único en el sistema.</div>
+                    </div>
+
+                    <div class="row g-2 mb-3">
+                        <div class="col-6">
+                            <label class="form-label fw-bold">Nombres</label>
+                            <input type="text" name="first_name" class="form-control" required placeholder="Nombres">
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label fw-bold">Apellidos</label>
+                            <input type="text" name="last_name" class="form-control" required placeholder="Apellidos">
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Correo Electrónico</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fas fa-envelope"></i></span>
+                            <input type="email" name="email" class="form-control" required placeholder="correo@ejemplo.com">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="modal-footer bg-light">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-success fw-bold px-4">
+                        <i class="fas fa-save me-2"></i>Registrar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,108 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container-fluid px-4 py-4">
+    <div class="d-flex justify-content-between align-items-center mb-5 animate__animated animate__fadeIn">
+        <div>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb mb-1 text-uppercase ls-1">
+                    <li class="breadcrumb-item small"><a href="{% url 'admin_dashboard' %}" class="text-decoration-none text-muted">Core</a></li>
+                    <li class="breadcrumb-item small active fw-bold text-primary">Ingreso Masivo</li>
+                </ol>
+            </nav>
+            <h1 class="fw-black text-dark h2 mb-1">
+                <i class="fas fa-users-cog text-primary me-2"></i>Registro Masivo de Alumnos
+            </h1>
+            <p class="text-muted mb-0">Procesamiento automatizado de perfiles de estudiantes y acudientes.</p>
+        </div>
+        <div class="d-none d-md-block">
+            <span class="badge bg-soft-primary text-primary px-3 py-2 rounded-pill border border-primary-subtle">
+                <i class="fas fa-shield-check me-1"></i> Validación Dual Activa
+            </span>
+        </div>
+    </div>
+
+    
+
+    <div class="row justify-content-center">
+        <div class="col-xl-8">
+            <div class="card border-0 shadow-lg rounded-4 overflow-hidden">
+                <div class="card-body p-5">
+                    
+                    {% if messages %}
+                        {% for message in messages %}
+                            <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %} alert-dismissible fade show border-0 shadow-sm rounded-3 mb-4" role="alert">
+                                <div class="d-flex align-items-center">
+                                    <i class="fas {% if message.tags == 'error' %}fa-exclamation-triangle{% else %}fa-check-circle{% endif %} me-3 fs-4"></i>
+                                    <div>{{ message|safe }}</div>
+                                </div>
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+
+                    <form method="post" action="{% url 'academics:registrar_alumnos_masivo_form' %}" enctype="multipart/form-data" class="needs-validation" novalidate>
+                        {% csrf_token %}
+                        
+                        <div class="upload-section mb-5">
+                            <label for="{{ form.csv_file.id_for_label }}" class="form-label fw-bold text-secondary small text-uppercase ls-1">Archivo de Datos (CSV)</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-white border-2 border-end-0"><i class="fas fa-file-csv text-muted"></i></span>
+                                <input type="file" name="{{ form.csv_file.name }}" class="form-control form-control-lg border-2 border-start-0" id="{{ form.csv_file.id_for_label }}" required>
+                            </div>
+                            <div class="form-text mt-2">{{ form.csv_file.help_text|default:"Seleccione el archivo exportado desde su base de datos anterior." }}</div>
+                        </div>
+
+                        <div class="period-section mb-5">
+                            <label for="{{ form.anio_escolar.id_for_label }}" class="form-label fw-bold text-secondary small text-uppercase ls-1">Año Escolar Destino</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-white border-2 border-end-0"><i class="fas fa-calendar-alt text-muted"></i></span>
+                                <input type="text" name="anio_escolar" class="form-control form-control-lg border-2 border-start-0" id="{{ form.anio_escolar.id_for_label }}" value="{{ anio_escolar|default:'2025-2026' }}" placeholder="Ej: 2025-2026" required>
+                            </div>
+                        </div>
+
+                        {% if form.non_field_errors %}
+                            <div class="alert alert-danger rounded-3">
+                                <i class="fas fa-bug me-2"></i> {{ form.non_field_errors }}
+                            </div>
+                        {% endif %}
+
+                        <div class="bg-light p-4 rounded-4 border border-secondary-subtle">
+                            <h6 class="fw-bold text-dark mb-3"><i class="fas fa-info-circle text-info me-2"></i>Requisitos del Diccionario de Datos</h6>
+                            <div class="row small g-3">
+                                <div class="col-md-6">
+                                    <p class="mb-1 fw-bold">Estudiante:</p>
+                                    <code class="d-block bg-white p-2 border rounded">first_name, last_name, email, grado</code>
+                                </div>
+                                <div class="col-md-6">
+                                    <p class="mb-1 fw-bold">Acudiente:</p>
+                                    <code class="d-block bg-white p-2 border rounded">acudiente_first_name, acudiente_last_name, acudiente_email</code>
+                                </div>
+                            </div>
+                            <p class="mb-0 mt-3 x-small text-muted"><i class="fas fa-exclamation-circle me-1"></i> El archivo debe estar codificado exclusivamente en <strong>UTF-8</strong>.</p>
+                        </div>
+                        
+                        <div class="d-grid mt-5">
+                            <button type="submit" class="btn btn-primary btn-lg fw-black py-3 rounded-3 shadow-brand hover-translate-y">
+                                <i class="fas fa-cloud-upload-alt me-2"></i>SUBIR Y PROCESAR REGISTROS
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .fw-black { font-weight: 900; }
+    .ls-1 { letter-spacing: 1px; }
+    .bg-soft-primary { background-color: #eef2ff !important; }
+    .shadow-brand { box-shadow: 0 10px 20px -5px rgba(79, 70, 229, 0.4) !important; }
+    .hover-translate-y { transition: transform 0.2s ease; }
+    .hover-translate-y:hover { transform: translateY(-3px); }
+    .x-small { font-size: 0.75rem; }
+    code { color: #4F46E5; font-size: 0.85rem; }
+</style>
+{% endblock %}

@@ -1,0 +1,498 @@
+{% extends 'base.html' %}
+{% load dict_filters %} 
+
+{% block content %}
+<div class="container-fluid px-4 py-4" style="padding-bottom: 100px;">
+    
+    <div class="d-flex justify-content-between align-items-center mb-4 animate__animated animate__fadeInDown">
+        <div>
+            <h4 class="fw-bold text-dark mb-1">
+                <i class="fas fa-project-diagram me-2 text-primary"></i>Mapeo de Datos
+            </h4>
+            <p class="text-muted mb-0 small">
+                Archivo: <strong>{{ batch.nombre_archivo }}</strong> 
+                <span class="mx-2 text-muted">|</span> 
+                <span class="badge bg-light text-dark border">{{ batch.total_filas }} filas detectadas</span>
+                {% if target_year %}
+                <span class="badge bg-primary-subtle text-primary border border-primary ms-2">
+                    <i class="fas fa-calendar-alt me-1"></i> Año Destino: {{ target_year }}
+                </span>
+                {% endif %}
+            </p>
+        </div>
+        
+        <div class="d-none d-md-flex align-items-center bg-white px-4 py-2 rounded-pill shadow-sm border">
+            <span class="text-muted small me-2"><i class="fas fa-check-circle text-success"></i> 1. Subida</span>
+            <i class="fas fa-chevron-right text-muted small me-2"></i>
+            <span class="fw-bold text-primary small"><i class="fas fa-circle me-1"></i> 2. Mapeo</span>
+            <i class="fas fa-chevron-right text-muted small mx-2"></i>
+            <span class="text-muted small">3. Importación</span>
+        </div>
+    </div>
+
+    <form method="POST" id="mappingForm">
+        {% csrf_token %}
+        <input type="hidden" name="mapping_data" id="mappingDataInput">
+
+        <div class="card shadow-sm border-0 overflow-hidden animate__animated animate__fadeInUp">
+            <div class="card-header bg-white py-3 border-bottom">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <span class="small fw-bold text-uppercase text-muted"><i class="fas fa-table me-2"></i>Vista Previa de Datos (Top 5)</span>
+                    </div>
+                    <span class="badge bg-secondary" id="mappedCounter">0 columnas mapeadas</span>
+                </div>
+            </div>
+
+            <div class="table-responsive bg-white custom-scrollbar" style="max-height: 70vh; position: relative;">
+                <table class="table table-bordered table-hover mb-0 text-nowrap" id="matrixTable">
+                    
+                    <thead class="bg-light sticky-top" style="top: 0; z-index: 100; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
+                        <tr>
+                            <th class="text-center align-middle bg-light text-muted small" style="width: 50px;">#</th>
+                            
+                            {% for col in columns %}
+                            <th class="p-3 bg-white column-header" style="min-width: 260px; vertical-align: top;">
+                                <div class="mb-2 d-flex justify-content-between align-items-center">
+                                    <span class="fw-bold text-dark text-truncate" title="{{ col }}" style="max-width: 200px;">
+                                        {{ col }}
+                                    </span>
+                                    {% with sug=suggestions|get_item:col %}
+                                        {% if sug %}
+                                            <i class="fas fa-magic text-warning animate__animated animate__pulse animate__infinite cursor-help" 
+                                               title="Sugerencia Inteligente: {{ sug }}" 
+                                               data-bs-toggle="tooltip"></i>
+                                        {% endif %}
+                                    {% endwith %}
+                                </div>
+                                
+                                {% with sug=suggestions|get_item:col %}
+                                <div class="position-relative">
+                                    <select class="form-select form-select-sm mapping-selector shadow-none border-secondary-subtle" 
+                                            data-original-col="{{ col }}"
+                                            onchange="highlightColumn(this)">
+                                        
+                                        <option value="" class="text-muted">🚫 Ignorar columna</option>
+                                        
+                                        <optgroup label="🔑 Identificación (Obligatorio)">
+                                            <option value="CODIGO_ESTUDIANTE" class="fw-bold text-primary" 
+                                                {% if sug == 'CODIGO_ESTUDIANTE' %}selected{% endif %}>
+                                                🆔 ID_ESTUDIANTE (Documento)
+                                            </option>
+                                        </optgroup>
+
+                                        <optgroup label="👤 Datos del Estudiante (Actualizar)">
+                                            <option value="FIELD_SURNAME" class="text-dark" 
+                                                {% if sug == 'FIELD_SURNAME' %}selected{% endif %}>
+                                                📇 APELLIDOS
+                                            </option>
+                                            <option value="FIELD_NAME" class="text-dark" 
+                                                {% if sug == 'FIELD_NAME' %}selected{% endif %}>
+                                                📇 NOMBRES
+                                            </option>
+                                        </optgroup>
+
+                                        <optgroup label="📍 Ubicación Académica">
+                                            <option value="FIELD_GRADE" class="text-purple" 
+                                                {% if sug == 'FIELD_GRADE' %}selected{% endif %}>
+                                                🎓 GRADO (Ej: 10, 11)
+                                            </option>
+                                            <option value="FIELD_GROUP" class="text-purple" 
+                                                {% if sug == 'FIELD_GROUP' %}selected{% endif %}>
+                                                🏫 GRUPO (Ej: A, B, 01)
+                                            </option>
+                                        </optgroup>
+
+                                        <optgroup label="📋 Modo Vertical (Columnas Dinámicas)">
+                                            <option value="DYNAMIC_SUBJECT_NAME" class="fw-bold text-success"
+                                                {% if sug == 'DYNAMIC_SUBJECT_NAME' %}selected{% endif %}>
+                                                🔠 COLUMNA MATERIA
+                                            </option>
+                                            <option value="DYNAMIC_GRADE_VALUE" class="fw-bold text-success"
+                                                {% if sug == 'DYNAMIC_GRADE_VALUE' %}selected{% endif %}>
+                                                🔢 COLUMNA NOTA
+                                            </option>
+                                        </optgroup>
+
+                                        <optgroup label="📝 Detalles Adicionales">
+                                            <option value="FIELD_PERIOD" class="text-secondary" 
+                                                {% if sug == 'FIELD_PERIOD' %}selected{% endif %}>
+                                                📅 PERIODO ACADÉMICO
+                                            </option>
+                                            <option value="DYNAMIC_ATTENDANCE" class="text-danger" 
+                                                {% if sug == 'DYNAMIC_ATTENDANCE' %}selected{% endif %}>
+                                                ⚠️ FALLAS / INASISTENCIA
+                                            </option>
+                                            <option value="DYNAMIC_OBSERVATION" class="text-info" 
+                                                {% if sug == 'DYNAMIC_OBSERVATION' %}selected{% endif %}>
+                                                💬 OBSERVACIÓN / DESEMPEÑO
+                                            </option>
+                                            <option value="FIELD_YEAR_OVERRIDE" class="text-muted" 
+                                                {% if sug == 'FIELD_YEAR_OVERRIDE' %}selected{% endif %}>
+                                                🗓️ AÑO_LECTIVO (Dato Archivo)
+                                            </option>
+                                        </optgroup>
+
+                                        <optgroup label="📚 Modo Horizontal (Materias Fijas)">
+                                            {% for materia in materias %}
+                                            <option value="MATERIA:{{ materia }}" 
+                                                {% if sug == 'MATERIA:'|add:materia %}selected{% endif %}>
+                                                📘 {{ materia }}
+                                            </option>
+                                            {% endfor %}
+                                        </optgroup>
+                                    </select>
+                                </div>
+                                {% endwith %}
+                                
+                                <div class="mt-2 d-flex justify-content-between align-items-center" style="min-height: 18px;">
+                                    <span class="badge bg-success status-badge d-none w-100 rounded-1 shadow-sm" style="font-size: 0.7rem;">
+                                        <i class="fas fa-check me-1"></i> LISTO
+                                    </span>
+                                    <span class="badge bg-danger error-badge d-none w-100 rounded-1 shadow-sm animate__animated animate__headShake" style="font-size: 0.7rem;">
+                                        <i class="fas fa-exclamation-triangle me-1"></i> DUPLICADO
+                                    </span>
+                                </div>
+                            </th>
+                            {% endfor %}
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        {% if rows %}
+                            {% for row in rows %}
+                            <tr>
+                                <td class="text-center text-muted bg-light small align-middle font-monospace">{{ forloop.counter }}</td>
+                                
+                                {% for col in columns %}
+                                <td class="cell-data align-middle">
+                                    {% with val=row|get_item:col %}
+                                        {% if val is None or val == '' %}
+                                            <span class="badge bg-light text-muted border fw-normal">Vacío</span>
+                                        {% else %}
+                                            <span class="text-dark small text-break">{{ val }}</span>
+                                        {% endif %}
+                                    {% endwith %}
+                                </td>
+                                {% endfor %}
+                            </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr>
+                                <td colspan="100%" class="text-center py-5 text-muted">
+                                    <i class="fas fa-ghost fa-3x mb-3 text-secondary opacity-50"></i><br>
+                                    <span class="fs-5">No hay datos de previsualización disponibles.</span>
+                                </td>
+                            </tr>
+                        {% endif %}
+                        
+                        <tr>
+                            <td class="text-center bg-light font-monospace">...</td>
+                            {% for col in columns %}
+                            <td class="text-center text-muted bg-light small fst-italic">
+                                ... ({{ batch.total_filas|add:"-5" }} filas más) ...
+                            </td>
+                            {% endfor %}
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <div class="mt-3 text-muted small d-flex align-items-center">
+            <i class="fas fa-info-circle me-2 text-info"></i> 
+            <span>El sistema procesará las <strong>{{ batch.total_filas }}</strong> filas automáticamente según el mapeo seleccionado. Los campos no mapeados serán ignorados.</span>
+        </div>
+    </form>
+</div>
+
+<div class="fixed-bottom bg-white border-top shadow-lg py-3 animate__animated animate__slideInUp" style="z-index: 1050;">
+    <div class="container-fluid px-4">
+        <div class="row align-items-center">
+            <div class="col-md-7 d-none d-md-block">
+                <div class="d-flex align-items-center text-muted small">
+                    <div class="bg-primary-subtle text-primary p-2 rounded-circle me-3">
+                        <i class="fas fa-robot fa-lg"></i>
+                    </div>
+                    <div>
+                        <strong>Validación Industrial:</strong> 
+                        El sistema verificará duplicados automáticamente. <br>
+                        Requerido: <span class="badge bg-primary border">ID_ESTUDIANTE</span> + Datos Verticales u Horizontales.
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-5 text-end">
+                <a href="{% url 'import_upload' %}" class="btn btn-outline-secondary me-2 rounded-pill px-4">
+                    <i class="fas fa-times me-1"></i> Cancelar
+                </a>
+                <button type="button" onclick="submitMapping()" id="btnSubmit" class="btn btn-secondary btn-lg px-5 rounded-pill shadow-sm disabled transition-all" disabled>
+                    <span class="normal-state"><i class="fas fa-upload me-2"></i> Confirmar e Importar</span>
+                    <span class="loading-state d-none fw-bold">
+                        <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                        Procesando...
+                    </span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Scrollbar Personalizado (Estilo Mac/iOS) */
+    .custom-scrollbar::-webkit-scrollbar { height: 10px; width: 10px; }
+    .custom-scrollbar::-webkit-scrollbar-track { background: #f8f9fa; }
+    .custom-scrollbar::-webkit-scrollbar-thumb { background: #ced4da; border-radius: 5px; border: 2px solid #f8f9fa; }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #adb5bd; }
+
+    /* Efectos Visuales de Columnas */
+    .column-active {
+        background-color: #f0fdf4 !important; /* Verde muy claro para éxito */
+        color: #14532d;
+    }
+    .column-error {
+        background-color: #fef2f2 !important; /* Rojo muy claro para error */
+    }
+    .cell-data {
+        font-size: 0.85rem;
+        transition: background-color 0.2s;
+        max-width: 250px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+    .text-purple { color: #6f42c1; font-weight: bold; }
+    
+    /* Selector Activo y Validación Visual */
+    .mapping-selector {
+        transition: all 0.2s ease-in-out;
+        font-size: 0.85rem;
+    }
+    .mapping-selector:focus {
+        border-color: #198754;
+        box-shadow: 0 0 0 0.25rem rgba(25, 135, 84, 0.25);
+    }
+    
+    /* Estado: Mapeado Correctamente (Verde) */
+    select.active-map {
+        background-color: #198754;
+        color: white;
+        border-color: #198754;
+        font-weight: 600;
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23ffffff' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e");
+    }
+    select.active-map option { color: #333; background: white; } /* Restaurar color dropdown interno */
+
+    /* Estado: Error / Duplicado (Rojo) */
+    select.error-map {
+        border-color: #dc3545;
+        background-color: #fff8f8;
+        color: #dc3545;
+        font-weight: 600;
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23dc3545' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 2l12 12M14 2L2 14'/%3e%3c/svg%3e");
+    }
+
+    /* Utilidades */
+    .cursor-help { cursor: help; }
+    .transition-all { transition: all 0.3s ease; }
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // 1. Inicializar tooltips de Bootstrap
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl)
+    })
+
+    // 2. Inicializar estados visuales de los selects (Pre-selección IA)
+    document.querySelectorAll('.mapping-selector').forEach(sel => {
+        if(sel.value) highlightColumn(sel);
+    });
+
+    // 3. Ejecutar validación inicial
+    validateForm();
+});
+
+// --- LÓGICA DE UI: RESALTADO DE COLUMNAS ---
+function highlightColumn(select) {
+    // 1. Obtener índice de la columna visual
+    const th = select.closest('th');
+    const index = Array.from(th.parentNode.children).indexOf(th); // Índice global (incluye #)
+    
+    // 2. Elementos de UI
+    const badge = th.querySelector('.status-badge');
+    const errorBadge = th.querySelector('.error-badge');
+    const tableBody = document.querySelector('#matrixTable tbody');
+    
+    // Resetear estilos previos (Limpio)
+    select.classList.remove('active-map', 'error-map');
+    badge.classList.add('d-none');
+    errorBadge.classList.add('d-none');
+    
+    // 3. Aplicar Estilos según estado
+    if (select.value) {
+        // Estado Activo
+        select.classList.add('active-map');
+        badge.classList.remove('d-none');
+        
+        // Colorear toda la columna hacia abajo (Feedback Visual Potente)
+        Array.from(tableBody.children).forEach(row => {
+            const cell = row.children[index];
+            if(cell) {
+                cell.classList.add('column-active');
+                cell.classList.remove('column-error');
+            }
+        });
+    } else {
+        // Estado Inactivo / Limpio
+        Array.from(tableBody.children).forEach(row => {
+            const cell = row.children[index];
+            if(cell) {
+                cell.classList.remove('column-active');
+                cell.classList.remove('column-error');
+            }
+        });
+    }
+
+    // Siempre revalidar el formulario completo al cambiar algo
+    validateForm();
+}
+
+// --- LÓGICA DE NEGOCIO: VALIDACIÓN CRUZADA ---
+function validateForm() {
+    const btn = document.getElementById('btnSubmit');
+    const selectors = document.querySelectorAll('.mapping-selector');
+    
+    let hasId = false;
+    let mappedCount = 0;
+    
+    // Flags de Modo Vertical (Tu caso)
+    let hasDynamicSubject = false;
+    let hasDynamicGrade = false;
+    
+    // Flags de Modo Horizontal
+    let hasFixedMateria = false;
+    
+    // Detección de Duplicados (Integridad)
+    let duplicateMap = {};
+    let hasDuplicateError = false;
+
+    // Limpieza global de errores visuales antes de recalcular
+    document.querySelectorAll('.error-map').forEach(el => el.classList.remove('error-map'));
+    document.querySelectorAll('.error-badge').forEach(el => el.classList.add('d-none'));
+    document.querySelectorAll('.status-badge').forEach(el => {
+        // Solo mostrar 'LISTO' si tiene valor y no es error
+        if(el.closest('th').querySelector('select').value) el.classList.remove('d-none');
+    });
+
+    selectors.forEach(sel => {
+        const val = sel.value;
+        if (val) {
+            mappedCount++;
+            
+            // Chequeo de Obligatoriedad
+            if (val === 'CODIGO_ESTUDIANTE') hasId = true;
+            
+            // Detección de Modos
+            if (val === 'DYNAMIC_SUBJECT_NAME') hasDynamicSubject = true;
+            if (val === 'DYNAMIC_GRADE_VALUE') hasDynamicGrade = true;
+            if (val.startsWith('MATERIA:')) hasFixedMateria = true;
+
+            // Chequeo de Duplicados (CRÍTICO: No permitir mapear 'APELLIDOS' dos veces)
+            if (duplicateMap[val]) {
+                hasDuplicateError = true;
+                markError(sel);
+                markError(duplicateMap[val]);
+            } else {
+                duplicateMap[val] = sel;
+            }
+        }
+    });
+
+    // Actualizar contador visual
+    document.getElementById('mappedCounter').innerText = `${mappedCount} columnas mapeadas`;
+
+    // --- REGLAS DE NEGOCIO (INDUSTRIAL) ---
+    // El formulario es válido si:
+    // 1. No hay errores de duplicados (Integridad).
+    // 2. Tiene ID (Identidad).
+    // 3. Y (Tiene par Vertical completo O tiene al menos una Materia Horizontal) (Completitud).
+    
+    const isVerticalComplete = hasDynamicSubject && hasDynamicGrade;
+    const isHorizontalComplete = hasFixedMateria;
+    
+    const isValid = !hasDuplicateError && hasId && (isVerticalComplete || isHorizontalComplete);
+
+    if (isValid) {
+        // ESTADO: LISTO PARA ENVIAR
+        btn.disabled = false;
+        btn.classList.remove('btn-secondary', 'disabled');
+        btn.classList.add('btn-success', 'animate__animated', 'animate__pulse');
+        btn.innerHTML = `<span class="normal-state"><i class="fas fa-check-circle me-2"></i> Confirmar e Importar</span>`;
+    } else {
+        // ESTADO: BLOQUEADO CON FEEDBACK
+        btn.disabled = true;
+        btn.classList.remove('btn-success', 'animate__animated', 'animate__pulse');
+        btn.classList.add('btn-secondary');
+        
+        // Mensajes de estado detallados (UX Reactiva)
+        if (hasDuplicateError) {
+            btn.innerHTML = `<i class="fas fa-exclamation-triangle me-2"></i> Corregir Columnas Duplicadas`;
+        } else if (!hasId) {
+            btn.innerHTML = `<i class="fas fa-id-card me-2"></i> Falta Columna 'Código/Documento'`;
+        } else if (hasDynamicSubject && !hasDynamicGrade) {
+            btn.innerHTML = `<i class="fas fa-sort-numeric-down me-2"></i> Falta Columna 'Nota'`;
+        } else if (!hasDynamicSubject && hasDynamicGrade) {
+            btn.innerHTML = `<i class="fas fa-book me-2"></i> Falta Columna 'Materia'`;
+        } else if (!mappedCount) {
+            btn.innerHTML = `Esperando Mapeo...`;
+        } else {
+            btn.innerHTML = `<i class="fas fa-map-signs me-2"></i> Mapeo Incompleto`;
+        }
+    }
+}
+
+// Helper visual para marcar error
+function markError(selectElement) {
+    selectElement.classList.remove('active-map');
+    selectElement.classList.add('error-map');
+    
+    const th = selectElement.closest('th');
+    th.querySelector('.status-badge').classList.add('d-none');
+    th.querySelector('.error-badge').classList.remove('d-none');
+    
+    // Colorear columna en rojo
+    const index = Array.from(th.parentNode.children).indexOf(th);
+    const tableBody = document.querySelector('#matrixTable tbody');
+    Array.from(tableBody.children).forEach(row => {
+        const cell = row.children[index];
+        if(cell) {
+            cell.classList.remove('column-active');
+            cell.classList.add('column-error');
+        }
+    });
+}
+
+// Envío del Formulario
+function submitMapping() {
+    const selectors = document.querySelectorAll('.mapping-selector');
+    let mapping = {};
+    
+    selectors.forEach(sel => {
+        if (sel.value) {
+            mapping[sel.getAttribute('data-original-col')] = sel.value;
+        }
+    });
+
+    // Serializar JSON al input oculto
+    document.getElementById('mappingDataInput').value = JSON.stringify(mapping);
+    
+    // Feedback visual UI Loading (Evitar doble envío)
+    const btn = document.getElementById('btnSubmit');
+    btn.disabled = true;
+    btn.innerHTML = `<span class="spinner-border spinner-border-sm me-2"></span> Procesando Lote...`;
+    
+    document.getElementById('mappingForm').submit();
+}
+</script>
+{% endblock %}

@@ -1,0 +1,434 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load custom_filters %} 
+
+{% block content %}
+<style>
+    /* --- VARIABLES DE DISEÑO --- */
+    :root {
+        --chat-bg-color: #efeae2;
+        --bubble-incoming: #ffffff;
+        --bubble-outgoing: #d9fdd3;
+        --text-color: #111b21;
+        --header-height: 70px;
+        --footer-height: 80px;
+        --edu-primary: #0d6efd;
+    }
+
+    /* --- LAYOUT A PANTALLA COMPLETA --- */
+    /* Sobrescribimos estilos del contenedor padre si existen en base.html */
+    .container, .container-fluid {
+        padding: 0 !important;
+        margin: 0 !important;
+        max-width: 100% !important;
+    }
+
+    .chat-wrapper {
+        width: 100%;
+        /* Ajusta este cálculo según la altura de tu barra de navegación superior (navbar) */
+        height: calc(100vh - 70px); 
+        background-color: var(--chat-bg-color);
+        background-image: url('https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png');
+        background-blend-mode: overlay;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        position: relative;
+    }
+
+    /* === HEADER === */
+    .chat-header {
+        height: var(--header-height);
+        background: #f0f2f5;
+        padding: 0 25px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        border-bottom: 1px solid #d1d7db;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        z-index: 10;
+        flex-shrink: 0;
+    }
+
+    .user-info { display: flex; align-items: center; gap: 15px; text-decoration: none; color: inherit; flex-grow: 1; cursor: pointer; }
+    
+    .avatar-img { width: 45px; height: 45px; border-radius: 50%; object-fit: cover; border: 1px solid #dee2e6; }
+    .avatar-placeholder { width: 45px; height: 45px; border-radius: 50%; background: #6c757d; color: white; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 1.2rem; }
+    
+    .user-meta h5 { margin: 0; font-size: 1.1rem; color: #111b21; font-weight: 600; }
+    .user-meta span { font-size: 0.85rem; color: #667781; }
+
+    .header-actions .btn-icon { color: #54656f; background: transparent; border: none; padding: 10px; border-radius: 50%; cursor: pointer; transition: 0.2s; }
+    .header-actions .btn-icon:hover { background: rgba(0,0,0,0.08); }
+
+    /* === ÁREA DE MENSAJES === */
+    .messages-area {
+        flex: 1;
+        padding: 20px 5%; /* Padding lateral porcentual para pantallas grandes */
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .message-row {
+        display: flex;
+        width: 100%;
+        margin-bottom: 5px;
+    }
+
+    .message-row.incoming { justify-content: flex-start; }
+    .message-row.outgoing { justify-content: flex-end; }
+
+    .bubble {
+        padding: 8px 12px;
+        border-radius: 10px;
+        font-size: 0.95rem;
+        line-height: 1.5;
+        position: relative;
+        box-shadow: 0 1px 1px rgba(0,0,0,0.1);
+        word-wrap: break-word;
+        max-width: 65%; /* Evita que el mensaje sea demasiado ancho */
+        min-width: 120px;
+        color: var(--text-color);
+    }
+
+    /* En pantallas muy grandes, limitamos aún más el ancho para leer mejor */
+    @media (min-width: 1400px) { .bubble { max-width: 50%; } }
+
+    .incoming .bubble { background-color: var(--bubble-incoming); border-top-left-radius: 0; }
+    .outgoing .bubble { background-color: var(--bubble-outgoing); border-top-right-radius: 0; }
+
+    .msg-time {
+        font-size: 0.7rem;
+        color: #667781;
+        margin-top: 4px;
+        text-align: right;
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        gap: 4px;
+    }
+
+    /* MEDIA Y ARCHIVOS */
+    .media-container { margin-bottom: 5px; border-radius: 6px; overflow: hidden; background: rgba(0,0,0,0.03); }
+    .chat-image, .chat-video { max-width: 100%; max-height: 350px; border-radius: 6px; cursor: pointer; display: block; object-fit: contain; }
+    
+    .file-card {
+        background: rgba(0,0,0,0.05);
+        border-radius: 6px;
+        padding: 12px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 5px;
+        border: 1px solid rgba(0,0,0,0.05);
+    }
+    .outgoing .file-card { background: rgba(255,255,255,0.3); }
+
+    /* === FOOTER === */
+    .chat-footer {
+        background: #f0f2f5;
+        padding: 10px 20px;
+        display: flex;
+        align-items: flex-end;
+        gap: 15px;
+        position: relative;
+        border-top: 1px solid #d1d7db;
+        min-height: var(--footer-height);
+    }
+
+    .input-wrapper {
+        background: white;
+        border-radius: 20px;
+        padding: 12px 15px;
+        flex-grow: 1;
+        display: flex;
+        align-items: flex-end;
+        border: 1px solid white;
+        box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+    }
+    
+    .chat-input {
+        width: 100%;
+        border: none;
+        outline: none;
+        resize: none;
+        max-height: 120px;
+        min-height: 24px;
+        font-size: 1rem;
+        background: transparent;
+        line-height: 1.4;
+    }
+
+    .btn-attach, .btn-send {
+        color: #54656f;
+        cursor: pointer;
+        padding: 12px;
+        margin-bottom: 4px;
+        transition: 0.2s;
+        border: none;
+        background: transparent;
+        border-radius: 50%;
+    }
+    .btn-attach:hover { background: rgba(0,0,0,0.08); }
+    .btn-send:hover { background: rgba(0,0,0,0.08); color: var(--edu-primary); transform: scale(1.1); }
+
+    /* --- PREVIEW BOX --- */
+    .preview-box {
+        position: absolute;
+        bottom: 100%; left: 0; width: 100%;
+        background: #e9edef;
+        border-top: 1px solid #d1d7db;
+        padding: 15px 30px;
+        display: none;
+        align-items: center;
+        gap: 20px;
+        z-index: 20;
+        animation: slideUp 0.2s ease-out;
+    }
+    @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+    .preview-thumb-container {
+        width: 80px; height: 80px;
+        border-radius: 8px;
+        overflow: hidden;
+        display: flex; align-items: center; justify-content: center;
+        background: white;
+        border: 1px solid #ccc;
+        flex-shrink: 0;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    .preview-thumb-container img, .preview-thumb-container video { width: 100%; height: 100%; object-fit: cover; }
+
+    /* Iconos Archivos */
+    .icon-pdf { color: #e13f3f; }
+    .icon-word { color: #2b579a; }
+    .icon-excel { color: #217346; }
+    .icon-zip { color: #f4b400; }
+    .icon-default { color: #6c757d; }
+</style>
+
+<div class="chat-wrapper">
+    
+    <header class="chat-header">
+        <div class="d-flex align-items-center gap-3 flex-grow-1">
+            <a href="{% url 'buzon_mensajes' %}" class="header-actions" style="text-decoration: none;">
+                <button class="btn-icon" title="Volver al buzón"><i class="fas fa-arrow-left fa-lg"></i></button>
+            </a>
+            
+            <div class="user-info">
+                {% if otro_usuario.perfil.foto_perfil %}
+                    <img src="{{ otro_usuario.perfil.foto_perfil.url }}" class="avatar-img">
+                {% else %}
+                    <div class="avatar-placeholder">{{ otro_usuario.username|slice:":1"|upper }}</div>
+                {% endif %}
+                <div class="user-meta">
+                    <h5>{{ otro_usuario.get_full_name|default:otro_usuario.username }}</h5>
+                    <span>{{ otro_usuario.perfil.get_rol_display }}</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="header-actions">
+            <button class="btn-icon" title="Videochamada"><i class="fas fa-video"></i></button>
+            <button class="btn-icon" title="Buscar"><i class="fas fa-search"></i></button>
+            <button class="btn-icon" title="Opciones"><i class="fas fa-ellipsis-v"></i></button>
+        </div>
+    </header>
+
+    <div class="messages-area" id="messagesContainer">
+        {% for msg in historial %}
+            <div class="message-row {% if msg.remitente == user %}outgoing{% else %}incoming{% endif %}">
+                <div class="bubble">
+                    
+                    {% if msg.archivo %}
+                        <div class="media-container">
+                            {% with ext=msg.archivo.name|slice:"-4:"|lower %}
+                                {% if ext == '.jpg' or ext == 'jpeg' or ext == '.png' or ext == '.gif' or ext == 'webp' %}
+                                    <a href="{{ msg.archivo.url }}" target="_blank">
+                                        <img src="{{ msg.archivo.url }}" class="chat-image" loading="lazy">
+                                    </a>
+                                
+                                {% elif ext == '.mp4' or ext == '.mov' or ext == 'webm' %}
+                                    <video controls class="chat-video" preload="metadata">
+                                        <source src="{{ msg.archivo.url }}" type="video/mp4">
+                                    </video>
+
+                                {% elif ext == '.mp3' or ext == '.wav' or ext == '.ogg' %}
+                                    <div class="d-flex align-items-center gap-2 p-2">
+                                        <i class="fas fa-music text-secondary"></i>
+                                        <audio controls style="width: 220px; height: 35px;">
+                                            <source src="{{ msg.archivo.url }}">
+                                        </audio>
+                                    </div>
+
+                                {% else %}
+                                    <div class="file-card">
+                                        <i class="fas fa-file-alt fa-2x text-secondary"></i>
+                                        <div class="overflow-hidden">
+                                            <a href="{{ msg.archivo.url }}" target="_blank" class="fw-bold text-dark text-decoration-none d-block text-truncate" style="max-width: 200px;">
+                                                {{ msg.archivo.name|cut:'adjuntos_chat/' }}
+                                            </a>
+                                            <span style="font-size: 0.75rem; color: #667781;">{{ msg.archivo.size|filesizeformat }}</span>
+                                        </div>
+                                        <a href="{{ msg.archivo.url }}" download class="text-secondary ms-auto"><i class="fas fa-download fa-lg"></i></a>
+                                    </div>
+                                {% endif %}
+                            {% endwith %}
+                        </div>
+                    {% endif %}
+
+                    {% if msg.cuerpo %}
+                        <span>{{ msg.cuerpo|linebreaksbr }}</span>
+                    {% endif %}
+
+                    <div class="msg-time">
+                        {{ msg.fecha_envio|date:"H:i" }}
+                        {% if msg.remitente == user %}
+                            {% if msg.leido %}
+                                <i class="fas fa-check-double text-primary" title="Leído"></i>
+                            {% else %}
+                                <i class="fas fa-check" title="Enviado"></i>
+                            {% endif %}
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        {% empty %}
+            <div class="d-flex flex-column align-items-center justify-content-center h-100 opacity-50">
+                <i class="far fa-comments fa-4x mb-3"></i>
+                <p class="h5">No hay mensajes aún</p>
+                <small>Escribe un mensaje para iniciar la conversación.</small>
+            </div>
+        {% endfor %}
+    </div>
+
+    <div id="filePreview" class="preview-box">
+        <div id="previewContainer" class="preview-thumb-container">
+            <i class="fas fa-file fa-2x text-primary" id="previewIcon"></i>
+        </div>
+        
+        <div class="flex-grow-1">
+            <span class="d-block fw-bold text-primary" id="previewLabel">Archivo Adjunto</span>
+            <span id="previewName" class="text-muted d-block text-truncate" style="font-size: 0.9rem;">nombre.ext</span>
+            <span id="previewSize" class="text-muted small fw-bold"></span>
+        </div>
+        <button type="button" class="btn-close" onclick="clearFile()"></button>
+    </div>
+
+    <div class="chat-footer">
+        <form method="POST" enctype="multipart/form-data" id="chatForm" class="d-flex align-items-end w-100 gap-2 mb-0">
+            {% csrf_token %}
+            
+            <input type="file" name="archivo" id="fileInput" class="d-none" onchange="handleFile(this)">
+            
+            <label for="fileInput" class="btn-attach" title="Adjuntar (Foto, Video, Doc)">
+                <i class="fas fa-paperclip fa-lg"></i>
+            </label>
+
+            <div class="input-wrapper">
+                <textarea name="cuerpo" id="msgInput" class="chat-input" rows="1" placeholder="Escribe un mensaje aquí..."></textarea>
+            </div>
+
+            <button type="submit" class="btn-send" title="Enviar Mensaje">
+                <i class="fas fa-paper-plane fa-lg"></i>
+            </button>
+        </form>
+    </div>
+
+</div>
+
+<script>
+    // 1. Scroll al final
+    const container = document.getElementById("messagesContainer");
+    function scrollToBottom() { container.scrollTop = container.scrollHeight; }
+    window.onload = scrollToBottom;
+
+    // 2. Auto-resize del campo de texto
+    const tx = document.getElementById('msgInput');
+    tx.addEventListener("input", function(){
+      this.style.height = 'auto'; this.style.height = (this.scrollHeight) + "px";
+      if(this.value === '') this.style.height = 'auto';
+    });
+
+    // 3. Enviar con Enter
+    tx.addEventListener("keydown", function(e){
+        if (e.key === "Enter" && !e.shiftKey) {
+            e.preventDefault();
+            if (this.value.trim() !== "" || document.getElementById('fileInput').files.length > 0) {
+                document.getElementById('chatForm').submit();
+            }
+        }
+    });
+
+    // 4. Formato de Bytes
+    function formatBytes(bytes, decimals = 2) {
+        if (!+bytes) return '0 Bytes';
+        const k = 1024;
+        const dm = decimals < 0 ? 0 : decimals;
+        const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return `${parseFloat((bytes / Math.pow(k, i)).toFixed(dm))} ${sizes[i]}`;
+    }
+
+    // 5. MANEJO INTELIGENTE DE ARCHIVOS Y PREVIEW
+    function handleFile(input) {
+        if (input.files && input.files[0]) {
+            const file = input.files[0];
+            const previewBox = document.getElementById('filePreview');
+            const nameSpan = document.getElementById('previewName');
+            const sizeSpan = document.getElementById('previewSize');
+            const previewContainer = document.getElementById('previewContainer');
+            const label = document.getElementById('previewLabel');
+
+            previewBox.style.display = 'flex';
+            nameSpan.textContent = file.name;
+            sizeSpan.textContent = formatBytes(file.size);
+            previewContainer.innerHTML = '';
+
+            // A. IMAGEN
+            if (file.type.startsWith('image/')) {
+                label.textContent = "Imagen seleccionada";
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    previewContainer.innerHTML = `<img src="${e.target.result}">`;
+                }
+                reader.readAsDataURL(file);
+            } 
+            // B. VIDEO
+            else if (file.type.startsWith('video/')) {
+                label.textContent = "Video seleccionado";
+                const videoUrl = URL.createObjectURL(file);
+                previewContainer.innerHTML = `<video src="${videoUrl}" autoplay muted loop></video>`;
+            }
+            // C. AUDIO
+            else if (file.type.startsWith('audio/')) {
+                label.textContent = "Audio seleccionado";
+                previewContainer.innerHTML = '<i class="fas fa-music fa-2x text-info"></i>';
+            }
+            // D. DOCUMENTOS (Word, PDF, Excel, Zip)
+            else {
+                label.textContent = "Documento";
+                let iconClass = 'fa-file icon-default';
+                
+                if (file.type.includes('pdf')) iconClass = 'fa-file-pdf icon-pdf';
+                else if (file.type.includes('word') || file.name.endsWith('.doc') || file.name.endsWith('.docx')) iconClass = 'fa-file-word icon-word';
+                else if (file.type.includes('sheet') || file.name.endsWith('.xls') || file.name.endsWith('.xlsx')) iconClass = 'fa-file-excel icon-excel';
+                else if (file.type.includes('zip') || file.type.includes('rar')) iconClass = 'fa-file-archive icon-zip';
+                
+                previewContainer.innerHTML = `<i class="fas ${iconClass} fa-2x"></i>`;
+            }
+            
+            tx.focus();
+        }
+    }
+
+    // 6. Cancelar archivo
+    function clearFile() {
+        document.getElementById('fileInput').value = '';
+        document.getElementById('filePreview').style.display = 'none';
+        document.getElementById('previewContainer').innerHTML = ''; 
+    }
+</script>
+{% endblock %}

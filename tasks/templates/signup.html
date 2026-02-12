@@ -1,0 +1,756 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<div class="premium-register-container">
+    <div class="premium-register-card">
+        <div class="premium-header">
+            <div class="premium-logo-container">
+                <img src="https://res.cloudinary.com/diarfrbzp/image/upload/v1745919577/logo_lab_qserfl.png" 
+                     alt="Learning Labs Premium" 
+                     class="premium-logo">
+                <div class="premium-badge">PREMIUM</div>
+            </div>
+            <h1 class="premium-title">Crear Cuenta Premium</h1>
+            <p class="premium-subtitle">Accede a la mejor experiencia educativa del mundo</p>
+        </div>
+
+        {% if error %}
+        <div class="premium-alert premium-alert-error animate__animated animate__headShake">
+            <div class="premium-alert-content">
+                <i class="fas fa-exclamation-triangle"></i>
+                <span>{{ error }}</span>
+            </div>
+        </div>
+        {% endif %}
+
+        <form class="premium-form" action="/signup/" method="POST" id="premiumSignupForm">
+            {% csrf_token %}
+            
+            <div class="premium-form-group">
+                <label for="premiumUsername" class="premium-label">
+                    <i class="fas fa-user-graduate premium-icon"></i>
+                    <span>Nombre de Usuario</span>
+                </label>
+                <div class="premium-input-container">
+                    <input type="text" 
+                           id="premiumUsername" 
+                           name="username" 
+                           class="premium-input"
+                           placeholder="Ej: estudiante_premium"
+                           required
+                           autocomplete="username">
+                    <div class="premium-input-hint">
+                        <i class="fas fa-info-circle"></i> Mínimo 4 caracteres
+                    </div>
+                </div>
+            </div>
+
+            <div class="premium-form-group">
+                <label for="premiumPassword1" class="premium-label">
+                    <i class="fas fa-lock premium-icon"></i>
+                    <span>Contraseña</span>
+                </label>
+                <div class="premium-input-container">
+                    <input type="password" 
+                           id="premiumPassword1" 
+                           name="password1" 
+                           class="premium-input"
+                           placeholder="Crea una contraseña segura"
+                           required
+                           autocomplete="new-password"
+                           minlength="8">
+                    <button type="button" class="premium-toggle-password" aria-label="Mostrar contraseña">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                    <div class="premium-password-strength">
+                        <div class="premium-strength-bars">
+                            <div class="premium-strength-bar"></div>
+                            <div class="premium-strength-bar"></div>
+                            <div class="premium-strength-bar"></div>
+                            <div class="premium-strength-bar"></div>
+                        </div>
+                        <div class="premium-strength-text">Seguridad: <span class="premium-strength-value">Débil</span></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="premium-form-group">
+                <label for="premiumPassword2" class="premium-label">
+                    <i class="fas fa-check-double premium-icon"></i>
+                    <span>Confirmar Contraseña</span>
+                </label>
+                <div class="premium-input-container">
+                    <input type="password" 
+                           id="premiumPassword2" 
+                           name="password2" 
+                           class="premium-input"
+                           placeholder="Repite tu contraseña"
+                           required
+                           autocomplete="new-password"
+                           minlength="8">
+                    <button type="button" class="premium-toggle-password" aria-label="Mostrar contraseña">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                    <div class="premium-password-match">
+                        <i class="fas fa-check-circle"></i>
+                        <span>Las contraseñas coinciden</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="premium-terms">
+                <input type="checkbox" id="premiumTerms" required>
+                <label for="premiumTerms">
+                    Acepto los <a href="/terms" class="premium-terms-link">Términos de Servicio</a> y 
+                    <a href="/privacy" class="premium-terms-link">Política de Privacidad</a>
+                </label>
+            </div>
+
+            <div class="premium-form-actions">
+                <button type="submit" class="premium-submit-btn">
+                    <span class="premium-btn-content">
+                        <i class="fas fa-gem"></i>
+                        <span>Registrarse como Premium</span>
+                    </span>
+                    <div class="premium-btn-overlay"></div>
+                </button>
+            </div>
+
+            <div class="premium-footer">
+                <p>¿Ya tienes una cuenta? <a href="/signin" class="premium-footer-link">Inicia sesión aquí</a></p>
+            </div>
+        </form>
+    </div>
+</div>
+
+<style>
+    /* Variables de diseño premium */
+    :root {
+        --premium-primary: #6a11cb;
+        --premium-secondary: #2575fc;
+        --premium-accent: #ff4d4d;
+        --premium-light: #f8f9ff;
+        --premium-dark: #1a1a2e;
+        --premium-gray: #8c8c8c;
+        --premium-success: #00b894;
+        --premium-warning: #fdcb6e;
+        --premium-danger: #ff7675;
+        --premium-card-bg: #ffffff;
+        --premium-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+        --premium-border-radius: 16px;
+        --premium-transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.1);
+    }
+
+    /* Estructura premium */
+    .premium-register-container {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        padding: 2rem;
+        font-family: 'Segoe UI', 'Roboto', 'Helvetica Neue', sans-serif;
+    }
+
+    .premium-register-card {
+        background: var(--premium-card-bg);
+        border-radius: var(--premium-border-radius);
+        box-shadow: var(--premium-shadow);
+        width: 100%;
+        max-width: 520px;
+        padding: 2.5rem;
+        position: relative;
+        overflow: hidden;
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+    }
+
+    .premium-register-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 6px;
+        background: linear-gradient(90deg, var(--premium-primary), var(--premium-secondary));
+    }
+
+    /* Encabezado premium */
+    .premium-header {
+        text-align: center;
+        margin-bottom: 2.5rem;
+        position: relative;
+    }
+
+    .premium-logo-container {
+        position: relative;
+        margin: 0 auto 1.5rem;
+        width: 110px;
+        height: 110px;
+    }
+
+    .premium-logo {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        filter: drop-shadow(0 4px 12px rgba(106, 17, 203, 0.2));
+    }
+
+    .premium-badge {
+        position: absolute;
+        top: -10px;
+        right: -10px;
+        background: linear-gradient(45deg, var(--premium-primary), var(--premium-accent));
+        color: white;
+        font-size: 0.7rem;
+        font-weight: 700;
+        padding: 0.3rem 0.8rem;
+        border-radius: 20px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        box-shadow: 0 4px 8px rgba(106, 17, 203, 0.3);
+    }
+
+    .premium-title {
+        font-size: 2rem;
+        font-weight: 800;
+        margin: 0.5rem 0 0.3rem;
+        background: linear-gradient(90deg, var(--premium-primary), var(--premium-secondary));
+        -webkit-background-clip: text; /* Prefijo para navegadores WebKit (Chrome, Safari, Edge) */
+        background-clip: text;          /* Propiedad estándar para compatibilidad (Firefox, etc.) - CORRECCIÓN AÑADIDA AQUÍ */
+        -webkit-text-fill-color: transparent;
+        color: transparent; /* Fallback para navegadores que no soportan -webkit-text-fill-color o background-clip:text */
+        line-height: 1.2;
+    }
+
+    .premium-subtitle {
+        font-size: 1rem;
+        color: var(--premium-gray);
+        margin: 0;
+        font-weight: 400;
+    }
+
+    /* Alertas premium */
+    .premium-alert {
+        padding: 0;
+        border-radius: 12px;
+        margin-bottom: 2rem;
+        overflow: hidden;
+        border: none;
+    }
+
+    .premium-alert-error {
+        background: linear-gradient(90deg, rgba(255, 118, 117, 0.1), rgba(255, 118, 117, 0.05));
+        border-left: 4px solid var(--premium-danger);
+    }
+
+    .premium-alert-content {
+        padding: 1rem;
+        display: flex;
+        align-items: center;
+    }
+
+    .premium-alert i {
+        margin-right: 0.8rem;
+        color: var(--premium-danger);
+        font-size: 1.2rem;
+    }
+
+    /* Formulario premium */
+    .premium-form {
+        margin-top: 1.5rem;
+    }
+
+    .premium-form-group {
+        margin-bottom: 1.8rem;
+        position: relative;
+    }
+
+    .premium-label {
+        display: flex;
+        align-items: center;
+        font-size: 0.95rem;
+        font-weight: 600;
+        color: var(--premium-dark);
+        margin-bottom: 0.8rem;
+    }
+
+    .premium-icon {
+        margin-right: 0.8rem;
+        color: var(--premium-primary);
+        font-size: 1.1rem;
+    }
+
+    .premium-input-container {
+        position: relative;
+    }
+
+    .premium-input {
+        width: 100%;
+        padding: 1rem 1rem 1rem 3rem; /* Ajustado para asegurar que el icono no se superponga */
+        font-size: 1rem;
+        border: 1px solid #e0e0e0;
+        border-radius: 12px;
+        transition: var(--premium-transition);
+        background-color: rgba(255, 255, 255, 0.8);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    }
+    /* Icono dentro del input (si se desea) */
+    .premium-form-group .premium-icon { /* Para posicionar el icono del label más cerca del input si es necesario */
+         /* Si el icono del label debe estar SOBRE el input, requeriría HTML diferente o posicionamiento absoluto complejo. */
+         /* El padding-left en .premium-input es para dejar espacio si el icono del label se superpone. */
+         /* Asumiendo que el premium-icon es el del label y el input tiene padding-left para no superponerse */
+    }
+
+
+    .premium-input:focus {
+        border-color: var(--premium-primary);
+        box-shadow: 0 0 0 3px rgba(106, 17, 203, 0.1);
+        outline: none;
+        background-color: white;
+    }
+
+    .premium-input-hint {
+        font-size: 0.8rem;
+        color: var(--premium-gray);
+        margin-top: 0.5rem;
+        display: flex;
+        align-items: center;
+    }
+
+    .premium-input-hint i {
+        margin-right: 0.4rem;
+        font-size: 0.9rem;
+    }
+
+    .premium-toggle-password {
+        position: absolute;
+        right: 1rem;
+        top: 50%;
+        transform: translateY(-50%);
+        background: none;
+        border: none;
+        color: var(--premium-gray);
+        cursor: pointer;
+        transition: var(--premium-transition);
+        padding: 0.4rem;
+        font-size: 1rem;
+    }
+
+    .premium-toggle-password:hover {
+        color: var(--premium-primary);
+        transform: translateY(-50%) scale(1.1);
+    }
+
+    /* Indicador de fortaleza de contraseña */
+    .premium-password-strength {
+        margin-top: 1rem;
+    }
+
+    .premium-strength-bars {
+        display: flex;
+        gap: 4px;
+        margin-bottom: 0.5rem;
+    }
+
+    .premium-strength-bar {
+        height: 4px;
+        flex: 1;
+        background: #e0e0e0;
+        border-radius: 2px;
+        transition: var(--premium-transition);
+    }
+
+    .premium-strength-text {
+        font-size: 0.8rem;
+        color: var(--premium-gray);
+        display: flex;
+        align-items: center;
+    }
+
+    .premium-strength-value {
+        font-weight: 700;
+        margin-left: 0.3rem;
+    }
+
+    /* Indicador de coincidencia */
+    .premium-password-match {
+        margin-top: 0.8rem;
+        font-size: 0.8rem;
+        color: var(--premium-success);
+        display: none; /* Se muestra con JS */
+        align-items: center;
+    }
+
+    .premium-password-match i {
+        margin-right: 0.4rem;
+        font-size: 0.9rem;
+    }
+
+    /* Términos y condiciones */
+    .premium-terms {
+        margin: 1.5rem 0;
+        display: flex;
+        align-items: center;
+    }
+
+    .premium-terms input {
+        margin-right: 0.8rem;
+        /* Estilos para el checkbox si se desea personalizar */
+        width: 18px;
+        height: 18px;
+        accent-color: var(--premium-primary); /* Colorea el checkbox con el color primario */
+    }
+
+    .premium-terms label {
+        font-size: 0.85rem;
+        color: var(--premium-gray);
+        line-height: 1.5; /* Para mejor espaciado si el texto es largo */
+    }
+
+    .premium-terms-link {
+        color: var(--premium-primary);
+        text-decoration: none;
+        font-weight: 600;
+    }
+
+    .premium-terms-link:hover {
+        text-decoration: underline;
+    }
+
+    /* Botón premium */
+    .premium-submit-btn {
+        width: 100%;
+        padding: 0;
+        border: none;
+        border-radius: 12px;
+        overflow: hidden;
+        position: relative;
+        cursor: pointer;
+        transition: var(--premium-transition);
+        box-shadow: 0 5px 15px rgba(106, 17, 203, 0.3);
+        margin-top: 1rem;
+    }
+
+    .premium-btn-content {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 1.1rem;
+        background: linear-gradient(45deg, var(--premium-primary), var(--premium-secondary));
+        color: white;
+        font-size: 1rem;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+        position: relative;
+        z-index: 2;
+        transition: var(--premium-transition);
+    }
+
+    .premium-btn-content i {
+        margin-right: 0.8rem;
+        font-size: 1.1rem;
+    }
+
+    .premium-btn-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(45deg, var(--premium-secondary), var(--premium-primary));
+        opacity: 0;
+        transition: var(--premium-transition);
+        z-index: 1;
+    }
+
+    .premium-submit-btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 25px rgba(106, 17, 203, 0.4);
+    }
+
+    .premium-submit-btn:hover .premium-btn-overlay {
+        opacity: 1;
+    }
+
+    .premium-submit-btn:active {
+        transform: translateY(0);
+    }
+
+    /* Pie de página */
+    .premium-footer {
+        text-align: center;
+        margin-top: 2rem;
+        font-size: 0.9rem;
+        color: var(--premium-gray);
+    }
+
+    .premium-footer-link {
+        color: var(--premium-primary);
+        text-decoration: none;
+        font-weight: 600;
+    }
+
+    .premium-footer-link:hover {
+        text-decoration: underline;
+    }
+
+    /* Animaciones (ya presentes y correctas) */
+    @keyframes headShake {
+        0%, 100% { transform: translateX(0); }
+        20%, 60% { transform: translateX(-5px); }
+        40%, 80% { transform: translateX(5px); }
+    }
+
+    .animate__animated {
+        animation-duration: 0.8s;
+    }
+
+    .animate__headShake {
+        animation-name: headShake;
+    }
+    
+    @keyframes fadeIn { /* Animación para errores de input */
+        from { opacity: 0; transform: translateY(-5px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+
+    /* Responsive */
+    @media (max-width: 576px) {
+        .premium-register-container {
+            padding: 1rem; /* Menos padding en móviles */
+            align-items: flex-start; /* Alinear al inicio para scroll si es necesario */
+        }
+        
+        .premium-register-card {
+            padding: 1.5rem; /* Menos padding interno en la tarjeta */
+            margin-top: 1rem;
+        }
+        
+        .premium-logo-container {
+            width: 80px; /* Logo más pequeño */
+            height: 80px;
+            margin-bottom: 1rem;
+        }
+        
+        .premium-title {
+            font-size: 1.6rem; /* Título más pequeño */
+        }
+        .premium-subtitle {
+            font-size: 0.9rem;
+        }
+        .premium-form-group {
+            margin-bottom: 1.5rem;
+        }
+        .premium-input {
+            padding: 0.9rem 0.9rem 0.9rem 2.8rem; /* Ajustar padding para iconos */
+            font-size: 0.95rem;
+        }
+        .premium-btn-content {
+            padding: 1rem;
+            font-size: 0.95rem;
+        }
+    }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Solución definitiva para los campos de contraseña
+        const passwordInputs = document.querySelectorAll('#premiumPassword1, #premiumPassword2');
+        
+        passwordInputs.forEach(input => {
+            input.removeAttribute('readonly');
+            input.removeAttribute('disabled');
+            input.onmousedown = null;
+            input.onclick = null;
+            
+            // Estos listeners son para el estilo del icono del label, no para el input directamente.
+            // Si el icono está fuera del input.parentElement, este enfoque no funcionará.
+            // Asumiendo que el .premium-icon está DENTRO del .premium-label, que es hermano del .premium-input-container
+            // O si el icono está dentro de premium-input-container
+            // Para este HTML, el icono está en el LABEL, no cerca del input para cambiar su color en focus/blur del input.
+            // Vamos a omitir este cambio de color del icono del label por ahora para no añadir complejidad sin cambiar HTML.
+        });
+
+        const toggleButtons = document.querySelectorAll('.premium-toggle-password');
+        
+        toggleButtons.forEach(button => {
+            button.addEventListener('click', function(e) {
+                e.preventDefault(); // Prevenir cualquier comportamiento por defecto del botón
+                const inputContainer = this.closest('.premium-input-container'); // Encuentra el contenedor del input
+                if (inputContainer) {
+                    const input = inputContainer.querySelector('input[type="password"], input[type="text"]'); // Selecciona el input
+                    if (input) {
+                        const type = input.getAttribute('type') === 'password' ? 'text' : 'password';
+                        input.setAttribute('type', type);
+                        this.innerHTML = type === 'password' ? '<i class="fas fa-eye"></i>' : '<i class="fas fa-eye-slash"></i>';
+                        
+                        // setTimeout(() => { input.focus(); }, 10); // Re-enfocar puede ser opcional
+                    }
+                }
+            });
+        });
+
+        const password1 = document.getElementById('premiumPassword1');
+        const password2 = document.getElementById('premiumPassword2');
+        const strengthBarContainer = document.querySelector('.premium-password-strength'); // Contenedor de la barra
+        const strengthBars = strengthBarContainer ? strengthBarContainer.querySelectorAll('.premium-strength-bar') : null;
+        const strengthValue = strengthBarContainer ? strengthBarContainer.querySelector('.premium-strength-value') : null;
+        const passwordMatchIndicator = document.querySelector('.premium-password-match'); // Renombrado para claridad
+
+        if (password1 && strengthBarContainer) { // Solo añadir listener si existe el indicador
+             password1.addEventListener('input', function() {
+                updatePasswordStrength(this.value);
+                if (password2) checkPasswordMatch(); // Chequear match si también existe password2
+            });
+        }
+       
+        if (password2 && passwordMatchIndicator) { // Solo añadir listener si existe el indicador
+             password2.addEventListener('input', checkPasswordMatch);
+        }
+
+
+        function updatePasswordStrength(password) {
+            if (!strengthBars || !strengthValue) return; // Salir si no hay elementos de UI
+
+            let strength = 0;
+            if (password.length >= 8) strength++; else strength = 0; // Base: mínimo 8 caracteres
+            if (password.length > 10 && strength > 0) strength++; // Un poco más largo
+            
+            let variations = 0;
+            if (/[A-Z]/.test(password)) variations++;       // Mayúsculas
+            if (/[a-z]/.test(password)) variations++;       // Minúsculas
+            if (/[0-9]/.test(password)) variations++;       // Números
+            if (/[^A-Za-z0-9]/.test(password)) variations++; // Símbolos
+
+            if (variations >= 3 && strength > 0) strength++;
+            if (variations === 4 && strength > 1) strength++; // Todas las variaciones y buena longitud
+
+            strength = Math.min(strength, 4); // Limitar a 4 barras
+
+            strengthBars.forEach((bar, index) => {
+                bar.style.backgroundColor = '#e0e0e0'; // Reset
+                if (index < strength) {
+                    if (strength <= 1) bar.style.backgroundColor = 'var(--premium-danger)';
+                    else if (strength === 2) bar.style.backgroundColor = 'var(--premium-warning)';
+                    else if (strength >= 3) bar.style.backgroundColor = 'var(--premium-success)';
+                }
+            });
+            
+            if (strength <= 1) {
+                strengthValue.textContent = 'Débil';
+                strengthValue.style.color = 'var(--premium-danger)';
+            } else if (strength === 2) {
+                strengthValue.textContent = 'Moderada';
+                strengthValue.style.color = 'var(--premium-warning)';
+            } else if (strength >=3) {
+                strengthValue.textContent = 'Fuerte';
+                strengthValue.style.color = 'var(--premium-success)';
+            }
+        }
+
+        function checkPasswordMatch() {
+            if (!password1 || !password2 || !passwordMatchIndicator) return; // Salir si no hay elementos
+
+            if (password2.value.length > 0 && password1.value.length > 0) { // Solo mostrar si ambos campos tienen algo
+                if (password1.value === password2.value) {
+                    passwordMatchIndicator.style.display = 'flex';
+                    passwordMatchIndicator.style.color = 'var(--premium-success)';
+                    passwordMatchIndicator.querySelector('span').textContent = 'Las contraseñas coinciden';
+                    passwordMatchIndicator.querySelector('i').className = 'fas fa-check-circle';
+                } else {
+                    passwordMatchIndicator.style.display = 'flex';
+                    passwordMatchIndicator.style.color = 'var(--premium-danger)';
+                    passwordMatchIndicator.querySelector('span').textContent = 'Las contraseñas no coinciden';
+                    passwordMatchIndicator.querySelector('i').className = 'fas fa-times-circle';
+                }
+            } else {
+                passwordMatchIndicator.style.display = 'none';
+            }
+        }
+
+        const signupForm = document.getElementById('premiumSignupForm');
+        if (signupForm) {
+            signupForm.addEventListener('submit', function(e) {
+                let isValid = true;
+                
+                document.querySelectorAll('.premium-input-error-message').forEach(el => el.remove());
+
+                const username = document.getElementById('premiumUsername');
+                if (username.value.trim().length < 4) {
+                    showInputError(username, 'El nombre de usuario debe tener al menos 4 caracteres.');
+                    isValid = false;
+                }
+
+                const pass1 = document.getElementById('premiumPassword1');
+                if (pass1.value.length < 8) {
+                    showInputError(pass1, 'La contraseña debe tener al menos 8 caracteres.');
+                    isValid = false;
+                }
+
+                const pass2 = document.getElementById('premiumPassword2');
+                if (pass1.value !== pass2.value) {
+                    showInputError(pass2, 'Las contraseñas no coinciden.');
+                    isValid = false;
+                }
+
+                const terms = document.getElementById('premiumTerms');
+                if (!terms.checked) {
+                    // Para el checkbox, el error se muestra mejor cerca de su label.
+                    const termsContainer = terms.closest('.premium-terms');
+                    if(termsContainer && !termsContainer.querySelector('.premium-input-error-message')) { // Evitar duplicados
+                         showInputError(terms, 'Debes aceptar los términos y condiciones.', termsContainer);
+                    }
+                    isValid = false;
+                }
+
+                if (!isValid) {
+                    e.preventDefault();
+                    // Opcional: scroll al primer error
+                    const firstError = document.querySelector('.premium-input-error-message');
+                    if (firstError) {
+                        firstError.parentElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }
+                }
+            });
+        }
+
+        function showInputError(inputElement, message, errorContainer = null) {
+            const errorMsgElement = document.createElement('div');
+            errorMsgElement.className = 'premium-input-error-message'; // Clase específica para errores
+            errorMsgElement.style.color = 'var(--premium-danger)';
+            errorMsgElement.style.fontSize = '0.8rem';
+            errorMsgElement.style.marginTop = '0.4rem';
+            errorMsgElement.style.paddingLeft = '0.2rem'; // Menos padding
+            errorMsgElement.style.animation = 'fadeIn 0.3s ease-out';
+            errorMsgElement.textContent = message;
+            
+            // Determinar dónde insertar el mensaje de error
+            let targetContainer = errorContainer;
+            if (!targetContainer) {
+                 targetContainer = inputElement.closest('.premium-form-group') || inputElement.parentElement;
+            }
+            if (targetContainer) {
+                 // Evitar añadir múltiples mensajes de error al mismo contenedor
+                 if (!targetContainer.querySelector('.premium-input-error-message')) {
+                    targetContainer.appendChild(errorMsgElement);
+                 }
+            }
+        }
+        
+        // Inicializar la fortaleza de la contraseña si ya hay algo escrito (ej. por recarga de página con error)
+        if (password1 && password1.value) {
+            updatePasswordStrength(password1.value);
+        }
+        if (password2 && password2.value) {
+             checkPasswordMatch();
+        }
+
+
+        console.log('Formulario premium listo y completamente funcional.');
+    });
+</script>
+
+{% endblock %}

@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Acta de Seguimiento - Learning Labs</title>
+    <style>
+        /* =============================================================
+           CONFIGURACIÓN DE PÁGINA (WeasyPrint)
+           ============================================================= */
+        @page {
+            size: A4;
+            /* Márgenes simétricos y profesionales */
+            margin: 1.5cm 2cm 2.5cm 2cm;
+
+            @bottom-center {
+                content: "Página " counter(page) " de " counter(pages);
+                font-family: 'Helvetica', Arial, sans-serif;
+                font-size: 8pt;
+                color: #666666;
+                margin-bottom: 10px;
+            }
+        }
+
+        /* =============================================================
+           VARIABLES GLOBALES Y COLORES INSTITUCIONALES
+           ============================================================= */
+        :root {
+            --primary-color: #1a237e; /* Azul Institucional */
+            --success-color: #2e7d32;
+            --secondary-color: #444444;
+            --accent-bg: #f4f6f8;     /* Gris azulado muy suave */
+            --border-color: #333333;
+            --light-border: #cccccc;
+            --text-primary: #222222;
+            --text-secondary: #555555;
+        }
+
+        /* =============================================================
+           RESET Y ESTILOS BASE
+           ============================================================= */
+        * { box-sizing: border-box; }
+
+        body {
+            font-family: 'Helvetica', 'Arial', sans-serif;
+            font-size: 11pt;
+            color: var(--text-primary);
+            line-height: 1.5;
+            background-color: #ffffff;
+        }
+
+        /* =============================================================
+           MARCA DE AGUA (FONDO)
+           ============================================================= */
+        #watermark {
+            position: fixed;
+            top: 25%;
+            left: 10%;
+            width: 80%;
+            height: auto;
+            z-index: -1000;
+            opacity: 0.08; /* Transparencia sutil */
+            transform: rotate(-30deg);
+            text-align: center;
+        }
+
+        #watermark img {
+            width: 60%;
+            filter: grayscale(100%);
+        }
+
+        /* =============================================================
+           ENCABEZADO ISO (TABLA SUPERIOR)
+           ============================================================= */
+        .iso-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 25px;
+            border: 1px solid var(--border-color);
+        }
+
+        .iso-table td {
+            border: 1px solid var(--border-color);
+            padding: 8px;
+            vertical-align: middle;
+        }
+
+        /* Columna Logo */
+        .col-logo { 
+            width: 20%; 
+            text-align: center; 
+        }
+        .logo-img {
+            max-width: 85px;
+            max-height: 80px;
+            object-fit: contain;
+        }
+
+        /* Columna Información Central */
+        .col-info { 
+            width: 50%; 
+            text-align: center; 
+        }
+        .inst-title {
+            font-size: 14pt; /* Un poco más grande para el nombre */
+            font-weight: bold;
+            color: var(--primary-color);
+            text-transform: uppercase;
+            margin-bottom: 5px;
+            line-height: 1.2;
+        }
+        .inst-subtitle {
+            font-size: 9pt;
+            color: var(--secondary-color);
+            line-height: 1.4;
+        }
+
+        /* Columna Metadatos */
+        .col-meta { 
+            width: 30%; 
+            padding: 8px 12px !important;
+            vertical-align: top;
+            text-align: left;
+        }
+
+        .meta-row {
+            display: block;
+            margin-bottom: 4px;
+            font-size: 8.5pt;
+            border-bottom: 1px dotted #eeeeee;
+            padding-bottom: 2px;
+        }
+        
+        .meta-row:last-child { border-bottom: none; }
+        
+        .meta-label {
+            font-weight: bold;
+            color: var(--primary-color);
+            display: inline-block;
+            width: 85px; 
+        }
+        
+        .meta-value {
+            display: inline-block;
+            color: #333;
+        }
+
+        /* =============================================================
+           TÍTULO DEL DOCUMENTO
+           ============================================================= */
+        .doc-header {
+            text-align: center;
+            color: white;
+            font-weight: bold;
+            font-size: 12pt;
+            padding: 8px 15px;
+            text-transform: uppercase;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            border: 1px solid transparent;
+            letter-spacing: 0.5px;
+        }
+
+        /* =============================================================
+           CAJAS DE INFORMACIÓN
+           ============================================================= */
+        .data-box {
+            width: 100%;
+            margin-bottom: 20px;
+            border: 1px solid var(--light-border);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .box-header {
+            background-color: var(--accent-bg);
+            border-bottom: 1px solid var(--light-border);
+            padding: 8px 15px;
+            font-size: 10pt;
+            font-weight: bold;
+            color: var(--primary-color);
+            text-transform: uppercase;
+            text-align: left;
+        }
+
+        .info-grid {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 10pt;
+        }
+
+        .info-grid td {
+            padding: 8px 12px;
+            border-bottom: 1px dotted var(--light-border);
+            vertical-align: top;
+            text-align: left;
+        }
+
+        .info-grid tr:last-child td { border-bottom: none; }
+
+        .label {
+            font-weight: bold;
+            width: 30%;
+            color: var(--secondary-color);
+            background-color: #fafafa;
+        }
+
+        .value {
+            width: 70%;
+            font-weight: normal;
+            color: var(--text-primary);
+        }
+
+        /* =============================================================
+           ÁREA DE CONTENIDO (TEXTO PRINCIPAL)
+           ============================================================= */
+        .content-area {
+            border: 1px solid var(--light-border);
+            border-top: none; 
+            padding: 25px 40px;
+            min-height: 200px;
+            
+            /* JUSTIFICADO PROFESIONAL */
+            text-align: justify;
+            text-justify: inter-word;
+            white-space: normal; 
+            
+            font-size: 11pt;
+            line-height: 1.6;
+            
+            background-color: #ffffff;
+            margin-top: -1px;
+            border-radius: 0 0 4px 4px;
+            color: var(--text-primary);
+        }
+
+        .content-area p {
+            margin-top: 0;
+            margin-bottom: 14px;
+            text-indent: 35px; /* Sangría Institucional */
+        }
+
+        .placeholder-message {
+            color: #999;
+            text-align: center;
+            font-style: italic;
+            margin-top: 40px;
+            text-indent: 0 !important;
+        }
+
+        /* =============================================================
+           SECCIÓN DE FIRMAS
+           ============================================================= */
+        .signatures-section {
+            margin-top: 50px;
+            width: 100%;
+            page-break-inside: avoid;
+        }
+
+        .sig-table {
+            width: 100%;
+            border-collapse: collapse;
+            table-layout: fixed;
+        }
+
+        .sig-table td {
+            width: 45%;
+            vertical-align: top;
+            text-align: center;
+            padding: 0 10px;
+        }
+
+        .sig-line {
+            border-top: 1px solid #000;
+            margin: 0 auto 8px auto;
+            width: 85%;
+            padding-top: 5px;
+        }
+
+        .sig-name {
+            font-weight: bold;
+            font-size: 10pt;
+            text-transform: uppercase;
+            display: block;
+        }
+
+        .sig-role {
+            font-size: 9pt;
+            color: var(--text-secondary);
+            font-style: italic;
+            display: block;
+        }
+
+        /* =============================================================
+           PIE DE PÁGINA
+           ============================================================= */
+        .footer-fixed {
+            position: fixed;
+            bottom: -20px;
+            left: 0;
+            right: 0;
+            text-align: center;
+            font-size: 8pt;
+            color: var(--text-secondary);
+            border-top: 2px solid var(--primary-color);
+            padding-top: 8px;
+            background: white;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="watermark">
+        <img src="https://res.cloudinary.com/dukiyxfvn/image/upload/v1768668244/WhatsApp_Image_2026-01-11_at_4.25.52_PM_p8aicp.jpg" alt="Marca de Agua Learning Labs">
+    </div>
+
+    <table class="iso-table">
+        <tr>
+            <td class="col-logo">
+                <img src="https://res.cloudinary.com/dukiyxfvn/image/upload/v1768668244/WhatsApp_Image_2026-01-11_at_4.25.52_PM_p8aicp.jpg" class="logo-img" alt="Logo Learning Labs">
+            </td>
+            
+            <td class="col-info">
+                <div class="inst-title">
+                    LEARNING LABS
+                </div>
+                <div class="inst-subtitle">
+                    <strong>NIT:</strong> 900.555.5555<br>
+                    <strong>Resolución No.</strong> 78965412<br>
+                    <em>"Somos la evolución de la educación"</em>
+                </div>
+            </td>
+            
+            <td class="col-meta">
+                <div class="meta-row">
+                    <span class="meta-label">CÓDIGO:</span>
+                    <span class="meta-value">G-BIEN-001</span>
+                </div>
+                <div class="meta-row">
+                    <span class="meta-label">VERSIÓN:</span>
+                    <span class="meta-value">3.0</span>
+                </div>
+                <div class="meta-row">
+                    <span class="meta-label">FECHA:</span>
+                    <span class="meta-value">{% now "d/m/Y" %}</span>
+                </div>
+                <div class="meta-row" style="border-bottom: none;">
+                    <span class="meta-label" style="color: #d32f2f;">ACTA No:</span>
+                    <span class="meta-value" style="font-weight: bold; color: #d32f2f;">{{ seguimiento.id|stringformat:"05d" }}</span>
+                </div>
+            </td>
+        </tr>
+    </table>
+
+    <div class="doc-header"
+         style="
+             background-color: {% if seguimiento.tipo == 'FELICITACION' %}var(--success-color){% else %}var(--primary-color){% endif %};
+             border-color: {% if seguimiento.tipo == 'FELICITACION' %}var(--success-color){% else %}var(--primary-color){% endif %};
+         ">
+        ACTA DE SEGUIMIENTO - 
+        {% if seguimiento.tipo == 'CONVIVENCIA' %}COMPORTAMIENTO Y CONVIVENCIA
+        {% elif seguimiento.tipo == 'ACADEMICO' %}SEGUIMIENTO ACADÉMICO
+        {% elif seguimiento.tipo == 'PSICOLOGIA' %}ORIENTACIÓN PSICO-SOCIAL
+        {% elif seguimiento.tipo == 'FELICITACION' %}RECONOCIMIENTO Y FELICITACIÓN
+        {% else %}{{ seguimiento.get_tipo_display|upper }}{% endif %}
+    </div>
+
+    <div class="data-box">
+        <div class="box-header">I. DATOS DE IDENTIFICACIÓN DEL CASO</div>
+        <table class="info-grid">
+            <tr>
+                <td class="label">ESTUDIANTE:</td>
+                <td class="value">
+                    <strong>{{ estudiante.get_full_name|upper }}</strong>
+                </td>
+            </tr>
+            <tr>
+                <td class="label">FECHA DE INTERVENCIÓN:</td>
+                <td class="value">
+                    {{ seguimiento.fecha|date:"l, d \d\e F \d\e Y"|capfirst }}
+                </td>
+            </tr>
+            <tr>
+                <td class="label">PROFESIONAL RESPONSABLE:</td>
+                <td class="value">
+                    {{ profesional.get_full_name|upper }} ({{ profesional.perfil.get_rol_display|default:"Docente/Orientador" }})
+                </td>
+            </tr>
+        </table>
+    </div>
+
+    <div class="box-header"
+         style="
+             border: 1px solid var(--light-border);
+             border-bottom: none;
+             border-radius: 4px 4px 0 0;
+             background-color: var(--accent-bg);
+         ">
+        II. DETALLE DE LA OBSERVACIÓN, DESCARGOS Y COMPROMISOS
+    </div>
+    <div class="content-area">
+        {% if seguimiento.descripcion %}
+            {{ seguimiento.descripcion|linebreaks }}
+        {% else %}
+            <p class="placeholder-message">
+                -- No se ha registrado información detallada en este seguimiento --
+            </p>
+        {% endif %}
+    </div>
+
+    <br>
+
+    <div class="box-header"
+         style="
+             border: 1px solid var(--light-border);
+             border-bottom: none;
+             border-radius: 4px 4px 0 0;
+             background-color: var(--accent-bg);
+         ">
+        III. OBSERVACIONES ADICIONALES / COMPROMISOS FINALES
+    </div>
+    <div class="content-area" style="min-height: 120px;">
+        {% if seguimiento.observaciones_adicionales %}
+            {{ seguimiento.observaciones_adicionales|linebreaks }}
+        {% else %}
+            <div style="border-bottom: 1px dotted #ccc; height: 30px; width: 100%; margin-bottom: 10px;"></div>
+            <div style="border-bottom: 1px dotted #ccc; height: 30px; width: 100%; margin-bottom: 10px;"></div>
+            <div style="border-bottom: 1px dotted #ccc; height: 30px; width: 100%;"></div>
+        {% endif %}
+    </div>
+
+    <div class="signatures-section">
+        <table class="sig-table">
+            <tr>
+                <td>
+                    <div style="height: 40px;"></div> <div class="sig-line"></div>
+                    <div class="sig-name">{{ estudiante.get_full_name|upper }}</div>
+                    <div class="sig-role">Firma del Estudiante</div>
+                </td>
+                <td style="width: 10%;"></td>
+                <td>
+                    <div style="height: 40px;"></div> <div class="sig-line"></div>
+                    <div class="sig-name">{{ profesional.get_full_name|upper }}</div>
+                    <div class="sig-role">Firma Profesional / Docente</div>
+                    <div style="font-size: 8pt; color: #666; margin-top: 3px;">
+                        LEARNING LABS
+                    </div>
+                </td>
+            </tr>
+        </table>
+    </div>
+
+    <div class="footer-fixed">
+        <strong>LEARNING LABS</strong><br>
+        <span style="font-size: 7.5pt;">
+            Cra 14 a 5 a 14 &nbsp;|&nbsp;
+            Chía - Cundinamarca &nbsp;|&nbsp;
+            Teléfono: 3132533008 &nbsp;|&nbsp;
+            learninglabs@gmail.com
+        </span><br>
+        <em style="font-size: 7pt;">
+            Este documento es oficial y de carácter confidencial. Generado automáticamente por la plataforma Stratos.
+        </em>
+    </div>
+</body>
+</html>

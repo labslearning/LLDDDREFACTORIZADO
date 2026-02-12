@@ -1,0 +1,173 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container py-4">
+    
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold text-primary mb-0">
+                <i class="fas fa-brain me-2"></i>{{ titulo_analisis|default:"Análisis Inteligente" }}
+            </h2>
+            <p class="text-muted">Asistente de Inteligencia Institucional (Fase 12)</p>
+        </div>
+        <a href="javascript:history.back()" class="btn btn-outline-secondary btn-sm">
+            <i class="fas fa-arrow-left me-1"></i> Volver
+        </a>
+    </div>
+
+    <div class="card border-0 shadow-lg overflow-hidden" style="min-height: 400px; border-radius: 15px;">
+        <div class="card-body p-4">
+            
+            <div id="ai-results-container" class="animate__animated animate__fadeIn">
+                
+                <div id="loading-state" class="text-center py-5" style="display: none;">
+                     <div class="spinner-border text-primary" role="status"></div>
+                     <p class="mt-3 text-muted">Consultando motor de IA (/ia/engine/)...</p>
+                </div>
+
+                <div id="empty-state" class="text-center py-5">
+                    <div class="mb-4 text-muted opacity-50"><i class="fas fa-microchip fa-4x"></i></div>
+                    <h4 class="text-muted">Esperando instrucciones...</h4>
+                    <p class="mb-4">El sistema está listo para procesar los datos.</p>
+                    <button id="btn-generar-analisis" class="btn btn-primary btn-lg px-5 shadow-sm rounded-pill">
+                        <i class="fas fa-magic me-2"></i> Generar Estrategia
+                    </button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const container = document.getElementById('ai-results-container');
+    const btnGenerar = document.getElementById('btn-generar-analisis');
+    const emptyState = document.getElementById('empty-state');
+    const loadingState = document.getElementById('loading-state');
+
+    // --- VARIABLES DE CONTEXTO DESDE DJANGO ---
+    // Capturamos estos valores al cargar la página para construir el link del PDF luego
+    const targetUserId = "{{ target_user.id|default:request.user.id }}";
+    // Si viene por URL toma ese, sino asume 'mejoras_estudiante' por defecto
+    let currentAction = "{{ request.GET.action|default:'mejoras_estudiante' }}"; 
+    let currentQuery = "{{ request.GET.user_query|escapejs }}";
+
+    // Datos iniciales seguros (escapejs evita errores de comillas)
+    const initialDataRaw = "{{ ai_json_response|escapejs|default:'null' }}";
+    
+    // CASO 1: ESTUDIANTE (Ya trae datos al cargar la página)
+    if (initialDataRaw && initialDataRaw !== 'null' && initialDataRaw !== 'None') {
+        try {
+            if(emptyState) emptyState.style.display = 'none';
+            const data = JSON.parse(initialDataRaw);
+            
+            if (data.success) {
+                renderResult(data.content);
+            } else {
+                renderError(data.content || "Error desconocido en el reporte.");
+            }
+        } catch (e) {
+            console.error("Error parseando JSON inicial:", e);
+        }
+    }
+
+    // CASO 2: DOCENTE (Clic en botón "Generar Estrategia")
+    if (btnGenerar) {
+        btnGenerar.addEventListener('click', async function(e) {
+            e.preventDefault();
+            
+            // Actualizamos la acción porque el botón dispara una acción específica de docente
+            currentAction = "mejoras_docente"; 
+
+            // UI Loading
+            if(emptyState) emptyState.style.display = 'none';
+            if(loadingState) loadingState.style.display = 'block';
+            
+            try {
+                // Forzamos la URL exacta que funciona
+                const url = "/ia/engine/?action=mejoras_docente&format=json";
+                
+                const response = await fetch(url, {
+                    method: 'GET',
+                    headers: { 
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'application/json'
+                    }
+                });
+
+                // Seguridad: Verificar que sea JSON real
+                const contentType = response.headers.get("content-type");
+                if (!contentType || !contentType.includes("application/json")) {
+                    throw new Error("El servidor devolvió HTML (posible error 500).");
+                }
+
+                const data = await response.json();
+                
+                if(loadingState) loadingState.style.display = 'none';
+
+                if (data.success) {
+                    renderResult(data.content);
+                } else {
+                    renderError(data.content);
+                }
+
+            } catch (error) {
+                if(loadingState) loadingState.style.display = 'none';
+                renderError(`Error de conexión: ${error.message}`);
+                console.error(error);
+            }
+        });
+    }
+
+    // --- FUNCIÓN DE RENDERIZADO VISUAL (CON INYECCIÓN DE BOTÓN PDF) ---
+    function renderResult(markdownText) {
+        const htmlContent = typeof marked !== 'undefined' ? marked.parse(markdownText) : markdownText;
+        
+        // Construimos la URL del PDF dinámicamente con los datos actuales
+        const pdfUrl = `{% url 'download_ai_report_pdf' %}?action=${currentAction}&target_id=${targetUserId}&user_query=${encodeURIComponent(currentQuery)}`;
+
+        container.innerHTML = `
+            <div class="markdown-body text-dark animate__animated animate__fadeIn">
+                ${htmlContent}
+            </div>
+
+            <div class="mt-5 pt-3 border-top d-flex justify-content-between align-items-center">
+                <span class="text-muted small">
+                    <i class="fas fa-check-circle text-success me-1"></i> Datos verificados por IA
+                </span>
+                
+                <a href="${pdfUrl}" class="btn btn-danger shadow-sm" target="_blank">
+                    <i class="fas fa-file-pdf me-2"></i> Descargar Reporte Oficial PDF
+                </a>
+            </div>
+        `;
+    }
+
+    function renderError(msg) {
+        container.innerHTML = `
+            <div class="alert alert-danger d-flex align-items-center animate__animated animate__shakeX">
+                <i class="fas fa-exclamation-triangle fa-2x me-3"></i>
+                <div>
+                    <h5 class="alert-heading">No se pudo completar el análisis</h5>
+                    <p class="mb-0">${msg}</p>
+                </div>
+            </div>
+            <div class="text-center mt-3">
+                <button onclick="location.reload()" class="btn btn-outline-secondary btn-sm">Reintentar</button>
+            </div>
+        `;
+    }
+});
+</script>
+
+<style>
+    .markdown-body h1, .markdown-body h2 { color: #0d6efd; margin-top: 1rem; border-bottom: 1px solid #eee; padding-bottom: 0.3rem; }
+    .markdown-body ul { padding-left: 1.2rem; }
+    .markdown-body strong { font-weight: 700; color: #333; }
+    .markdown-body p { margin-bottom: 1rem; line-height: 1.6; }
+</style>
+{% endblock %}

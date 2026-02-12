@@ -1,0 +1,16 @@
+<li>
+    <a class="dropdown-item d-flex align-items-start py-2 border-bottom" href="{{ n.link_destino|default:'#' }}">
+        <div class="me-2 mt-1">
+            {% if n.tipo == 'ASISTENCIA' %}<i class="fas fa-clock text-warning"></i>
+            {% elif n.tipo == 'OBSERVADOR' %}<i class="fas fa-exclamation-triangle text-danger"></i>
+            {% elif n.tipo == 'ACTIVIDAD' %}<i class="fas fa-book-open text-info"></i>
+            {% elif n.tipo == 'MENSAJE' %}<i class="fas fa-envelope text-success"></i>
+            {% else %}<i class="fas fa-info-circle text-secondary"></i>{% endif %}
+        </div>
+        <div style="white-space: normal; line-height: 1.2;">
+            <strong class="d-block small text-dark">{{ n.titulo }}</strong>
+            <span class="d-block small text-muted">{{ n.mensaje|truncatechars:50 }}</span>
+            <small class="text-muted" style="font-size: 0.65rem;">{{ n.fecha_creacion|timesince }}</small>
+        </div>
+    </a>
+</li>

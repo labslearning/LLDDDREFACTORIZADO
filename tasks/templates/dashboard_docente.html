@@ -1,0 +1,633 @@
+{% extends "base.html" %}
+{% load note_filters %}
+{% load custom_filters %}
+{% load static %}
+
+{% block content %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+<div class="container-fluid py-4">
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card bg-gradient-primary border-0 shadow-lg animate__animated animate__fadeInDown">
+                <div class="card-body p-4 p-md-5">
+                    <div class="d-flex flex-column flex-lg-row justify-content-between align-items-center gap-4">
+                        <div class="text-center text-lg-start mb-2 mb-lg-0">
+                            <h1 class="text-white fw-bold mb-2 display-6 fs-md-2">
+                                <i class="fas fa-chalkboard-teacher me-3 opacity-8"></i>Panel del Docente
+                            </h1>
+                            <p class="text-white-75 lead mb-0 fs-6 fs-md-5">Bienvenido, <span class="fw-semibold">{{ docente.get_full_name|default:docente.username }}</span></p>
+                        </div>
+                        
+                        <div class="d-flex flex-column flex-md-row align-items-center justify-content-center justify-content-lg-end gap-4 w-100 w-lg-auto">
+                            <div class="order-2 order-md-1 w-100 w-md-auto text-center border-end-md pe-md-4 border-white-50">
+                                <button onclick="activarIADocente('mejoras_docente')" class="btn btn-light btn-rounded shadow-sm fw-bold text-primary w-100 w-md-auto">
+                                    <i class="fas fa-brain me-2"></i>Estrategia Global IA
+                                </button>
+                            </div>
+                            
+                            <div class="d-flex justify-content-center gap-4 gap-md-5 order-1 order-md-2">
+                                <div class="text-center">
+                                    <h3 class="text-white fw-bold mb-0">{{ total_cursos }}</h3>
+                                    <small class="text-white-50 text-uppercase letter-spacing-1 x-small">Cursos</small>
+                                </div>
+                                <div class="text-center">
+                                    <h3 class="text-white fw-bold mb-0">{{ total_materias }}</h3>
+                                    <small class="text-white-50 text-uppercase letter-spacing-1 x-small">Materias</small>
+                                </div>
+                                <div class="text-center">
+                                    <h3 class="text-white fw-bold mb-0">{{ total_estudiantes }}</h3>
+                                    <small class="text-white-50 text-uppercase letter-spacing-1 x-small">Estudiantes</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card border-0 shadow-sm mb-4 animate__animated animate__fadeInUp">
+        <div class="card-body p-2">
+            <ul class="nav nav-pills nav-justified flex-column flex-md-row gap-2 gap-md-0" id="docenteTabs" role="tablist">
+                <li class="nav-item m-0 m-md-1" role="presentation">
+                    <button class="nav-link active d-flex align-items-center justify-content-center py-3 py-md-2 px-3 rounded-pill w-100" id="cursos-tab" data-bs-toggle="pill" data-bs-target="#cursos" type="button" role="tab" aria-controls="cursos" aria-selected="true">
+                        <i class="fas fa-book me-2"></i>Mis Materias
+                    </button>
+                </li>
+                <li class="nav-item m-0 m-md-1" role="presentation">
+                    <button class="nav-link d-flex align-items-center justify-content-center py-3 py-md-2 px-3 rounded-pill w-100" id="resumen-tab" data-bs-toggle="pill" data-bs-target="#resumen" type="button" role="tab" aria-controls="resumen" aria-selected="false">
+                        <i class="fas fa-chart-line me-2"></i>Inteligencia Académica
+                    </button>
+                </li>
+                <li class="nav-item m-0 m-md-1" role="presentation">
+                    <button onclick="activarIADocente('mejoras_docente')" class="nav-link d-flex align-items-center justify-content-center py-3 py-md-2 px-3 rounded-pill text-primary border border-primary w-100 bg-white-hover">
+                        <i class="fas fa-brain me-2"></i>Plan de Mejora IA
+                    </button>
+                </li>
+                <li class="nav-item m-0 m-md-1" role="presentation">
+                    <button class="nav-link d-flex align-items-center justify-content-center py-3 py-md-2 px-3 rounded-pill w-100" id="calendario-tab" data-bs-toggle="pill" data-bs-target="#calendario" type="button" role="tab" aria-controls="calendario" aria-selected="false">
+                        <i class="fas fa-calendar me-2"></i>Calendario
+                    </button>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="tab-content" id="docenteTabContent">
+        
+        <div class="tab-pane fade show active" id="cursos" role="tabpanel" aria-labelledby="cursos-tab">
+            
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="card border-0 shadow-sm bg-light animate__animated animate__fadeIn">
+                        <div class="card-body d-flex flex-column flex-md-row align-items-center py-3 text-center text-md-start">
+                            <div class="flex-shrink-0 bg-primary-soft p-3 rounded-circle me-md-3 mb-3 mb-md-0">
+                                <i class="fas fa-lightbulb text-primary fs-4"></i>
+                            </div>
+                            <div class="flex-grow-1 mb-3 mb-md-0">
+                                <h6 class="mb-1 fw-bold">Análisis Predictivo disponible</h6>
+                                <small class="text-muted d-block">Utiliza la Inteligencia Artificial para generar estrategias de mejora para tus cursos.</small>
+                            </div>
+                            <div class="ms-md-auto w-100 w-md-auto">
+                                <button onclick="activarIADocente('mejoras_docente')" class="btn btn-sm btn-primary rounded-pill px-4 w-100 w-md-auto">
+                                    Generar Estrategia
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {% if materias_por_curso %}
+            <div class="row">
+                {% for curso_nombre, data in materias_por_curso.items %}
+                <div class="col-xxl-4 col-lg-6 mb-4 animate__animated animate__fadeInUp animate__delay-{{ forloop.counter }}s">
+                    <div class="card h-100 border-0 shadow-hover-lg rounded-3 overflow-hidden">
+                        <div class="card-header bg-primary bg-gradient text-white border-0 py-3">
+                            <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
+                                <h5 class="card-title mb-0 fw-bold text-break">
+                                    <i class="fas fa-graduation-cap me-2 text-white opacity-8"></i>{{ curso_nombre }}
+                                </h5>
+                                <span class="badge bg-light text-primary rounded-pill px-3 py-2 fw-normal ms-auto ms-sm-0">{{ data.materias|length }} materias</span>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            
+                            <div class="d-grid gap-2 mb-3">
+                                <button onclick="activarIADocente('analisis_rendimiento_curso', 'Realiza un análisis exhaustivo del rendimiento académico de este curso basado en las notas actuales. Identifica estudiantes en riesgo, patrones de calificaciones y sugiere estrategias pedagógicas concretas.', {curso_id: '{{ data.curso_obj.id }}'})" class="btn btn-outline-primary rounded-pill btn-sm">
+                                    <i class="fas fa-chart-line me-1"></i> Analizar Rendimiento del Curso
+                                </button>
+                            </div>
+
+                            <h6 class="text-primary mt-3 mb-3 fw-semibold border-bottom pb-2">Materias Asignadas:</h6>
+                            <div class="list-group list-group-flush mb-3">
+                                {% for materia in data.materias %}
+                                {% if materia and materia.id %}
+                                <div class="list-group-item border-0 px-0 py-2 d-flex flex-wrap justify-content-between align-items-center gap-2">
+                                    <div class="flex-grow-1">
+                                        <h6 class="mb-1 fw-semibold text-dark">{{ materia.nombre }}</h6>
+                                        <small class="text-muted">ID: <span class="text-info">{{ materia.id }}</span></small>
+                                    </div>
+                                    <a href="{% url 'subir_notas' materia.id %}" class="btn btn-sm btn-outline-primary rounded-pill ms-0 ms-sm-3 w-100 w-sm-auto mt-2 mt-sm-0">
+                                        <i class="fas fa-edit me-1"></i> <span>Notas</span>
+                                    </a>
+                                </div>
+                                {% endif %}
+                                {% endfor %}
+                            </div>
+                            
+                            <h6 class="text-success mt-4 mb-3 fw-semibold border-bottom pb-2">
+                                <a href="#estudiantes-{{ data.curso_obj.id }}" data-bs-toggle="collapse" role="button" aria-expanded="false" class="text-success text-decoration-none d-flex align-items-center w-100 p-2 rounded hover-bg-light">
+                                    Estudiantes en el curso
+                                    <i class="fas fa-chevron-down ms-auto rotate-icon" style="transition: transform 0.3s;"></i>
+                                </a>
+                            </h6>
+                            
+                            <div class="collapse" id="estudiantes-{{ data.curso_obj.id }}">
+                                <div class="list-group list-group-flush mt-2" style="max-height: 300px; overflow-y: auto;">
+                                    {% for matricula in data.estudiantes %}
+                                    <div class="list-group-item d-flex justify-content-between align-items-center">
+                                        <span>
+                                            <i class="fas fa-user-graduate me-2 text-success"></i>
+                                            {{ matricula.estudiante.get_full_name|default:matricula.estudiante.username }}
+                                        </span>
+                                        
+                                        <button onclick="activarIADocente('doc_individual', 'Dame un consejo breve para mejorar el rendimiento de este estudiante específico.', {target_user_id: '{{ matricula.estudiante.id }}'})" 
+                                                class="btn btn-sm btn-light text-primary rounded-circle shadow-sm" 
+                                                title="Pedir consejo sobre este alumno">
+                                            <i class="fas fa-robot"></i>
+                                        </button>
+                                    </div>
+                                    {% empty %}
+                                    <div class="alert alert-warning p-2 small">No hay estudiantes.</div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+
+                            {% if data.curso_obj.director.id == request.user.id %}
+                            <div class="d-grid gap-2 mt-3">
+                                <a href="{% url 'panel_director_curso' data.curso_obj.id %}" class="btn btn-warning rounded-pill">
+                                    <i class="fas fa-user-check me-2"></i> Gestión de Convivencia
+                                </a>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="text-center py-5">
+                <h4 class="text-muted">No tienes materias asignadas</h4>
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="tab-pane fade" id="resumen" role="tabpanel">
+            <div class="row mb-4">
+                <div class="col-md-6 mb-3">
+                    <div class="card border-0 shadow-sm border-start border-4 border-danger h-100">
+                        <div class="card-body">
+                            <h6 class="text-muted text-uppercase mb-1 small">Estudiantes en Riesgo Crítico</h6>
+                            <h3 class="mb-0 fw-bold">{{ kpi_reprobados }}</h3>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <div class="card border-0 shadow-sm border-start border-4 border-warning h-100">
+                        <div class="card-body">
+                            <h6 class="text-muted text-uppercase mb-1 small">Total Fallas + Retardos</h6>
+                            <h3 class="mb-0 fw-bold">{{ kpi_fallas }}</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row mb-5">
+                
+                <div class="col-lg-4 mb-4">
+                    <div class="card border-0 shadow-sm h-100">
+                        <div class="card-header bg-danger text-white py-3">
+                            <h5 class="mb-0 fw-bold"><i class="fas fa-exclamation-triangle me-2"></i>Alerta Temprana</h5>
+                        </div>
+                        <div class="card-body p-0">
+                            {% if top_riesgo %}
+                            <div class="table-responsive">
+                                <table class="table table-hover align-middle mb-0" style="min-width: 300px;">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th class="ps-4">Estudiante</th>
+                                            <th class="text-center">Prom.</th>
+                                            <th class="text-end pe-3">Acción IA</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for item in top_riesgo %}
+                                        <tr>
+                                            <td class="ps-4">
+                                                <div class="fw-bold text-secondary text-truncate" style="max-width: 120px;">{{ item.estudiante.get_full_name }}</div>
+                                                <small class="text-muted d-block">{{ item.curso }}</small>
+                                            </td>
+                                            <td class="text-center">
+                                                <span class="badge bg-danger rounded-pill">{{ item.promedio }}</span>
+                                            </td>
+                                            <td class="text-end pe-3">
+                                                <a href="{% url 'ai_engine' %}?action=plan_riesgo&target_id={{ item.estudiante.id }}" 
+                                                   class="btn btn-sm btn-outline-danger rounded-pill shadow-sm"
+                                                   title="Generar plan de recuperación">
+                                                    <i class="fas fa-bolt"></i>
+                                                </a>
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                            {% else %}
+                            <div class="p-4 text-center text-muted">
+                                <i class="fas fa-check-circle fa-2x text-success mb-2"></i>
+                                <p class="mb-0">¡Excelente! No hay estudiantes en riesgo crítico por ahora.</p>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-4 mb-4">
+                    <div class="card border-0 shadow-sm h-100">
+                        <div class="card-header bg-success text-white py-3">
+                            <h5 class="mb-0 fw-bold"><i class="fas fa-medal me-2"></i>Cuadro de Honor</h5>
+                        </div>
+                        <div class="card-body p-0">
+                            {% if top_mejores %}
+                            <div class="table-responsive">
+                                <table class="table table-hover align-middle mb-0" style="min-width: 300px;">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th class="ps-4">Estudiante</th>
+                                            <th class="text-center">Prom.</th>
+                                            <th class="text-end pe-3">Acción IA</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for item in top_mejores %}
+                                        <tr>
+                                            <td class="ps-4">
+                                                <div class="fw-bold text-dark text-truncate" style="max-width: 120px;">
+                                                    {% if forloop.first %}🥇{% elif forloop.counter == 2 %}🥈{% elif forloop.counter == 3 %}🥉{% endif %} 
+                                                    {{ item.estudiante.get_full_name }}
+                                                </div>
+                                                <small class="text-muted d-block">{{ item.curso }}</small>
+                                            </td>
+                                            <td class="text-center">
+                                                <span class="badge bg-success rounded-pill">{{ item.promedio }}</span>
+                                            </td>
+                                            <td class="text-end pe-3">
+                                                <a href="{% url 'ai_engine' %}?action=plan_honor&target_id={{ item.estudiante.id }}" 
+                                                   class="btn btn-sm btn-outline-success rounded-pill shadow-sm"
+                                                   title="Generar plan de potenciación">
+                                                    <i class="fas fa-rocket"></i>
+                                                </a>
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                            {% else %}
+                            <div class="p-4 text-center text-muted">Sin datos suficientes.</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-4 mb-4">
+                    <div class="card border-0 shadow-sm h-100">
+                        <div class="card-header bg-warning text-dark py-3">
+                            <h5 class="mb-0 fw-bold"><i class="fas fa-user-clock me-2"></i>Mayor Ausentismo</h5>
+                        </div>
+                        <div class="card-body p-0">
+                            {% if top_ausentismo %}
+                            <div class="table-responsive">
+                                <table class="table table-hover align-middle mb-0" style="min-width: 300px;">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th class="ps-4">Estudiante</th>
+                                            <th class="text-center">Total</th>
+                                            <th class="text-end pe-3">Acciones</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for item in top_ausentismo %}
+                                        <tr>
+                                            <td class="ps-4">
+                                                <div class="fw-bold text-secondary text-truncate" style="max-width: 120px;">{{ item.estudiante.get_full_name }}</div>
+                                                <small class="text-muted d-block">{{ item.curso }}</small>
+                                            </td>
+                                            <td class="text-center">
+                                                <span class="badge bg-warning text-dark rounded-pill">{{ item.fallas }}</span>
+                                            </td>
+                                            <td class="text-end pe-3">
+                                                <div class="btn-group">
+                                                    <a href="{% url 'ai_engine' %}?action=plan_asistencia&target_id={{ item.estudiante.id }}" 
+                                                       class="btn btn-sm btn-outline-dark rounded-start"
+                                                       title="Estrategia de retención">
+                                                        <i class="fas fa-robot"></i>
+                                                    </a>
+                                                    <button type="button" class="btn btn-sm btn-warning rounded-end" 
+                                                            data-bs-toggle="modal" data-bs-target="#modalFallas{{ item.estudiante.id }}"
+                                                            title="Ver fechas y horas">
+                                                        <i class="fas fa-list-ul"></i>
+                                                    </button>
+                                                </div>
+
+                                                <div class="modal fade" id="modalFallas{{ item.estudiante.id }}" tabindex="-1" aria-hidden="true">
+                                                    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+                                                        <div class="modal-content">
+                                                            <div class="modal-header bg-warning-subtle">
+                                                                <h6 class="modal-title fw-bold text-dark">
+                                                                    <i class="fas fa-history me-2"></i>Historial: {{ item.estudiante.get_full_name }}
+                                                                </h6>
+                                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                            </div>
+                                                            <div class="modal-body p-0">
+                                                                <div class="table-responsive">
+                                                                    <table class="table table-sm table-striped mb-0 small text-start">
+                                                                        <thead class="table-light">
+                                                                            <tr>
+                                                                                <th class="ps-3">Día y Fecha</th>
+                                                                                <th>Materia</th>
+                                                                                <th>Estado</th>
+                                                                            </tr>
+                                                                        </thead>
+                                                                        <tbody>
+                                                                            {# Iteramos asistencias inversamente por fecha, filtrando fallas/tardes #}
+                                                                            {% for asis in item.estudiante.asistencia_set.all|dictsortreversed:"fecha" %}
+                                                                                {% if asis.estado == 'FALLA' or asis.estado == 'TARDE' %}
+                                                                                <tr>
+                                                                                    <td class="ps-3 text-nowrap">{{ asis.fecha|date:"l d F" }}</td>
+                                                                                    <td>{{ asis.materia.nombre }}</td>
+                                                                                    <td>
+                                                                                        {% if asis.estado == 'FALLA' %}
+                                                                                            <span class="badge bg-danger rounded-pill">Falla</span>
+                                                                                        {% else %}
+                                                                                            <span class="badge bg-warning text-dark rounded-pill">Tarde</span>
+                                                                                        {% endif %}
+                                                                                    </td>
+                                                                                </tr>
+                                                                                {% endif %}
+                                                                            {% empty %}
+                                                                                <tr><td colspan="3" class="text-center py-3">No hay registros detallados disponibles.</td></tr>
+                                                                            {% endfor %}
+                                                                        </tbody>
+                                                                    </table>
+                                                                </div>
+                                                            </div>
+                                                            <div class="modal-footer py-1">
+                                                                <button type="button" class="btn btn-sm btn-secondary w-100" data-bs-dismiss="modal">Cerrar</button>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                            {% else %}
+                            <div class="p-4 text-center text-muted">
+                                <i class="fas fa-calendar-check fa-2x text-warning mb-2"></i>
+                                <p class="mb-0">Asistencia perfecta reportada.</p>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <h4 class="fw-bold text-dark mb-3 ps-2 border-start border-4 border-primary">Detalle por Asignatura</h4>
+            <div class="row">
+                {% if estadisticas_por_materia %}
+                    {% for mat_id, mat_data in estadisticas_por_materia.items %}
+                    <div class="col-12 mb-4">
+                        <div class="card border-0 shadow-sm">
+                            <div class="card-header bg-white border-bottom p-3">
+                                <div class="d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center gap-2">
+                                    <h5 class="mb-0 text-primary fw-bold text-break">
+                                        {{ mat_data.materia_obj.nombre }}
+                                    </h5>
+                                    <button onclick="activarIADocente('mejoras_docente')" class="btn btn-sm btn-outline-primary rounded-pill w-100 w-sm-auto">
+                                        <i class="fas fa-robot me-1"></i> Análisis General
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="card-body px-2 py-3 bg-light">
+                                <div class="row g-3">
+                                    {% for curso_id, curso_data in mat_data.cursos.items %}
+                                    <div class="col-xl-6">
+                                        <div class="card h-100 border-0 shadow-sm">
+                                            <div class="card-header bg-white border-bottom py-2 px-3">
+                                                <h6 class="mb-0 fw-semibold text-dark">
+                                                    <i class="fas fa-users me-2 text-info"></i>
+                                                    {{ curso_data.curso_obj.get_grado_display }} {{ curso_data.curso_obj.seccion }}
+                                                </h6>
+                                            </div>
+                                            <div class="card-body p-3">
+                                                <div class="row g-3">
+                                                    {% for periodo_id, p_stats in curso_data.periodos.items %}
+                                                    <div class="col-12 col-sm-6">
+                                                        <div class="card h-100 border bg-light">
+                                                            <div class="card-body p-3 text-center">
+                                                                <small class="text-muted d-block mb-1">{{ p_stats.periodo_obj.nombre }}</small>
+                                                                {% if p_stats.promedio is not None %}
+                                                                    <h3 class="fw-bold mb-0 {% if p_stats.promedio < 3.0 %}text-danger{% else %}text-success{% endif %}">
+                                                                        {{ p_stats.promedio|floatformat:1 }}
+                                                                    </h3>
+                                                                    <small class="text-muted">Promedio Curso</small>
+                                                                {% else %}
+                                                                    <span class="text-muted small">Sin notas</span>
+                                                                {% endif %}
+                                                                
+                                                                {% if p_stats.logros %}
+                                                                <div class="mt-2 pt-2 border-top">
+                                                                    <small class="d-block text-muted fst-italic text-truncate" title="{{ p_stats.logros.0.descripcion }}">
+                                                                        <i class="fas fa-check-circle me-1 text-success"></i>
+                                                                        {{ p_stats.logros.0.descripcion }}
+                                                                    </small>
+                                                                </div>
+                                                                {% endif %}
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    {% empty %}
+                                                    <div class="col-12"><p class="text-muted small fst-italic">Sin datos.</p></div>
+                                                    {% endfor %} 
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    {% endfor %} 
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %} 
+                {% else %}
+                    <div class="col-12">
+                        <div class="alert alert-secondary text-center" role="alert">
+                            No hay estadísticas disponibles todavía.
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="tab-pane fade" id="calendario" role="tabpanel">
+            <div class="card border-0 shadow-sm py-5 text-center">
+                <i class="fas fa-calendar-alt fa-3x text-muted mb-3"></i>
+                <p>Módulo de calendario en desarrollo.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalIADocente" tabindex="-1" data-bs-backdrop="static">
+    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content border-0 shadow-lg" style="border-radius: 20px;">
+            <div class="modal-header border-0 bg-primary text-white">
+                <h5 class="modal-title fw-bold"><i class="fas fa-robot me-2"></i>Copiloto Pedagógico</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            
+            <div class="modal-body p-4 bg-light" id="modalBodyIADocente" style="min-height: 200px; overflow-y: auto; max-height: 60vh;">
+            </div>
+
+            <div class="modal-footer bg-white border-top-0">
+                <div class="input-group">
+                    <input type="text" id="chatInputDocente" class="form-control rounded-pill" placeholder="Escribe tu consulta o respuesta...">
+                    <button class="btn btn-primary rounded-pill ms-2" onclick="enviarRespuestaChatDocente()">
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .bg-gradient-primary { background: linear-gradient(to right, #007bff, #0056b3); }
+    .bg-primary-soft { background-color: rgba(0, 123, 255, 0.1); }
+    .shadow-hover-lg:hover { transform: translateY(-5px); transition: 0.3s; }
+    .markdown-body h1, .markdown-body h2 { font-size: 1.25rem; font-weight: bold; }
+    .btn-rounded { border-radius: 50px; }
+</style>
+
+<script>
+    let historialChatDocente = [];
+    let contextoActual = {}; 
+
+    async function activarIADocente(action, query, params={}) {
+        const modal = new bootstrap.Modal(document.getElementById('modalIADocente'));
+        const body = document.getElementById('modalBodyIADocente');
+        contextoActual = params; 
+        
+        if(action) {
+            body.innerHTML = `
+                <div class="text-center py-5" id="loadingDocente">
+                    <div class="spinner-border text-primary mb-3" role="status"></div>
+                    <h5 class="fw-bold text-dark">Analizando datos académicos...</h5>
+                </div>
+            `;
+            historialChatDocente = [];
+        }
+        
+        modal.show();
+
+        try {
+            const payload = { 
+                action_type: action, 
+                query: query, 
+                params: params,
+                historial: historialChatDocente 
+            };
+
+            const res = await fetch("{% url 'api_ai_agent' %}", {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-CSRFToken': '{{ csrf_token }}' },
+                body: JSON.stringify(payload)
+            });
+            
+            const data = await res.json();
+            const loading = document.getElementById('loadingDocente');
+            if(loading) loading.remove();
+
+            if (data.success) {
+                if(query) historialChatDocente.push({ role: "user", content: query });
+                historialChatDocente.push({ role: "assistant", content: data.content });
+
+                body.innerHTML += `
+                    <div class="d-flex justify-content-start mb-3 animate__animated animate__fadeIn">
+                        <div class="bg-white border p-3 rounded-3 shadow-sm" style="max-width: 90%;">
+                            <i class="fas fa-robot text-primary me-2"></i>
+                            <div class="markdown-body text-dark">
+                                ${marked.parse(data.content)}
+                            </div>
+                        </div>
+                    </div>
+                `;
+                body.scrollTop = body.scrollHeight;
+            }
+        } catch(e) {
+            body.innerHTML += `<div class="alert alert-danger">Error de conexión.</div>`;
+        }
+    }
+
+    async function enviarRespuestaChatDocente() {
+        const input = document.getElementById('chatInputDocente');
+        const mensaje = input.value.trim();
+        if (!mensaje) return;
+
+        const body = document.getElementById('modalBodyIADocente');
+        body.innerHTML += `<div class="d-flex justify-content-end mb-3"><div class="bg-primary text-white p-3 rounded-3 shadow-sm">${mensaje}</div></div>`;
+        body.innerHTML += `<div class="text-center my-2" id="loadingChatDocente"><div class="spinner-border spinner-border-sm text-muted"></div></div>`;
+        
+        body.scrollTop = body.scrollHeight;
+        input.value = '';
+
+        try {
+            const res = await fetch("{% url 'api_ai_agent' %}", {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-CSRFToken': '{{ csrf_token }}' },
+                body: JSON.stringify({ query: mensaje, historial: historialChatDocente, params: contextoActual })
+            });
+            
+            const data = await res.json();
+            if(document.getElementById('loadingChatDocente')) document.getElementById('loadingChatDocente').remove();
+
+            if (data.success) {
+                historialChatDocente.push({ role: "user", content: mensaje });
+                historialChatDocente.push({ role: "assistant", content: data.content });
+                body.innerHTML += `<div class="d-flex justify-content-start mb-3"><div class="bg-white border p-3 rounded-3 shadow-sm"><div class="markdown-body">${marked.parse(data.content)}</div></div></div>`;
+                body.scrollTop = body.scrollHeight;
+            }
+        } catch(e) {
+            console.error(e);
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        // Inicializar colapsables (chevron rotate)
+        document.querySelectorAll('.collapse').forEach(el => {
+            el.addEventListener('show.bs.collapse', () => {
+                el.previousElementSibling.querySelector('.rotate-icon').style.transform = 'rotate(180deg)';
+            });
+            el.addEventListener('hide.bs.collapse', () => {
+                el.previousElementSibling.querySelector('.rotate-icon').style.transform = 'rotate(0deg)';
+            });
+        });
+    });
+</script>
+{% endblock %}

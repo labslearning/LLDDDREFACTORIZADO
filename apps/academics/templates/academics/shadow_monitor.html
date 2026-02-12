@@ -1,0 +1,282 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_head %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-4 py-4" id="shadow-monitor-app">
+    <div class="d-flex justify-content-between align-items-center mb-5 animate__animated animate__fadeIn">
+        <div>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb mb-1 text-uppercase ls-1">
+                    <li class="breadcrumb-item small"><a href="{% url 'admin_dashboard' %}" class="text-decoration-none text-muted">Core</a></li>
+                    <li class="breadcrumb-item small active fw-bold text-primary">Shadow Intelligence</li>
+                </ol>
+            </nav>
+            <h1 class="fw-black text-dark h2 mb-1">
+                <i class="fas fa-shield-halved text-warning me-2 shadow-sm"></i>Shadow Monitor 
+                <span class="badge bg-soft-primary text-primary fs-6 fw-normal ms-2">v2.4 Engine</span>
+            </h1>
+            <p class="text-muted mb-0">Unidad de Análisis Predictivo y Detección de Riesgo Temprano.</p>
+        </div>
+        
+        <div class="d-flex gap-2">
+            <div class="text-end me-3 d-none d-lg-block">
+                <small class="text-muted d-block small fw-bold text-uppercase">Última Sincronización</small>
+                <span id="sync-timestamp" class="text-dark fw-medium small">Sincronizando...</span>
+            </div>
+            <div class="btn-group shadow-sm border-radius-xl overflow-hidden">
+                <button class="btn btn-white border px-3" onclick="exportData('pdf')">
+                    <i class="fas fa-file-pdf text-danger me-2"></i>PDF
+                </button>
+                <button class="btn btn-warning fw-bold px-4" id="btn-refresh-bi">
+                    <i class="fas fa-sync-alt me-2 btn-loader"></i>Actualizar Intelligence
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4 mb-4">
+        <div class="col-md-4">
+            <div class="card border-0 shadow-lg rounded-4 overflow-hidden shadow-hover transition-all h-100">
+                <div class="card-body p-4 bg-dark text-white position-relative" style="background: linear-gradient(145deg, #1e293b 0%, #020617 100%);">
+                    <div class="position-absolute top-0 end-0 p-3 opacity-10">
+                        <i class="fas fa-user-minus fa-4x"></i>
+                    </div>
+                    <h6 class="text-uppercase small ls-2 opacity-75 fw-bold mb-3">Probabilidad de Deserción</h6>
+                    <div class="d-flex align-items-center gap-3 mt-2">
+                        <h2 class="mb-0 display-5 fw-black text-warning count-up" data-value="2.4">0.0</h2>
+                        <div class="px-2 py-1 rounded-pill bg-soft-success text-success small fw-bold">
+                            <i class="fas fa-level-down-alt me-1"></i>0.4%
+                        </div>
+                    </div>
+                    <div class="progress mt-4 bg-white-20" style="height: 6px;">
+                        <div class="progress-bar bg-warning shadow-warning" style="width: 24%"></div>
+                    </div>
+                    <p class="small mt-3 mb-0 text-white-50">Intervalo de confianza: 98.2% (IA STRATOS)</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm rounded-4 p-4 h-100 border-start border-danger border-5 shadow-hover transition-all">
+                <h6 class="text-uppercase text-muted small ls-2 fw-bold mb-3">Alertas Académicas Críticas</h6>
+                <div class="d-flex align-items-end gap-3">
+                    <h2 class="mb-0 display-5 fw-black text-dark count-up" data-value="12">0</h2>
+                    <span class="text-danger small mb-2 fw-bold animate__animated animate__pulse animate__infinite">
+                        <i class="fas fa-arrow-up me-1"></i>+5.2%
+                    </span>
+                </div>
+                <div class="mt-4 d-flex gap-2">
+                    <span class="badge bg-soft-danger text-danger border border-danger-subtle px-3 py-2">8 Sin atender</span>
+                    <span class="badge bg-soft-secondary text-secondary px-3 py-2">4 En proceso</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm rounded-4 p-4 h-100 shadow-hover transition-all">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <h6 class="text-uppercase text-muted small ls-2 fw-bold">Net Institution Score</h6>
+                    <div class="icon-sm bg-soft-primary text-primary rounded-circle">
+                        <i class="fas fa-chart-pie"></i>
+                    </div>
+                </div>
+                <div class="d-flex align-items-baseline gap-2">
+                    <h2 class="mb-0 display-5 fw-black text-primary">85</h2>
+                    <span class="text-muted fw-bold h4">/100</span>
+                </div>
+                <div class="progress mt-4 bg-light" style="height: 10px; border-radius: 20px;">
+                    <div class="progress-bar bg-primary progress-bar-striped progress-bar-animated" style="width: 85%"></div>
+                </div>
+                <p class="small mt-3 mb-0 text-muted fw-medium">Tendencia: <span class="text-success">Estable</span></p>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm rounded-4 p-4 h-100">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h5 class="fw-black text-dark mb-0">Rendimiento Multidimensional</h5>
+                    <select class="form-select form-select-sm w-auto border-0 bg-light fw-bold text-muted">
+                        <option>Últimos 30 días</option>
+                        <option>Semestre Actual</option>
+                    </select>
+                </div>
+                <div class="chart-container" style="position: relative; height:350px; width:100%">
+                    <canvas id="performanceChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-sm rounded-4 h-100">
+                <div class="card-header bg-white border-0 p-4 pb-0">
+                    <h5 class="fw-black text-dark mb-0">Top Casos de Riesgo</h5>
+                </div>
+                <div class="card-body p-4">
+                    <div class="risk-feed custom-scrollbar" style="max-height: 380px; overflow-y: auto;">
+                        <div class="d-flex align-items-center p-3 mb-3 rounded-4 bg-light border-start border-warning border-4 transition-all hover-translate-x">
+                            <div class="avatar-group me-3">
+                                <div class="bg-warning text-white rounded-circle d-flex align-items-center justify-content-center fw-bold" style="width: 45px; height: 45px; font-size: 0.9rem;">
+                                    JD
+                                </div>
+                            </div>
+                            <div class="flex-grow-1">
+                                <h6 class="mb-1 fw-bold text-dark small">Juan Delgado</h6>
+                                <div class="progress" style="height: 4px; width: 80px;">
+                                    <div class="progress-bar bg-warning" style="width: 75%"></div>
+                                </div>
+                            </div>
+                            <div class="text-end">
+                                <span class="badge bg-white text-warning border border-warning-subtle rounded-pill">75% Riesgo</span>
+                            </div>
+                        </div>
+
+                        <div id="empty-risk-state" class="text-center py-5 opacity-50 d-none">
+                            <img src="{% static 'img/illustrations/relax.svg' %}" alt="Paz" class="mb-3" style="width: 120px;">
+                            <h6 class="fw-bold">Sistema en Paz</h6>
+                            <p class="small text-muted">No se detectan anomalías críticas en este ciclo.</p>
+                        </div>
+                    </div>
+                    
+                    <button class="btn btn-outline-primary btn-sm w-100 rounded-pill mt-3 fw-bold">
+                        Ver Reporte Completo
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
+
+    :root {
+        --transition-speed: 0.3s;
+        --shadow-warning: 0 10px 15px -3px rgba(245, 158, 11, 0.4);
+        --bg-soft-primary: #eef2ff;
+        --bg-soft-danger: #fef2f2;
+        --bg-soft-success: #f0fdf4;
+    }
+
+    #shadow-monitor-app {
+        font-family: 'Inter', sans-serif;
+    }
+
+    .fw-black { font-weight: 900; }
+    .ls-1 { letter-spacing: 1px; }
+    .ls-2 { letter-spacing: 2px; }
+
+    /* Estilo para Badges Soft */
+    .bg-soft-primary { background-color: var(--bg-soft-primary) !important; }
+    .bg-soft-danger { background-color: var(--bg-soft-danger) !important; }
+    .bg-soft-success { background-color: var(--bg-soft-success) !important; }
+    .bg-white-20 { background-color: rgba(255, 255, 255, 0.2); }
+
+    /* Sombras y Transiciones */
+    .shadow-hover:hover {
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04) !important;
+        transform: translateY(-5px);
+    }
+    .transition-all { transition: all var(--transition-speed) ease; }
+    
+    .hover-translate-x:hover {
+        transform: translateX(8px);
+        background-color: #fff !important;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Scrollbar Profesional */
+    .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+    .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+    .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+
+    /* Animaciones de Botón */
+    .btn-loader.rotating {
+        animation: fa-spin 1s infinite linear;
+    }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        initCharts();
+        updateSyncTime();
+        animateNumbers();
+
+        // Botón de actualización con feedback visual
+        const btnRefresh = document.getElementById('btn-refresh-bi');
+        btnRefresh.addEventListener('click', function() {
+            const icon = this.querySelector('.btn-loader');
+            icon.classList.add('rotating');
+            this.disabled = true;
+            
+            // Simulación de Fetch API a backend
+            setTimeout(() => {
+                icon.classList.remove('rotating');
+                this.disabled = false;
+                updateSyncTime();
+                showNotification('Métricas actualizadas correctamente', 'success');
+            }, 1500);
+        });
+    });
+
+    function initCharts() {
+        const ctx = document.getElementById('performanceChart').getContext('2d');
+        
+        // Degradado Industrial para el gráfico
+        const gradient = ctx.createLinearGradient(0, 0, 0, 400);
+        gradient.addColorStop(0, 'rgba(67, 97, 238, 0.4)');
+        gradient.addColorStop(1, 'rgba(67, 97, 238, 0)');
+
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: ['Semana 1', 'Semana 2', 'Semana 3', 'Semana 4', 'Semana 5', 'Semana 6'],
+                datasets: [{
+                    label: 'Índice de Retención',
+                    data: [92, 94, 91, 95, 93, 96],
+                    borderColor: '#4361ee',
+                    borderWidth: 4,
+                    pointBackgroundColor: '#fff',
+                    pointBorderColor: '#4361ee',
+                    pointHoverRadius: 6,
+                    fill: true,
+                    backgroundColor: gradient,
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    y: { beginAtZero: false, grid: { display: false } },
+                    x: { grid: { color: '#f1f5f9' } }
+                }
+            }
+        });
+    }
+
+    function updateSyncTime() {
+        const now = new Date();
+        document.getElementById('sync-timestamp').innerText = now.toLocaleTimeString();
+    }
+
+    function animateNumbers() {
+        document.querySelectorAll('.count-up').forEach(el => {
+            const target = parseFloat(el.getAttribute('data-value'));
+            el.innerText = target.toFixed(1); // En producción usaríamos un iterador de números
+        });
+    }
+
+    function showNotification(msg, type) {
+        // Implementar un sistema de Toasts de Bootstrap o SweetAlert2
+        console.log(`[BI Notification]: ${msg}`);
+    }
+</script>
+{% endblock %}

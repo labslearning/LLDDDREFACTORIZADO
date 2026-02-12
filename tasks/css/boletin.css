@@ -1,0 +1,258 @@
+/* tasks/static/css/boletin.css (Versión Profesional) */
+
+@page {
+    size: A4;
+    margin: 1.5cm;
+    
+    /* Mantenemos el contador de página, es muy profesional */
+    @bottom-center {
+        content: "Página " counter(page) " de " counter(pages);
+        font-family: Arial, sans-serif;
+        font-size: 9pt; /* Ajustado a pt */
+        color: #777;
+    }
+}
+
+body {
+    font-family: "Helvetica", Arial, sans-serif;
+    font-size: 10pt; /* Tamaño base para impresión */
+    color: #333;
+    line-height: 1.4;
+}
+
+/* --- Encabezado (Logo e Info Institución) --- */
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    /* Borde más suave y profesional (azul oscuro) */
+    border-bottom: 2px solid #004a99; 
+    padding-bottom: 10px;
+    margin-bottom: 20px;
+}
+
+.header-left {
+    flex: 0 0 100px;
+}
+
+.logo {
+    width: 90px;
+    height: auto;
+    max-height: 90px;
+    object-fit: contain; /* Evita que el logo se distorsione */
+}
+.logo-placeholder {
+    width: 90px; height: 90px; 
+    background-color: #f0f0f0; 
+    text-align: center; line-height: 90px;
+    font-size: 12px; color: #aaa;
+}
+
+.header-right {
+    flex: 1;
+    text-align: right;
+    padding-left: 15px;
+}
+
+.header-right h1 {
+    font-size: 16pt; /* Más grande */
+    font-weight: bold;
+    color: #004a99; /* Color de la institución */
+    margin: 0 0 5px 0;
+}
+.header-right p {
+    margin: 2px 0;
+    font-size: 8pt; /* Más pequeño pero legible */
+    color: #555;
+}
+
+/* --- Título principal del boletín --- */
+.info {
+    margin-bottom: 20px;
+    text-align: center;
+    /* Eliminamos el borde y fondo para un look más limpio */
+}
+.info h2 {
+    font-size: 14pt;
+    font-weight: 600;
+    margin: 0 0 15px 0;
+    background-color: #f4f4f4; /* Un fondo sutil solo para el título */
+    padding: 8px;
+    border-radius: 5px;
+}
+
+/* --- Info del Estudiante --- */
+.info table {
+    width: 100%;
+    text-align: left;
+    font-size: 9pt; /* Ligeramente más pequeño que el cuerpo */
+    border-collapse: collapse;
+    border: none; /* Sin bordes para esta tabla */
+}
+.info table td {
+    padding: 4px 8px;
+    border: none; /* Sin bordes para esta tabla */
+}
+.info table td strong {
+    color: #000; /* Resaltar las etiquetas */
+}
+
+
+/* --- Títulos de Sección (Calificaciones, Convivencia, etc.) --- */
+.tabla-materias h3, 
+.convivencia h3, 
+.observaciones h3,
+h3.escala-titulo { /* Título para la escala de desempeño */
+    font-size: 12pt;
+    font-weight: 600;
+    color: #004a99; /* Color de la institución */
+    border-bottom: 1px solid #ddd; /* Línea sutil */
+    padding-bottom: 4px;
+    margin: 25px 0 15px 0; /* Más espacio */
+    /* Eliminamos fondos y bordes pesados */
+    text-align: left;
+    background-color: transparent;
+    border-top: none;
+    border-left: none;
+    border-right: none;
+}
+
+/* --- Tabla Principal (Calificaciones y Convivencia) --- */
+table.tabla-principal {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 9pt;
+}
+
+.tabla-principal th, 
+.tabla-principal td {
+    border: 1px solid #ccc; /* Bordes mucho más suaves */
+    padding: 6px 8px;
+    vertical-align: middle;
+    text-align: left;
+}
+
+.tabla-principal th {
+    background-color: #f0f6ff; /* Fondo azul muy claro */
+    font-weight: bold;
+    text-align: center;
+    font-size: 9pt;
+}
+
+/* Añadimos un sutil efecto cebra para legibilidad */
+.tabla-principal tbody tr:nth-child(even) {
+    background-color: #fcfcfc;
+}
+
+.nota, .nota-final {
+    text-align: center;
+    font-weight: bold;
+    font-size: 10pt;
+}
+.nota-baja {
+    color: #d9534f; /* Un rojo más profesional */
+    font-weight: bold;
+}
+.nota-final {
+    background-color: #f4f4f4; /* Mantenemos el fondo gris claro */
+}
+
+/* --- Escala de Desempeño (Si la añades al HTML) --- */
+.escala-desempeno table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 8pt;
+    text-align: center;
+}
+.escala-desempeno th, .escala-desempeno td {
+    border: 1px solid #ddd;
+    padding: 4px;
+}
+.escala-desempeno th {
+    background-color: #f4f4f4;
+}
+
+/* --- Sección de Observaciones --- */
+.observaciones {
+    page-break-inside: avoid;
+    margin-bottom: 20px;
+    /* Quitamos el borde exterior, la cabecera h3 es suficiente */
+}
+
+.materia-obs {
+    border: 1px solid #eee; /* Borde muy suave */
+    border-radius: 5px;
+    padding: 10px 15px;
+    margin-bottom: 10px;
+    page-break-inside: avoid;
+}
+.materia-obs h4 {
+    font-size: 10pt;
+    font-weight: bold;
+    margin: 0 0 8px 0;
+    color: #000;
+}
+.periodo-obs {
+    margin-bottom: 8px;
+    padding-left: 10px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #f0f0f0; /* Borde más sutil que el 'dashed' */
+}
+.periodo-obs:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+    padding-bottom: 0;
+}
+.periodo-obs strong {
+    font-weight: 600;
+    color: #333;
+}
+.periodo-obs ul {
+    padding-left: 15px;
+    margin: 5px 0 5px 0;
+}
+.periodo-obs li {
+    margin-bottom: 2px;
+}
+.comentario-docente {
+    font-style: italic;
+    color: #111;
+    font-size: 9pt;
+    background: #f9f9f9;
+    border-left: 3px solid #004a99; /* Borde de color temático */
+    padding: 8px 10px;
+    margin-top: 8px;
+    border-radius: 0 3px 3px 0;
+}
+
+/* --- Pie de Página (Firmas) --- */
+footer {
+    display: table; /* Usar tabla para alineación perfecta */
+    width: 100%;
+    margin-top: 40px;
+    padding-top: 20px;
+    border-top: 1px solid #ccc;
+    page-break-inside: avoid;
+    font-size: 10pt;
+    text-align: center;
+}
+
+.firma-container {
+    display: table-cell;
+    width: 50%;
+    text-align: center;
+}
+
+.firma-linea {
+    width: 250px;
+    border-top: 1px solid #333;
+    margin: 40px auto 0 auto; /* Espacio para la firma */
+    padding-top: 5px;
+}
+
+.firma-cargo {
+    font-size: 9pt;
+    font-weight: bold;
+    color: #333;
+    margin: 0;
+}

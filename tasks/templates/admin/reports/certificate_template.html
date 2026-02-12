@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <style>
+        /* STRESS-TESTED FOR WEASYPRINT: 
+           Optimización de renderizado industrial 
+        */
+        @page {
+            size: letter;
+            margin: 0;
+        }
+
+        :root {
+            --brand-navy: #002d72;
+            --brand-gold: #b8860b;
+            --text-dark: #1a202c;
+            --text-muted: #4a5568;
+            --accent-bg: #f8fafc;
+            --border-heavy: 2.5pt;
+            --border-light: 0.5pt;
+        }
+
+        body {
+            font-family: 'Helvetica', 'Arial', sans-serif;
+            color: var(--text-dark);
+            margin: 0; padding: 0;
+            line-height: 1.5;
+            -webkit-print-color-adjust: exact;
+        }
+
+        /* --- CAPAS DE SEGURIDAD DOCUMENTAL --- */
+        .master-frame {
+            position: absolute;
+            top: 0.45in; bottom: 0.45in; left: 0.45in; right: 0.45in;
+            border: var(--border-heavy) solid var(--brand-navy);
+            pointer-events: none;
+            z-index: 100;
+        }
+
+        .inner-frame {
+            position: absolute;
+            top: 0.55in; bottom: 0.55in; left: 0.55in; right: 0.55in;
+            border: var(--border-light) solid var(--brand-gold);
+            pointer-events: none;
+            z-index: 101;
+        }
+
+        .security-ribbon {
+            position: absolute;
+            top: 0; bottom: 0; left: 0;
+            width: 14px;
+            background: linear-gradient(180deg, var(--brand-navy) 0%, var(--brand-gold) 50%, var(--brand-navy) 100%);
+            z-index: 102;
+        }
+
+        .watermark {
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%) rotate(-45deg);
+            font-size: 85pt;
+            font-weight: 900;
+            color: rgba(0, 45, 114, 0.03);
+            text-transform: uppercase;
+            z-index: -1;
+            white-space: nowrap;
+            letter-spacing: 10px;
+        }
+
+        /* --- CONTENEDOR PRINCIPAL: PRECISIÓN DE MÁRGENES --- */
+        .main-container {
+            padding: 1.3in 1.3in 0.9in 1.5in; /* Margen áureo para documentos legales */
+            position: relative;
+        }
+
+        /* --- HEADER CORPORATIVO --- */
+        .header-layout {
+            display: table;
+            width: 100%;
+            border-bottom: 3.5pt double var(--brand-navy);
+            padding-bottom: 25px;
+            margin-bottom: 45px;
+        }
+
+        .logo-container {
+            display: table-cell;
+            width: 1.2in;
+            vertical-align: middle;
+        }
+
+        .logo-box {
+            width: 85px; height: 85px;
+            border: 1.2pt solid var(--brand-gold);
+            background-color: var(--accent-bg);
+            display: flex; align-items: center; justify-content: center;
+            text-align: center; font-size: 8pt; font-weight: bold; color: var(--brand-gold);
+        }
+
+        .school-info {
+            display: table-cell;
+            padding-left: 30px;
+            vertical-align: middle;
+        }
+
+        .school-name {
+            font-size: 30pt; font-weight: 900;
+            color: var(--brand-navy); margin: 0;
+            letter-spacing: -1.5px; text-transform: uppercase;
+        }
+
+        .legal-block {
+            font-size: 8.5pt; color: var(--text-muted);
+            margin-top: 8px; line-height: 1.4;
+        }
+
+        /* --- CUERPO DEL CERTIFICADO --- */
+        .doc-header-title {
+            text-align: center;
+            font-size: 22pt; font-weight: 800;
+            letter-spacing: 4px; color: var(--text-dark);
+            margin: 45px 0 35px 0;
+            text-transform: uppercase;
+        }
+
+        .statement-text {
+            font-size: 11.5pt; text-align: justify;
+            margin-bottom: 40px; color: var(--text-dark);
+        }
+
+        /* --- FICHA TÉCNICA: CURSO Y GRUPO (HI-FI) --- */
+        .profile-card {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 45px;
+            border: 1pt solid var(--border-color);
+        }
+
+        .profile-card td {
+            padding: 16px 20px;
+            border: 0.5pt solid var(--border-color);
+        }
+
+        .label-cell {
+            font-size: 8pt; font-weight: 900;
+            color: var(--brand-navy); text-transform: uppercase;
+            background-color: #f1f5f9;
+            width: 22%;
+        }
+
+        .value-cell {
+            font-size: 11pt; font-weight: 600; color: #2d3748;
+        }
+
+        .highlight-value {
+            color: var(--brand-navy); font-weight: 800;
+        }
+
+        /* --- GRID DE CALIFICACIONES --- */
+        .grades-grid {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 45px;
+        }
+
+        .grades-grid th {
+            background-color: var(--brand-navy);
+            color: white; padding: 16px;
+            font-size: 9.5pt; text-transform: uppercase;
+            letter-spacing: 1.5px; text-align: left;
+        }
+
+        .grades-grid td {
+            padding: 12px 16px; font-size: 11pt;
+            border-bottom: 1pt solid var(--border-color);
+        }
+
+        .subject-name { font-weight: 700; }
+
+        .score-box {
+            text-align: center; font-family: 'Courier', monospace;
+            font-weight: 900; font-size: 12pt;
+        }
+
+        .performance-box {
+            text-align: center; font-size: 9pt; font-weight: 700;
+        }
+
+        .color-pass { color: #166534; }
+        .color-fail { color: #991b1b; }
+
+        .row-alt { background-color: #fbfcfd; }
+
+        .summary-total {
+            background-color: #e2e8f0;
+            font-weight: 900;
+        }
+
+        /* --- FOOTER: VALIDACIÓN Y FIRMAS --- */
+        .footer-wrapper {
+            margin-top: 60px;
+            display: block;
+        }
+
+        .qr-anchor {
+            float: right;
+            width: 1.7in; text-align: center;
+            padding: 12px;
+            border: 1pt solid var(--border-color);
+            background-color: white;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+        }
+
+        .qr-code-img { width: 110px; height: 110px; }
+
+        .verification-label {
+            font-family: monospace; font-size: 7.5pt;
+            font-weight: bold; color: var(--brand-gold);
+            margin-top: 10px;
+        }
+
+        .legal-context {
+            font-size: 9.5pt; color: var(--text-muted);
+            width: 68%; text-align: justify;
+        }
+
+        .signature-layout {
+            width: 100%;
+            margin-top: 100px;
+        }
+
+        .sig-cell {
+            width: 50%; text-align: center;
+            vertical-align: bottom;
+        }
+
+        .sig-underline {
+            width: 70%; border-top: 1.5pt solid var(--text-dark);
+            margin: 0 auto 12px;
+        }
+
+        .signer-name {
+            font-size: 10pt; font-weight: bold;
+            text-transform: uppercase; letter-spacing: 0.5px;
+        }
+
+        .signer-rank { font-size: 8.5pt; color: var(--text-muted); }
+
+        .bottom-audit-footer {
+            margin-top: 60px;
+            text-align: center;
+            font-size: 7.5pt; color: #94a3b8;
+            border-top: 0.5pt solid var(--border-color);
+            padding-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="security-ribbon"></div>
+    <div class="master-frame"></div>
+    <div class="inner-frame"></div>
+    <div class="watermark">DOCUMENTO OFICIAL</div>
+
+    <div class="main-container">
+        <div class="header-layout">
+            <div class="logo-container">
+                <div class="logo-box">ESCUDO<br>OFICIAL</div>
+            </div>
+            <div class="school-info">
+                <h1 class="school-name">{{ colegio.nombre|default:"Learning Labs Institute" }}</h1>
+                <div class="legal-block">
+                    {{ colegio.resolucion|default:"Acreditación Ministerial de Alta Calidad No. 12345" }}<br>
+                    NIT: {{ colegio.nit|default:"900.123.456-1" }} | DANE: {{ colegio.dane|default:"111001000123" }}<br>
+                    Sede Central: {{ colegio.direccion|default:"Distrito Tecnológico, Chía" }} | {{ colegio.telefono|default:"(601) 456 7890" }}
+                </div>
+            </div>
+        </div>
+
+        <div class="doc-header-title">Certificado de Calificaciones</div>
+
+        <p class="statement-text">
+            La suscrita Secretaría Académica del <strong>{{ colegio.nombre|default:"Learning Labs Institute" }}</strong>, de acuerdo con las normativas legales vigentes, certifica que el estudiante cuyos datos se relacionan a continuación, cursó y aprobó satisfactoriamente las asignaturas del programa académico:
+        </p>
+
+        
+        <table class="profile-card">
+            <tr>
+                <td class="label-cell">Estudiante</td>
+                <td class="value-cell" colspan="3" style="font-size: 13pt; color: var(--brand-navy);">
+                    {{ estudiante.user.last_name|upper }}, {{ estudiante.user.first_name|upper }}
+                </td>
+            </tr>
+            <tr>
+                <td class="label-cell">Identificación</td>
+                <td class="value-cell">{{ estudiante.numero_documento }}</td>
+                <td class="label-cell">Año Lectivo</td>
+                <td class="value-cell">{{ anio }}</td>
+            </tr>
+            <tr>
+                <td class="label-cell">Grado Escolar</td>
+                <td class="value-cell">{{ estudiante.grado_nombre|default:"Bachillerato Académico" }}</td>
+                <td class="label-cell">Curso / Grupo</td>
+                <td class="value-cell highlight-value">{{ estudiante.grupo|default:"902 - Jornada Mañana" }}</td>
+            </tr>
+        </table>
+
+        
+        <table class="grades-grid">
+            <thead>
+                <tr>
+                    <th style="width: 50%;">Asignatura / Área</th>
+                    <th style="width: 15%; text-align: center;">Nota</th>
+                    <th style="width: 20%; text-align: center;">Desempeño</th>
+                    <th style="width: 15%; text-align: center;">Fallas</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for materia, data in notas.items %}
+                <tr class="{% cycle '' 'row-alt' %}">
+                    <td class="subject-name">{{ materia }}</td>
+                    <td class="score-box">
+                        {% if data.valor != None %}
+                            <span class="{% if data.valor|add:0 < 3.0 %}color-fail{% else %}color-pass{% endif %}">
+                                {{ data.valor }}
+                            </span>
+                        {% else %}{{ data }}{% endif %}
+                    </td>
+                    <td class="performance-box">
+                        {% if data.valor != None %}
+                            {% if data.valor|add:0 >= 4.6 %}SUPERIOR
+                            {% elif data.valor|add:0 >= 4.0 %}ALTO
+                            {% elif data.valor|add:0 >= 3.0 %}BÁSICO
+                            {% else %}BAJO{% endif %}
+                        {% else %}MENCIÓN{% endif %}
+                    </td>
+                    <td style="text-align: center; color: var(--text-muted);">{{ data.fallas|default:"0" }}</td>
+                </tr>
+                {% endfor %}
+                <tr class="summary-total">
+                    <td>PROMEDIO ACADÉMICO GENERAL</td>
+                    <td class="score-box">{{ promedio }}</td>
+                    <td colspan="2" style="text-align: right; font-size: 8pt; color: var(--brand-navy); padding-right: 20px;">
+                        CÓDIGO DE FOLIO: {{ uuid_folio }}
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+        
+        <div class="footer-wrapper">
+            <div class="qr-anchor">
+                <img src="data:image/png;base64,{{ qr_code }}" class="qr-code-img">
+                <div class="verification-label">SISTEMA DE VERIFICACIÓN</div>
+            </div>
+
+            <p class="legal-context">
+                <strong>CERTIFICACIÓN ELECTRÓNICA:</strong> Este documento ha sido generado por el Sistema de Gestión Stratos AI y cuenta con plena validez legal. Los interesados pueden verificar la autenticidad del registro escaneando el código QR o en el portal <strong>{{ colegio.web|default:"www.learninglabs.edu.co" }}</strong>.
+                <br><br>
+                <strong>FECHA DE EMISIÓN:</strong> {{ fecha_impresion|date:"d" }} de {{ fecha_impresion|date:"F" }} de {{ fecha_impresion|date:"Y" }}
+            </p>
+
+            <table class="signature-layout">
+                <tr>
+                    <td class="sig-cell">
+                        <div class="sig-underline"></div>
+                        <div class="signer-name">{{ colegio.rector|default:"RECTOR(A) INSTITUCIONAL"|upper }}</div>
+                        <div class="signer-rank">Director Ejecutivo</div>
+                    </td>
+                    <td class="sig-cell">
+                        <div class="sig-underline"></div>
+                        <div class="signer-name">{{ colegio.secretaria|default:"SECRETARÍA ACADÉMICA"|upper }}</div>
+                        <div class="signer-rank">Ref: Certificación Digital Académica</div>
+                    </td>
+                </tr>
+            </table>
+        </div>
+
+        <div class="bottom-audit-footer">
+            Este certificado se expide de acuerdo con las disposiciones de la Ley General de Educación. El presente documento no es válido si presenta tachaduras o signos de alteración física.
+        </div>
+    </div>
+</body>
+</html>

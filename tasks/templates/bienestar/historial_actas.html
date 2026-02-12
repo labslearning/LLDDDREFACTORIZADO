@@ -1,0 +1,85 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold mb-0 text-dark">
+                <i class="fas fa-university text-primary me-2"></i>Libro de Actas Institucionales
+            </h2>
+            <p class="text-muted">Registro histórico oficial y control de documentos.</p>
+        </div>
+        <a href="{% url 'crear_acta' %}" class="btn btn-success shadow-sm">
+            <i class="fas fa-plus"></i> Redactar Nueva Acta
+        </a>
+    </div>
+
+    <div class="card border-0 shadow-sm">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="bg-light text-secondary text-uppercase small">
+                        <tr>
+                            <th class="ps-4"># Acta</th>
+                            <th>Fecha</th>
+                            <th>Asunto / Título</th>
+                            <th>Tipo</th>
+                            <th>Creado Por</th>
+                            <th class="text-end pe-4">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for acta in actas %}
+                        <tr>
+                            <td class="ps-4 fw-bold text-primary">#{{ acta.consecutivo|stringformat:"04d" }}</td>
+                            <td>
+                                <i class="far fa-calendar-alt text-muted me-1"></i>
+                                {{ acta.fecha|date:"d/m/Y" }}
+                            </td>
+                            <td>
+                                <div class="fw-bold text-dark">{{ acta.titulo }}</div>
+                                {% if acta.lugar %}
+                                <small class="text-muted"><i class="fas fa-map-marker-alt me-1"></i>{{ acta.lugar }}</small>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <span class="badge rounded-pill bg-light text-dark border">
+                                    {{ acta.get_tipo_display }}
+                                </span>
+                            </td>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <div class="avatar-circle sm bg-primary text-white me-2">
+                                        {{ acta.creador.username.0|upper }}
+                                    </div>
+                                    <small>{{ acta.creador.get_full_name|default:acta.creador.username }}</small>
+                                </div>
+                            </td>
+                            <td class="text-end pe-4">
+                                <a href="{% url 'generar_acta_pdf' acta.id %}" target="_blank" class="btn btn-sm btn-outline-danger" title="Descargar PDF Oficial">
+                                    <i class="fas fa-file-pdf me-1"></i> PDF
+                                </a>
+                                
+                                {% if acta.archivo_adjunto %}
+                                <a href="{{ acta.archivo_adjunto.url }}" target="_blank" class="btn btn-sm btn-outline-secondary" title="Ver Adjuntos">
+                                    <i class="fas fa-paperclip"></i>
+                                </a>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="6" class="text-center py-5 text-muted">
+                                <i class="fas fa-folder-open fa-3x mb-3 text-secondary opacity-50"></i>
+                                <p>No hay actas registradas en el sistema aún.</p>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,275 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" />
+
+<style>
+    /* Estilo para ocultar la advertencia de validación de forma limpia */
+    /* OCULTAMOS EL ERROR GENERAL DEL FORMULARIO PARA QUE NO ROMPA EL DISEÑO */
+    .destination-container .alert {
+        display: none; 
+    }
+    
+    /* MEJORA ESTÉTICA: Estilos de los botones de modo */
+    .mode-selector button {
+        border-radius: 20px !important; /* Más redondeado */
+        padding: 8px 18px;
+        font-weight: 600;
+        transition: background-color 0.2s, color 0.2s, box-shadow 0.2s;
+        font-size: 0.95rem;
+    }
+    .mode-selector .btn-secondary {
+        background-color: #f0f2f5; 
+        color: #65676b;
+        border-color: #f0f2f5;
+    }
+    .mode-selector .active-mode {
+        background-color: var(--edu-primary, #4361ee) !important;
+        color: white !important;
+        border-color: var(--edu-primary, #4361ee) !important;
+        box-shadow: 0 4px 10px rgba(var(--edu-primary-rgb, 67, 97, 238), 0.3);
+    }
+    .selection-box {
+        border: 1px solid #e4e6eb;
+        border-radius: 12px;
+        padding: 25px;
+        background-color: #ffffff; /* Fondo blanco para resaltar el contenido */
+        margin-top: 20px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    }
+    
+    /* Mensajes de éxito/error temporales de Django */
+    .django-message {
+        transition: opacity 0.5s ease-out;
+    }
+
+</style>
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-9">
+            
+            <div id="django-messages-container">
+                {% if messages %}
+                    {% for message in messages %}
+                        <div class="alert alert-{{ message.tags }} alert-dismissible fade show django-message" role="alert">
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            </div>
+            
+            {% if mensaje_original %}
+            <div class="card border-0 shadow-sm mb-4 animate__animated animate__fadeInDown" style="background-color: #f8f9fa; border-left: 5px solid var(--edu-primary) !important;">
+                <div class="card-body">
+                    <h6 class="fw-bold text-primary mb-2">
+                        <i class="fas fa-reply me-2"></i>Respondiendo al mensaje de: {{ mensaje_original.remitente.get_full_name }}
+                    </h6>
+                    <div class="p-3 bg-white rounded border text-muted small fst-italic">
+                        "{{ mensaje_original.cuerpo|truncatechars:300 }}"
+                    </div>
+                    <div class="mt-2 text-end small text-muted">
+                        Enviado el: {{ mensaje_original.fecha_envio|date:"d M Y, H:i" }}
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            <div class="card border-0 shadow-lg rounded-4 overflow-hidden animate__animated animate__fadeInUp">
+                <div class="card-header bg-primary text-white p-4 d-flex align-items-center">
+                    <div class="bg-white bg-opacity-25 rounded-circle p-2 me-3 d-flex align-items-center justify-content-center" style="width: 45px; height: 45px;">
+                         <i class="fas fa-paper-plane fa-lg"></i>
+                    </div>
+                    <div>
+                        <h4 class="mb-0 fw-bold">Redactar Mensaje</h4>
+                        <small class="opacity-75">Comunicación oficial Learning Labs</small>
+                    </div>
+                </div>
+                <div class="card-body p-5 bg-white">
+                    <form method="POST" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        
+                        <div class="mb-4 destination-container">
+                            <label class="form-label fw-bold text-uppercase small text-muted">Modo de Envío:</label>
+
+                            <div class="btn-group mode-selector" role="group" id="mode-selector-buttons">
+                                <button type="button" class="btn btn-secondary active-mode" data-target="individual">
+                                    <i class="fas fa-user me-1"></i> Individual
+                                </button>
+                                <button type="button" class="btn btn-secondary" data-target="rol">
+                                    <i class="fas fa-school me-1"></i> Masivo por Rol
+                                </button>
+                                <button type="button" class="btn btn-secondary" data-target="curso">
+                                    <i class="fas fa-users me-1"></i> Masivo por Curso
+                                </button>
+                            </div>
+
+                            <div class="selection-box" id="selection-box-individual">
+                                <label for="id_destinatario" class="form-label fw-semibold mb-1">Buscar Destinatario:</label>
+                                {{ form.destinatario }}
+                                {% if form.destinatario.errors %}<div class="text-danger small mt-1">{{ form.destinatario.errors }}</div>{% endif %}
+                            </div>
+
+                            <div class="selection-box" id="selection-box-rol" style="display: none;">
+                                <label for="id_destinatario_rol_masivo" class="form-label fw-semibold mb-1">Seleccionar Rol (Masivo):</label>
+                                {{ form.destinatario_rol_masivo }}
+                                {% if form.destinatario_rol_masivo.errors %}<div class="text-danger small mt-1">{{ form.destinatario_rol_masivo.errors }}</div>{% endif %}
+                            </div>
+
+                            <div class="selection-box" id="selection-box-curso" style="display: none;">
+                                <label for="id_destinatario_curso_masivo" class="form-label fw-semibold mb-1">Seleccionar Curso (Masivo):</label>
+                                {{ form.destinatario_curso_masivo }}
+                                {% if form.destinatario_curso_masivo.errors %}<div class="text-danger small mt-1">{{ form.destinatario_curso_masivo.errors }}</div>{% endif %}
+                            </div>
+                            
+                            {% if form.non_field_errors %}
+                                <div class="alert alert-warning mt-2">{{ form.non_field_errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label fw-bold text-uppercase small text-muted">Asunto:</label>
+                            {{ form.asunto }}
+                            {% if form.asunto.errors %}<div class="text-danger small mt-1">{{ form.asunto.errors }}</div>{% endif %}
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label fw-bold text-uppercase small text-muted">Mensaje:</label>
+                            {{ form.cuerpo }}
+                            {% if form.cuerpo.errors %}<div class="text-danger small mt-1">{{ form.cuerpo.errors }}</div>{% endif %}
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label fw-bold text-uppercase small text-muted">
+                                <i class="fas fa-paperclip me-1"></i> Adjuntar Archivo (PDF/Imagen)
+                            </label>
+                            {{ form.archivo }}
+                            {% if form.archivo.errors %}<div class="text-danger small mt-1">{{ form.archivo.errors }}</div>{% endif %}
+                        </div>
+
+                        <div class="d-flex justify-content-between align-items-center pt-3 border-top">
+                            <a href="{% url 'buzon_mensajes' %}" class="btn btn-outline-secondary px-4 rounded-pill">
+                                <i class="fas fa-times me-2"></i>Cancelar
+                            </a>
+                            <button type="submit" class="btn btn-primary px-5 rounded-pill shadow-sm fw-bold">
+                                <i class="fas fa-paper-plane me-2"></i>Enviar Mensaje
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+<script>
+    $(document).ready(function() {
+        // --- 1. LIMPIEZA AUTOMÁTICA DE MENSAJES DE DJANGO ---
+        setTimeout(function() {
+            $('#django-messages-container .django-message').fadeOut(1000, function() {
+                $(this).remove();
+            });
+        }, 3000); // Oculta después de 3 segundos
+
+        const $individualSelect = $('#id_destinatario');
+        const $rolMasivoSelect = $('#id_destinatario_rol_masivo');
+        const $cursoMasivoSelect = $('#id_destinatario_curso_masivo');
+        
+        // Contenedores
+        const $boxIndividual = $('#selection-box-individual');
+        const $boxRol = $('#selection-box-rol');
+        const $boxCurso = $('#selection-box-curso');
+        
+        // Elementos a deshabilitar por defecto (los masivos y el individual deben estar siempre presentes
+        // en el DOM para Select2, pero solo uno debe llevar el valor al backend).
+        const allSelects = [$individualSelect, $rolMasivoSelect, $cursoMasivoSelect];
+
+        // Función para inicializar Select2
+        function initializeSelect2($element, placeholderText, allowSearch = true) {
+            if ($element.data('select2')) {
+                $element.select2('destroy');
+            }
+            $element.select2({
+                theme: 'bootstrap-5',
+                width: '100%',
+                placeholder: placeholderText,
+                allowClear: true,
+                minimumResultsForSearch: allowSearch ? 0 : Infinity,
+                dropdownParent: $element.parent(), 
+                language: {
+                    noResults: function() { return "No se encontraron destinatarios"; }
+                }
+            });
+        }
+        
+        // Inicialización inicial
+        initializeSelect2($individualSelect, '🔍 Buscar destinatario individual...', true);
+        initializeSelect2($rolMasivoSelect, 'Seleccionar Rol', false);
+        initializeSelect2($cursoMasivoSelect, 'Seleccionar Curso', false);
+        
+        // FUNCIÓN CLAVE: Limpia todos los campos de destino y los deshabilita, excepto el activo.
+        function setMode(mode) {
+            // 1. Manejo de la Interfaz (Botones y Boxes)
+            $('#mode-selector-buttons button').removeClass('active-mode').addClass('btn-secondary');
+            $(`button[data-target="${mode}"]`).addClass('active-mode').removeClass('btn-secondary');
+            
+            $boxIndividual.hide();
+            $boxRol.hide();
+            $boxCurso.hide();
+
+            // 2. Limpieza de valores de los campos no usados (CRÍTICO)
+            allSelects.forEach($el => {
+                // Deshabilitar el campo oculto es clave para que NO envíe su valor
+                $el.prop('disabled', true); 
+                // Limpiamos el valor de Select2 para evitar conflictos
+                $el.val(null).trigger('change.select2');
+            });
+            
+            // 3. Habilitar el modo seleccionado y hacerlo visible
+            let $activeSelect;
+            if (mode === 'individual') {
+                $boxIndividual.show();
+                $activeSelect = $individualSelect;
+            } else if (mode === 'rol') {
+                $boxRol.show();
+                $activeSelect = $rolMasivoSelect;
+            } else if (mode === 'curso') {
+                $boxCurso.show();
+                $activeSelect = $cursoMasivoSelect;
+            }
+
+            // Habilitar el campo activo (y re-inicializar Select2 si es necesario)
+            if ($activeSelect) {
+                $activeSelect.prop('disabled', false);
+                // Re-inicializamos para que Select2 refleje el estado habilitado
+                initializeSelect2($activeSelect, $activeSelect.attr('placeholder'), $activeSelect.attr('id') === 'id_destinatario');
+            }
+        }
+        
+        // Asignar Eventos a los botones de modo
+        $('#mode-selector-buttons button').on('click', function() {
+            setMode($(this).data('target'));
+        });
+
+        // 4. Inicialización al cargar la página: Restaurar el modo si hubo un error en ese campo
+        
+        let initialMode = 'individual';
+        
+        // Revisar si algún campo masivo tiene errores o un valor (para mantener la pestaña abierta)
+        if (($('.text-danger', $boxRol).length > 0) || ($('#id_destinatario_rol_masivo').val() && $('#id_destinatario_rol_masivo').val() !== '')) {
+            initialMode = 'rol';
+        } else if (($('.text-danger', $boxCurso).length > 0) || ($('#id_destinatario_curso_masivo').val() && $('#id_destinatario_curso_masivo').val() !== '')) {
+            initialMode = 'curso';
+        } else if ($('#id_destinatario').val() && $('#id_destinatario').val() !== '') {
+            initialMode = 'individual';
+        }
+        
+        setMode(initialMode);
+    });
+</script>
+{% endblock %}

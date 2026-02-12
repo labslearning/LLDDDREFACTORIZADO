@@ -1,0 +1,1652 @@
+{% load static %}
+{% load humanize %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Learning Labs - Plataforma Educativa</title>
+    
+    <link rel="manifest" href="{% static 'manifest.json' %}">
+    <meta name="theme-color" content="#4361ee">
+    
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="application-name" content="Learning Labs">
+
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Learning Labs">
+    <link rel="apple-touch-icon" href="{% static 'img/icon-192.png' %}">
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+    <style>
+        :root {
+            /* Sistema de diseño educativo */
+            --edu-primary: #4361ee;
+            --edu-secondary: #3f37c9;
+            --edu-accent: #4cc9f0;
+            --edu-light: #f8f9fa;
+            --edu-dark: #212529;
+            --edu-success: #38b000;
+            --edu-warning: #ff9e00;
+            --edu-danger: #ef233c;
+            --edu-text-primary: #2b2d42;
+            --edu-text-secondary: #6c757d;
+            --edu-bg-light: #f8f9fa;
+            --edu-bg-dark: #343a40;
+            --edu-border-radius: 12px;
+            --edu-box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+            --edu-transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            
+            /* Áreas seguras para móviles modernos (iPhone X+) */
+            --safe-area-bottom: env(safe-area-inset-bottom, 20px);
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Open Sans', sans-serif;
+            color: var(--edu-text-primary);
+            background-color: var(--edu-bg-light);
+            line-height: 1.6;
+            padding-top: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden; /* Evita scroll lateral */
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Poppins', sans-serif;
+            font-weight: 600;
+            color: var(--edu-dark);
+        }
+
+        /* Estilos personalizados para SimpleMDE */
+        .editor-toolbar {
+            border-color: #ced4da;
+            background-color: #f8f9fa;
+            border-radius: 8px 8px 0 0;
+        }
+        .CodeMirror {
+            border-color: #ced4da;
+            border-radius: 0 0 8px 8px;
+            min-height: 150px;
+        }
+
+        /* ========== BARRA DE NAVEGACIÓN MEJORADA (PROFESIONAL) ========== */
+        .navbar {
+            background: linear-gradient(120deg, var(--edu-primary), var(--edu-secondary));
+            padding: 0.6rem 2rem;
+            box-shadow: 0 4px 20px rgba(63, 55, 201, 0.25);
+            font-family: 'Poppins', sans-serif;
+            position: relative;
+            z-index: 1000;
+        }
+
+        .navbar-brand {
+            font-weight: 700;
+            font-size: 1.6rem;
+            color: white !important;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .navbar-brand i {
+            font-size: 1.8rem;
+            background: rgba(255,255,255,0.2);
+            padding: 8px;
+            border-radius: 10px;
+        }
+
+        .navbar-brand:hover {
+            opacity: 1;
+            transform: scale(1.02);
+            transition: var(--edu-transition);
+        }
+
+        .nav-item {
+            margin: 0 0.15rem;
+        }
+
+        .nav-link {
+            color: rgba(255, 255, 255, 0.95) !important;
+            font-weight: 500;
+            font-size: 0.9rem;
+            padding: 0.6rem 1rem !important;
+            border-radius: 8px;
+            transition: var(--edu-transition);
+            position: relative;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            letter-spacing: 0.3px;
+        }
+
+        .nav-link i {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        /* Hover en escritorio */
+        @media (min-width: 992px) {
+            .nav-link:hover, .nav-link:focus, .nav-link.show {
+                color: white !important;
+                background-color: rgba(255, 255, 255, 0.15);
+                transform: translateY(-1px);
+                box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            }
+
+            .nav-link.active {
+                background-color: rgba(255, 255, 255, 0.25) !important;
+                font-weight: 600;
+                color: white !important;
+                box-shadow: inset 0 0 0 1px rgba(255,255,255,0.3);
+            }
+        }
+
+        /* Dropdowns más estéticos */
+        .dropdown-menu {
+            border: none;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            padding: 0.5rem;
+            margin-top: 0.5rem !important;
+            animation: dropdownFadeIn 0.2s ease;
+        }
+
+        @keyframes dropdownFadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .dropdown-item {
+            border-radius: 8px;
+            padding: 0.6rem 1rem;
+            font-size: 0.9rem;
+            transition: var(--edu-transition);
+            color: var(--edu-text-primary);
+        }
+
+        .dropdown-item:hover {
+            background-color: var(--edu-bg-light);
+            color: var(--edu-primary);
+            transform: translateX(3px);
+        }
+
+        .dropdown-item i {
+            width: 20px;
+            text-align: center;
+            margin-right: 0.5rem;
+        }
+
+        /* Badges de notificación (Escritorio) */
+        .badge-notification {
+            position: absolute;
+            top: 2px;
+            right: 2px;
+            background-color: var(--edu-danger);
+            border: 2px solid var(--edu-secondary); 
+            border-radius: 50%;
+            min-width: 18px;
+            height: 18px;
+            font-size: 0.65rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+            transform: translate(25%, -25%);
+        }
+
+        .navbar-toggler {
+            border: none;
+            padding: 0.5rem;
+            background-color: rgba(255,255,255,0.1);
+            border-radius: 8px;
+        }
+
+        .navbar-toggler:focus {
+            box-shadow: 0 0 0 2px rgba(255,255,255,0.5);
+        }
+
+        /* Avatar en Navbar */
+        .nav-avatar-img {
+            width: 38px;
+            height: 38px;
+            object-fit: cover;
+            border: 2px solid rgba(255,255,255,0.9);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            transition: var(--edu-transition);
+            border-radius: 50%;
+        }
+        
+        .nav-avatar-placeholder {
+            width: 38px;
+            height: 38px;
+            background-color: rgba(255,255,255,0.2);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1rem;
+            border: 2px solid rgba(255,255,255,0.5);
+            border-radius: 50%;
+        }
+
+        .nav-link:hover .nav-avatar-img {
+            border-color: white;
+            transform: scale(1.05);
+        }
+        
+        /* ============ ESTILOS MÓVILES (TIPO APP) ============ */
+        @media (max-width: 991.98px) {
+            .navbar { padding: 0.7rem 1rem; }
+            .navbar-brand { font-size: 1.4rem; }
+
+            .navbar-collapse {
+                background-color: white; /* Fondo blanco */
+                margin-top: 1rem;
+                border-radius: var(--edu-border-radius);
+                padding: 0.5rem;
+                box-shadow: 0 100px 80px rgba(0,0,0,0.1); /* Sombra profunda */
+                border: 1px solid rgba(0,0,0,0.05);
+                max-height: 85vh;
+                overflow-y: auto;
+            }
+
+            .nav-item { width: 100%; margin: 0; }
+
+            .nav-link {
+                padding: 1rem 1rem !important; /* Area táctil grande */
+                margin: 0.2rem 0;
+                justify-content: flex-start;
+                color: #333 !important; /* Texto oscuro */
+                font-weight: 600;
+                border-radius: 10px;
+                border-bottom: 1px solid #f4f4f4;
+            }
+            
+            .nav-link:active {
+                background-color: #f0f2f5; /* Feedback al tocar */
+            }
+
+            .nav-link i {
+                color: var(--edu-primary);
+                width: 32px;
+                text-align: center;
+                font-size: 1.2rem;
+                margin-right: 10px;
+            }
+
+            /* Badge en Móvil (A la derecha, estilo iOS) */
+            .badge-notification {
+                position: static !important;
+                transform: none !important;
+                margin-left: auto !important; /* Empuja a la derecha */
+                border: none;
+                min-width: 24px;
+                height: 24px;
+                font-size: 0.8rem;
+                background-color: var(--edu-danger);
+                color: white;
+                border-radius: 12px;
+            }
+            
+            /* Dropdowns limpios en móvil */
+            .dropdown-menu {
+                box-shadow: none;
+                border: none;
+                padding-left: 1rem;
+                background-color: transparent;
+                margin-top: 0 !important;
+                border-left: 3px solid var(--edu-primary);
+                border-radius: 0;
+            }
+            
+            .dropdown-item {
+                padding: 0.8rem 1rem;
+                color: #555;
+                font-size: 1rem;
+            }
+        }
+
+        /* ========== BOTONES EDUCATIVOS ========== */
+        .btn-edu {
+            border-radius: var(--edu-border-radius);
+            padding: 0.75rem 1.5rem;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            transition: var(--edu-transition);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            border: none;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .btn-edu:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-edu-primary {
+            background-color: var(--edu-primary);
+            color: white;
+        }
+
+        .btn-edu-primary:hover {
+            background-color: var(--edu-secondary);
+            color: white;
+        }
+
+        .btn-edu-secondary {
+            background-color: var(--edu-accent);
+            color: var(--edu-dark);
+        }
+
+        .btn-edu-secondary:hover {
+            background-color: #3ab7d8;
+            color: var(--edu-dark);
+        }
+
+        /* ========== TARJETAS EDUCATIVAS ========== */
+        .edu-card {
+            border: none;
+            border-radius: var(--edu-border-radius);
+            box-shadow: var(--edu-box-shadow);
+            transition: var(--edu-transition);
+            overflow: hidden;
+            background-color: white;
+            margin-bottom: 1.5rem;
+        }
+
+        .edu-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 28px rgba(0, 0, 0, 0.12);
+        }
+
+        .edu-card-header {
+            background-color: var(--edu-primary);
+            color: white;
+            padding: 1.25rem;
+            font-weight: 600;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .edu-card-body {
+            padding: 1.5rem;
+        }
+        
+        @media (max-width: 768px) {
+            .edu-card-body { padding: 1rem; }
+        }
+        
+        /* Contenedor Principal */
+        .main-content-wrapper {
+            width: 100%; padding: 1.5rem; margin: 0 auto; padding-bottom: 6rem;
+        }
+        @media (min-width: 1400px) { .main-content-wrapper { max-width: 1320px; } }
+        @media (max-width: 768px) {
+            .main-content-wrapper { padding: 1rem 1rem; }
+        }
+        
+        /* Sugerencia de Rotación */
+        #rotate-hint {
+            display: none; background: linear-gradient(to right, #fff3cd, #fff8e1);
+            color: #856404; border-left: 4px solid #ffc107; padding: 0.8rem 1rem;
+            border-radius: 8px; font-size: 0.9rem; margin-bottom: 1.5rem;
+            align-items: center; box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+        @media (max-width: 576px) and (orientation: portrait) {
+            .has-tables #rotate-hint { display: flex; }
+        }
+        
+        /* Tablas Responsivas */
+        .table-responsive {
+            display: block; width: 100%; overflow-x: auto;
+            -webkit-overflow-scrolling: touch; border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.03); margin-bottom: 1rem;
+            border: 1px solid #eee; background: white;
+        }
+
+        /* ========== MODAL DE VIDEO MEJORADO (YOUTUBE) ========== */
+        .yt-modal {
+            display: none; /* Oculto por defecto */
+            position: fixed; 
+            z-index: 9999; /* Por encima de todo */
+            left: 0;
+            top: 0;
+            width: 100%; 
+            height: 100%; 
+            overflow: auto; 
+            background-color: rgba(0,0,0,0.8); /* Fondo oscuro transparente */
+            backdrop-filter: blur(5px); /* Efecto borroso bonito */
+        }
+
+        .yt-modal-content {
+            position: relative;
+            margin: 5% auto;
+            padding: 0;
+            width: 80%;
+            max-width: 800px;
+            background-color: #000;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .video-container {
+            position: relative;
+            padding-bottom: 56.25%; /* 16:9 */
+            padding-top: 25px;
+            height: 0;
+            width: 100%;
+        }
+
+        .video-container iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border-radius: 10px 10px 0 0; /* Ajuste para el botón inferior */
+        }
+        
+        .yt-modal-footer {
+            background-color: #111;
+            padding: 10px;
+            text-align: center;
+            border-radius: 0 0 10px 10px;
+        }
+
+        .close-yt {
+            color: white;
+            position: absolute;
+            top: -30px;
+            right: 0;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            z-index: 10000;
+        }
+
+        .close-yt:hover {
+            color: #ff0000;
+        }
+
+        /* Estilos antiguos del modal de video (se mantienen por compatibilidad) */
+        .video-modal {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(30, 35, 40, 0.95);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1100;
+            opacity: 0;
+            transition: opacity 0.35s ease, visibility 0s linear 0.35s;
+            pointer-events: none;
+            visibility: hidden;
+            backdrop-filter: blur(8px);
+        }
+
+        .video-modal.active {
+            opacity: 1;
+            pointer-events: auto;
+            visibility: visible;
+            transition: opacity 0.35s ease;
+        }
+
+        .video-modal-content-wrapper {
+            background-color: white;
+            border-radius: var(--edu-border-radius);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+            display: flex;
+            flex-direction: column;
+            width: 90%;
+            max-width: 900px;
+            max-height: 90vh;
+            overflow: hidden;
+            transform: scale(0.95);
+            transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .video-modal.active .video-modal-content-wrapper {
+            transform: scale(1);
+        }
+
+        .video-modal-header {
+            padding: 1.25rem 1.5rem;
+            background-color: var(--edu-primary);
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .video-modal-header h5 {
+            font-family: 'Poppins', sans-serif;
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .video-modal-close {
+            background: none;
+            border: none;
+            color: white;
+            cursor: pointer;
+            font-size: 1.5rem;
+            padding: 0.25rem;
+            line-height: 1;
+            opacity: 0.8;
+            transition: all 0.2s ease;
+            border-radius: 50%;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .video-modal-close:hover {
+            opacity: 1;
+            background-color: rgba(255, 255, 255, 0.2);
+            transform: rotate(90deg);
+        }
+
+        .video-modal-body {
+            flex: 1;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #222;
+            overflow-y: auto;
+            border-radius: 0 0 var(--edu-border-radius) var(--edu-border-radius);
+        }
+
+        .video-modal-body video {
+            display: block;
+            width: 100%;
+            height: auto;
+            max-height: calc(90vh - 130px);
+            outline: none;
+        }
+
+        .video-error-display {
+            padding: 2rem;
+            text-align: center;
+            color: var(--edu-text-secondary);
+        }
+
+        .video-error-display .error-icon {
+            font-size: 3rem;
+            color: var(--edu-danger);
+            margin-bottom: 1rem;
+        }
+
+        .video-error-display h5 {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: var(--edu-text-primary);
+            margin-bottom: 0.75rem;
+        }
+
+        .video-error-display p {
+            font-size: 1rem;
+            line-height: 1.6;
+            margin-bottom: 0;
+        }
+
+        .video-modal-footer {
+            padding: 1rem 1.5rem;
+            background-color: #f8f9fa;
+            border-top: 1px solid #e1e8ed;
+            text-align: right;
+            border-radius: 0 0 var(--edu-border-radius) var(--edu-border-radius);
+        }
+
+        /* ========== EFECTOS ESPECIALES ========== */
+        .edu-pulse {
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(67, 97, 238, 0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(67, 97, 238, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(67, 97, 238, 0); }
+        }
+
+        /* ========== BOTÓN DE INSTALACIÓN PWA (Universal) ========== */
+        #install-app-btn {
+            display: none; /* Se controla via JS, pero empezará oculto para evitar parpadeos */
+            border: 2px solid rgba(255,255,255,0.4);
+            background: rgba(255,255,255,0.1);
+            color: white;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        #install-app-btn:hover {
+            background: white;
+            color: var(--edu-primary);
+            transform: scale(1.05);
+            border-color: white;
+        }
+
+        /* ========== RESPONSIVIDAD ADICIONAL ========== */
+        @media (max-width: 768px) {
+            .navbar {
+                padding: 0.75rem 1.5rem;
+            }
+            
+            .navbar-brand {
+                font-size: 1.4rem;
+            }
+        }
+        
+        /* ========== ESTILOS DEL MENTOR WIDGET ========== */
+        /* Trigger Button Wrapper */
+        .mentor-trigger { 
+            position: fixed; 
+            bottom: 30px; 
+            right: 30px; 
+            z-index: 10000;
+            /* Cursor de movimiento para indicar que se puede arrastrar */
+            cursor: grab; 
+            touch-action: none; /* Mejora para móviles */
+        }
+        
+        .mentor-trigger:active {
+            cursor: grabbing;
+        }
+
+        .btn-mentor-main {
+            width: 60px; height: 60px; border-radius: 50%;
+            background: linear-gradient(135deg, #0d6efd, #0043a8);
+            border: 2px solid rgba(255,255,255,0.2); color: white; font-size: 24px;
+            /* Quitamos cursor pointer aquí para que lo maneje el wrapper */
+            cursor: inherit; 
+            transition: transform 0.1s; /* Transición más rápida para el drag */
+            display: flex; align-items: center; justify-content: center;
+            pointer-events: none; 
+        }
+        
+        /* Reactivamos eventos de puntero solo para el botón interno */
+        .btn-mentor-main { pointer-events: auto; }
+
+        .btn-mentor-main:hover { transform: scale(1.05); }
+
+        .online-badge {
+            position: absolute; top: 2px; right: 2px; width: 14px; height: 14px;
+            background-color: #2ecc71; border: 2px solid #fff; border-radius: 50%;
+        }
+
+        /* Window Styles */
+        .mentor-window {
+            position: fixed; bottom: 100px; right: 30px; width: 380px; height: 500px;
+            background: #fff; border-radius: 16px; z-index: 10001; display: none;
+            flex-direction: column; border: 1px solid rgba(0,0,0,0.1);
+            transition: opacity 0.3s, transform 0.3s; /* Quitamos transition de bottom/right para evitar conflictos */
+            transform-origin: bottom right; box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+        }
+        .mentor-window.expanded {
+            width: 90vw; height: 85vh; bottom: 50% !important; right: 50% !important;
+            transform: translate(50%, 50%) !important; border-radius: 12px;
+        }
+        .mentor-backdrop {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5); z-index: 10000; display: none;
+            backdrop-filter: blur(2px); transition: opacity 0.3s;
+        }
+
+        /* Internals */
+        .mentor-header { background: linear-gradient(135deg, #0d6efd, #0b5ed7); padding: 15px; display: flex; justify-content: space-between; align-items: center; }
+        .mentor-controls .btn-control {
+            background: rgba(255,255,255,0.2); border: none; color: white;
+            width: 28px; height: 28px; border-radius: 6px; font-size: 12px;
+            cursor: pointer; margin-left: 5px;
+        }
+        .mentor-controls .btn-control:hover { background: rgba(255,255,255,0.4); }
+        .mentor-controls .btn-close-x:hover { background: #dc3545; }
+        
+        .mentor-body { flex: 1; padding: 15px; overflow-y: auto; background-color: #f8f9fa; font-size: 0.95rem; }
+        .mentor-footer { padding: 12px; background: #fff; border-top: 1px solid #eee; }
+
+        /* Chat Bubbles */
+        .chat-bubble-ai {
+            background: #fff; border: 1px solid #e9ecef; border-radius: 12px 12px 12px 0;
+            padding: 12px 16px; max-width: 85%; color: #333; line-height: 1.6;
+        }
+        .chat-bubble-user {
+            background: #0d6efd; color: white; border-radius: 12px 12px 0 12px;
+            padding: 12px 16px; max-width: 85%; margin-left: auto;
+        }
+        /* Markdown Styling */
+        .chat-bubble-ai h3 { font-size: 1.1rem; color: #0d6efd; margin-top: 10px; border-bottom: 1px solid #eee; }
+        .chat-bubble-ai ul { padding-left: 18px; }
+        .chat-bubble-ai blockquote { border-left: 4px solid #198754; background: #f0fff4; padding: 8px 12px; margin: 8px 0; font-style: italic;}
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark sticky-top">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="/">
+                <i class="fas fa-atom"></i>
+                <span>Learning Labs</span>
+            </a>
+
+            <div class="d-flex align-items-center ms-auto">
+                
+                {% if user.is_authenticated %}
+                    <button id="install-app-btn" class="btn btn-sm rounded-circle me-3" style="width: 40px; height: 40px; align-items: center; justify-content: center; padding: 0;" title="Instalar Aplicación">
+                        <div style="position: relative; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;">
+                            <i class="fas fa-mobile-alt" style="font-size: 1.2rem;"></i>
+                            <i class="fas fa-download" style="font-size: 0.7rem; position: absolute; bottom: 4px; right: 4px; background: var(--edu-primary); color: white; border-radius: 50%; padding: 2px; border: 1px solid white;"></i>
+                        </div>
+                    </button>
+                {% endif %}
+
+                <button class="navbar-toggler ms-2" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="fas fa-bars" style="color: white; font-size: 1.2rem;"></span>
+                </button>
+            </div>
+
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <div class="navbar-nav ms-auto align-items-lg-center">
+                    <a href="/" class="nav-link"><i class="fas fa-home"></i> <span>Inicio</span></a>
+                    
+                    {% if user.is_authenticated %}
+                        
+                        <a class="nav-link position-relative mx-lg-1" href="{% url 'social:buzon_mensajes' %}" title="Mensajería Interna">
+                            <i class="fas fa-envelope"></i>
+                            <span class="d-lg-none ms-2">Mensajes</span>
+                            
+                            {% if mensajes_no_leidos_count > 0 %}
+                            <span class="badge-notification">
+                                {{ mensajes_no_leidos_count }}
+                            </span>
+                            {% endif %}
+                        </a>
+
+                        <li class="nav-item dropdown mx-lg-1">
+                            <a class="nav-link position-relative" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" id="notification-dropdown-toggle">
+                                <i class="fas fa-bell"></i>
+                                <span class="d-lg-none ms-2">Notificaciones</span>
+                                
+                                <span id="notification-badge" class="badge-notification" style="{% if notificaciones_count == 0 %}display: none;{% endif %}">
+                                    {{ notificaciones_count }}
+                                </span>
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end shadow-lg" style="width: 320px; max-height: 450px; overflow-y: auto;">
+                                <li class="dropdown-header fw-bold text-uppercase text-muted small px-3 py-2 bg-light">
+                                    <i class="fas fa-bell me-1"></i> Notificaciones
+                                </li>
+                                {% for n in mis_notificaciones %}
+                                <li>
+                                    <a class="dropdown-item d-flex align-items-start py-2 border-bottom" href="{% if n.link_destino %}{{ n.link_destino }}{% else %}{% url 'social:historial_notificaciones' %}{% endif %}">
+                                        <div class="me-3 mt-1">
+                                            {% if n.tipo == 'ASISTENCIA' %}<i class="fas fa-clock text-warning fa-lg"></i>
+                                            {% elif n.tipo == 'OBSERVADOR' %}<i class="fas fa-exclamation-triangle text-danger fa-lg"></i>
+                                            {% elif n.tipo == 'ACTIVIDAD' %}<i class="fas fa-book-open text-info fa-lg"></i>
+                                            {% elif n.tipo == 'MENSAJE' %}<i class="fas fa-envelope text-success fa-lg"></i>
+                                            {% else %}<i class="fas fa-info-circle text-secondary fa-lg"></i>{% endif %}
+                                        </div>
+                                        <div style="white-space: normal; line-height: 1.3;">
+                                            <strong class="d-block text-dark mb-1">{{ n.titulo }}</strong>
+                                            <span class="d-block text-muted small">{{ n.mensaje|truncatechars:45 }}</span>
+                                            <small class="text-primary mt-1 d-block" style="font-size: 0.7rem;">{{ n.fecha_creacion|timesince }}</small>
+                                        </div>
+                                    </a>
+                                </li>
+                                {% empty %}
+                                <li class="text-center py-4 text-muted">
+                                    <i class="far fa-bell-slash fa-2x mb-2"></i>
+                                    <p class="mb-0 small">Sin notificaciones nuevas</p>
+                                </li>
+                                {% endfor %}
+                                
+                                <li><hr class="dropdown-divider my-0"></li>
+                                <li>
+                                    <a class="dropdown-item text-center small py-2 fw-bold text-primary bg-light" href="{% url 'social:historial_notificaciones' %}">
+                                        Ver historial completo <i class="fas fa-arrow-right ms-1"></i>
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+
+                        <a href="{% url 'social:social_feed' %}" class="nav-link"><i class="fas fa-users"></i> <span>Comunidad</span></a>
+                        
+                        <a href="{% url 'social:lista_grupos' %}" class="nav-link"><i class="fas fa-layer-group"></i> <span>Grupos</span></a>
+
+                        <li class="nav-item">
+                            <a class="nav-link {% if request.resolver_match.url_name == 'documentos_institucionales' %}active{% endif %}" 
+                               href="{% url 'wellbeing:documentos_institucionales' %}">
+                                <i class="fas fa-folder-open me-2"></i>
+                                <span>Documentos</span>
+                            </a>
+                        </li>
+
+                        {% if user.perfil.rol == 'ADMINISTRADOR' or user.perfil.rol == 'PSICOLOGO' or user.perfil.rol == 'COORD_ACADEMICO' or user.perfil.rol == 'COORD_CONVIVENCIA' %}
+                            <a href="{% url 'wellbeing:dashboard_bienestar' %}" class="nav-link">
+                                <i class="fas fa-chart-line"></i> <span>Bienestar</span>
+                            </a>
+                        {% endif %}
+                        
+                        {% if user.perfil.rol != 'ADMINISTRADOR' %}
+                    
+                            {% if user.perfil.rol == 'DOCENTE' %}
+                            <a href="{% url 'dashboard_docente' %}" class="nav-link">
+                                <i class="fas fa-clipboard-list"></i> <span>Notas</span>
+                            </a>
+                            
+                            {% elif user.perfil.rol == 'ESTUDIANTE' or user.perfil.rol == 'ACUDIENTE' %}
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                                    <i class="fas fa-book-reader"></i> <span>Mis Cursos</span>
+                                </a>
+                                <ul class="dropdown-menu shadow-sm">
+                                    <li><a class="dropdown-item" href="/english"><i class="fas fa-language"></i> Inglés</a></li>
+                                    <li><a class="dropdown-item" href="/english2"><i class="fas fa-square-root-alt"></i> Matemáticas</a></li>
+                                    <li><a class="dropdown-item" href="/english3"><i class="fas fa-code"></i> Programación</a></li>
+                                    <li><a class="dropdown-item" href="/english4"><i class="fas fa-gamepad"></i> Juegos</a></li>
+                                </ul>
+                            </li>
+                            {% endif %}
+                            
+                        {% endif %}
+
+                        {% if user.perfil.rol == 'ESTUDIANTE' %}
+                        <a href="{% url 'dashboard_estudiante' %}" class="nav-link btn btn-sm btn-outline-light border-0 ms-lg-2">
+                            <i class="fas fa-user-graduate"></i> Mi Panel
+                        </a>
+                        {% elif user.perfil.rol == 'DOCENTE' %}
+                        <a href="{% url 'dashboard_docente' %}" class="nav-link btn btn-sm btn-outline-light border-0 ms-lg-2">
+                            <i class="fas fa-chalkboard-teacher"></i> Panel Docente
+                        </a>
+                        
+                        {% elif user.perfil.rol == 'ADMINISTRADOR' %}
+                        
+                        <a href="{% url 'admin_dashboard' %}" class="nav-link">
+                            <i class="fas fa-user-tie"></i> Admin
+                        </a>
+                        
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                                <i class="fas fa-tools"></i> Gestión
+                            </a>
+                            <ul class="dropdown-menu shadow-sm">
+                                <li><a class="dropdown-item" href="{% url 'admin:tasks_institucion_changelist' %}">Institución</a></li>
+                                <li><a class="dropdown-item" href="{% url 'academics:gestionar_cursos' %}">Cursos</a></li>
+                                
+                                <li><a class="dropdown-item" href="{% url 'academics:asignar_curso_estudiante' %}">Asignar Estudiantes</a></li>
+                                <li><a class="dropdown-item" href="{% url 'academics:asignar_materia_docente' %}">Asignar Materias</a></li>
+                                
+                                <li><a class="dropdown-item" href="{% url 'gestion_perfiles' %}">Perfiles</a></li>
+                                <li><a class="dropdown-item" href="{% url 'admin_ex_estudiantes' %}">Archivo</a></li>
+                            </ul>
+                        </li>
+                        
+                        {% elif user.perfil.rol == 'ACUDIENTE' %} 
+                        <a href="{% url 'dashboard_acudiente' %}" class="nav-link">
+                             <i class="fas fa-user-shield"></i> Panel Acudiente
+                        </a>
+                        {% endif %}
+                        
+                        <li class="nav-item dropdown ms-lg-3">
+                            <a class="nav-link dropdown-toggle d-flex align-items-center p-0" href="#" id="navbarDropdownProfile" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                {% if user.perfil.foto_perfil %}
+                                    <img src="{{ user.perfil.foto_perfil.url }}" alt="Avatar" class="rounded-circle nav-avatar-img" width="38" height="38">
+                                {% else %}
+                                    <div class="rounded-circle bg-secondary nav-avatar-placeholder">
+                                        {{ user.username|slice:":1"|upper }}
+                                    </div>
+                                {% endif %}
+                                <span class="d-lg-none ms-2">{{ user.username }}</span>
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0" aria-labelledby="navbarDropdownProfile">
+                                <li class="text-center py-2 bg-light rounded-top">
+                                    <small class="text-muted text-uppercase fw-bold" style="font-size: 0.7rem;">Sesión iniciada como</small>
+                                    <h6 class="mb-0 fw-bold text-primary">{{ user.get_full_name|default:user.username }}</h6>
+                                </li>
+                                <li><hr class="dropdown-divider my-1"></li>
+                                <li><a class="dropdown-item" href="{% url 'social:ver_perfil_social' user.username %}"><i class="fas fa-user-circle text-primary"></i> Mi Perfil Social</a></li>
+                                <li><hr class="dropdown-divider my-1"></li>
+                                <li><a class="dropdown-item text-danger" href="{% url 'signout' %}"><i class="fas fa-sign-out-alt"></i> Cerrar Sesión</a></li>
+                            </ul>
+                        </li>
+
+                    {% else %}
+                        <a href="/signin" class="nav-link ms-lg-3 btn btn-edu-primary text-white shadow-sm px-4">
+                            <i class="fas fa-sign-in-alt"></i> Ingresar
+                        </a>
+                    {% endif %}
+                </div>
+                
+            </div>
+        </div>
+    </nav>
+
+    {# El contenido específico de cada página se inserta aquí #}
+    <div class="main-content-wrapper">
+        <div id="rotate-hint" class="container">
+            <div class="d-flex align-items-center justify-content-center">
+                <i class="fas fa-mobile-alt fa-rotate-90 me-2"></i>
+                <span>Gira tu dispositivo para ver mejor las tablas de datos.</span>
+            </div>
+        </div>
+
+        {# 🔥 INJERTO QUIRÚRGICO: Espacio para el Botón de Atrás 🔥 #}
+        <div class="container px-0 mb-3">
+            {% block back_button %}{% endblock %}
+        </div>
+
+        {% block content %}{% endblock %}
+    </div>
+    
+    <div id="youtubeModal" class="yt-modal">
+        <div class="yt-modal-content">
+            <span class="close-yt" onclick="closeYtModal()">&times; Cerrar</span>
+            <div class="video-container">
+                <iframe id="ytPlayer" src="" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+            </div>
+            <div class="yt-modal-footer">
+                <a id="ytExternalLink" href="#" target="_blank" class="btn btn-sm btn-outline-secondary text-white" style="border: 1px solid #555;">
+                    <i class="fas fa-external-link-alt"></i> ¿No carga? Ver en YouTube
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="video-modal" id="videoModal">
+        <div class="video-modal-content-wrapper">
+            <div class="video-modal-header">
+                <h5><i class="fas fa-play-circle"></i> <span id="videoModalTitle">Clase Educativa</span></h5>
+                <button class="video-modal-close" id="videoModalClose" title="Cerrar video">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="video-modal-body" id="videoModalBody">
+            </div>
+            <div class="video-modal-footer">
+                <button class="btn btn-edu btn-edu-secondary" id="videoModalCloseBtn">
+                    <i class="fas fa-times"></i> Cerrar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div id="mentor-chat-window" class="mentor-window shadow-lg">
+        <div class="mentor-header bg-gradient-primary">
+            <div class="d-flex align-items-center">
+                <i class="fas fa-graduation-cap me-2 text-white-50"></i>
+                <span class="fw-bold text-white">Mentor Institucional</span>
+            </div>
+            <div class="mentor-controls">
+                <button onclick="startNewChat()" class="btn-control" title="Nueva Clase / Limpiar" data-bs-toggle="tooltip">
+                    <i class="fas fa-eraser"></i>
+                </button>
+                <button onclick="toggleExpand()" class="btn-control" title="Expandir/Contraer">
+                    <i class="fas fa-expand" id="icon-expand"></i>
+                    <i class="fas fa-compress" id="icon-compress" style="display: none;"></i>
+                </button>
+                <button onclick="toggleMentorChat()" class="btn-control" title="Minimizar">
+                    <i class="fas fa-minus"></i>
+                </button>
+                <button onclick="closeMentorWidget()" class="btn-control btn-close-x" title="Cerrar sesión">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        </div>
+
+        <div id="widget-chat-box" class="mentor-body custom-scrollbar">
+        </div>
+
+        <div id="widget-loading" class="text-center small text-muted py-2" style="display: none;">
+            <i class="fas fa-circle-notch fa-spin"></i> Preparando la clase...
+        </div>
+
+        <div class="mentor-footer">
+            <form id="widget-chat-form" class="d-flex gap-2">
+                <input type="text" id="widget-user-input" class="form-control form-control-sm rounded-pill" placeholder="Escribe aquí tu duda..." autocomplete="off">
+                <button type="submit" class="btn btn-primary btn-sm rounded-circle shadow-sm" style="width: 32px; height: 32px;">
+                    <i class="fas fa-paper-plane"></i>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <div id="mentor-trigger-btn" class="mentor-trigger animate__animated animate__fadeInUp">
+        <button id="btn-mentor-action" class="btn-mentor-main shadow-lg">
+            <i class="fas fa-comment-dots" id="icon-closed"></i>
+            <i class="fas fa-chevron-down" id="icon-open" style="display: none;"></i>
+            <span class="online-badge"></span>
+        </button>
+    </div>
+
+    <div id="mentor-backdrop" onclick="toggleExpand()" class="mentor-backdrop"></div>
+
+    {# 1. Cargar la biblioteca de Bootstrap PRIMERO #}
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    
+    {# 2. Cargar librería de editor Markdown (SimpleMDE) #}
+    <script src="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.js"></script>
+
+    {# 3. Lógica Global (Video, Notificaciones y Mentor) #}
+    <script>
+        // Elementos del DOM del Modal de Video
+        const videoModalEl = document.getElementById('videoModal');
+        const videoModalBodyEl = document.getElementById('videoModalBody');
+        const videoModalTitleEl = document.getElementById('videoModalTitle');
+        const videoModalCloseHeaderEl = document.getElementById('videoModalClose');
+        const videoModalCloseFooterBtnEl = document.getElementById('videoModalCloseBtn');
+
+        // --- Event Listeners ---
+        function setupEventListeners() {
+            console.log("Base.html: Setting up event listeners...");
+            if (videoModalCloseHeaderEl) videoModalCloseHeaderEl.addEventListener('click', closeVideoModal);
+            if (videoModalCloseFooterBtnEl) videoModalCloseFooterBtnEl.addEventListener('click', closeVideoModal);
+
+            // Escuchar tecla Escape para cerrar modal
+            document.addEventListener('keydown', handleGlobalKeydown);
+
+             // --- ✅ SCRIPT DE NOTIFICACIONES ---
+             const notifToggle = document.getElementById('notification-dropdown-toggle');
+             if(notifToggle) {
+                 notifToggle.addEventListener('click', resetNotificationCounter);
+             }
+             
+             // --- DETECCIÓN DE TABLAS PARA SUGERENCIA DE ROTACIÓN ---
+             if(document.querySelector('table')) {
+                 document.body.classList.add('has-tables');
+             }
+             
+             console.log("Base.html: Event listeners setup complete.");
+        }
+        
+        // --- FUNCIÓN DE RESETEO DE NOTIFICACIONES ---
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
+        async function resetNotificationCounter() {
+            const csrftoken = getCookie('csrftoken');
+            const counterElement = document.getElementById('notification-badge');
+
+            // Si no hay contador o ya es 0, no hacemos nada
+            if (!counterElement || counterElement.style.display === 'none' || parseInt(counterElement.innerText) === 0) {
+                return;
+            }
+
+            try {
+                // CORREGIDO: Prefijo social: agregado aquí también
+                const response = await fetch('{% url "social:mark_all_notifications_read" %}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': csrftoken
+                    },
+                    body: JSON.stringify({})
+                });
+
+                if (response.ok) {
+                    counterElement.innerText = '0';
+                    counterElement.style.display = 'none';
+                    console.log('Notificaciones marcadas como leídas visualmente.');
+                }
+            } catch (error) {
+                console.error('Error al resetear notificaciones:', error);
+            }
+        }
+
+        // --- Funciones del Modal de Video ---
+        function openVideoModal(videoUrl, videoTitle = "Clase Educativa") {
+            if (!videoModalEl || !videoModalBodyEl || !videoModalTitleEl) {
+                console.error("Error: Elementos del modal de video no encontrados.");
+                return;
+            }
+            console.log(`Opening video modal for: ${videoTitle} (URL: ${videoUrl})`);
+
+            videoModalTitleEl.textContent = videoTitle;
+            videoModalBodyEl.innerHTML = "";
+
+            if (!videoUrl || videoUrl.trim() === '' || videoUrl.toUpperCase() === 'TU_URL_AQUI') {
+                 console.warn("Video URL is missing or invalid.");
+                const errorHtml = `
+                    <div class="video-error-display">
+                        <div class="error-icon"><i class="fas fa-exclamation-triangle"></i></div>
+                        <h5>Video No Disponible</h5>
+                        <p>El contenido para "<strong>${videoTitle}</strong>" no está disponible en este momento.</p>
+                    </div>`;
+                videoModalBodyEl.innerHTML = errorHtml;
+            } else {
+                const videoElement = document.createElement('video');
+                videoElement.setAttribute('width', '100%');
+                videoElement.setAttribute('controls', '');
+                videoElement.setAttribute('autoplay', '');
+                videoElement.setAttribute('playsinline', '');
+                videoElement.style.display = 'block';
+                videoElement.style.maxHeight = 'calc(90vh - 130px)';
+                videoElement.style.backgroundColor = '#000';
+
+                const sourceElement = document.createElement('source');
+                sourceElement.setAttribute('src', videoUrl);
+                
+                if (videoUrl.toLowerCase().endsWith('.mp4')) {
+                    sourceElement.setAttribute('type', 'video/mp4');
+                } else if (videoUrl.toLowerCase().endsWith('.webm')) {
+                     sourceElement.setAttribute('type', 'video/webm');
+                } else if (videoUrl.toLowerCase().endsWith('.ogv')) {
+                     sourceElement.setAttribute('type', 'video/ogg');
+                } 
+                else {
+                     console.warn("Tipo de video desconocido para:", videoUrl, ". Intentando sin 'type'.");
+                }
+
+                videoElement.appendChild(sourceElement);
+                videoElement.appendChild(document.createTextNode('Tu navegador no soporta la etiqueta de video.'));
+
+                videoModalBodyEl.appendChild(videoElement);
+
+                videoElement.play().catch(error => {
+                    console.log("Autoplay fue prevenido por el navegador:", error);
+                });
+
+                videoElement.addEventListener('error', (e) => {
+                    console.error("Error al cargar el video:", videoUrl, e);
+                    videoModalBodyEl.innerHTML = `
+                        <div class="video-error-display">
+                            <div class="error-icon"><i class="fas fa-times-circle"></i></div>
+                            <h5>Error al Cargar Video</h5>
+                            <p>No se pudo cargar el video desde la URL proporcionada.</p>
+                        </div>`;
+                });
+            }
+
+            videoModalEl.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+
+        function closeVideoModal() {
+             console.log("Closing video modal.");
+            const videoElement = videoModalBodyEl.querySelector('video');
+            if (videoElement) {
+                videoElement.pause();
+                while (videoElement.firstChild) {
+                    videoElement.removeChild(videoElement.firstChild);
+                }
+                videoElement.load();
+                 videoElement.remove();
+            }
+
+            videoModalEl.classList.remove('active');
+            document.body.style.overflow = '';
+
+            setTimeout(() => {
+                if (videoModalBodyEl && !videoModalEl.classList.contains('active')) {
+                    videoModalBodyEl.innerHTML = "";
+                }
+            }, 350);
+        }
+
+
+        // --- Handlers de Eventos Globales ---
+        function handleGlobalKeydown(event) {
+            if (event.key === "Escape" || event.key === "Esc") {
+                 console.log("Escape key pressed.");
+                if (videoModalEl && videoModalEl.classList.contains('active')) {
+                    console.log("Closing video modal via Escape key.");
+                    closeVideoModal();
+                }
+            }
+        }
+
+        // --- Inicialización al Cargar el DOM ---
+        console.log("Base.html: Script principal iniciando...");
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initializeApp);
+        } else {
+            initializeApp();
+        }
+
+        function initializeApp() {
+            console.log("Base.html: DOMContentLoaded event fired. Running initializeApp().");
+            setupEventListeners();
+
+            // Configurar Marked si está disponible
+            if (typeof marked !== 'undefined') {
+                 marked.setOptions({
+                    breaks: true,
+                    gfm: true,
+                    sanitize: false
+                });
+            }
+
+            // Inicializar Editor Markdown (SimpleMDE) Automáticamente
+            const editorIds = ["id_content", "id_contenido", "id_descripcion", "id_cuerpo"];
+            editorIds.forEach(id => {
+                const element = document.getElementById(id);
+                if (element && typeof SimpleMDE !== 'undefined') {
+                     new SimpleMDE({ 
+                        element: element,
+                        spellChecker: false,
+                        placeholder: element.getAttribute("placeholder") || "Escribe aquí con formato...",
+                        status: false,
+                        toolbar: ["bold", "italic", "heading", "|", "quote", "unordered-list", "ordered-list", "|", "link", "image", "|", "preview", "guide"]
+                    });
+                }
+            });
+
+            // === SCRIPT DE INICIALIZACIÓN Y AUTO-REPARACIÓN DE FORMULARIOS ===
+            const formsWithEditors = document.querySelectorAll('form');
+            formsWithEditors.forEach(form => {
+                const hasEditor = form.querySelector('.CodeMirror'); 
+                if (hasEditor) {
+                    form.setAttribute('novalidate', 'true');
+                    console.log("Auto-reparación: Formulario desbloqueado (novalidate añadido).");
+
+                    form.addEventListener('submit', function() {
+                        const btn = form.querySelector('button[type="submit"]');
+                        if(btn) {
+                            btn.style.opacity = '0.7';
+                            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Procesando...';
+                        }
+                    });
+                }
+            });
+
+            // ==========================================
+            // LÓGICA DE INSTALACIÓN PWA (MULTIPLATAFORMA CORREGIDA)
+            // ==========================================
+            let deferredPrompt;
+            const installBtn = document.getElementById('install-app-btn');
+            const isIos = /iPhone|iPad|iPod/.test(navigator.userAgent) && !window.MSStream;
+            // Detecta si la app YA está instalada o en modo "pantalla completa"
+            const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+
+            // 1. VISIBILIDAD FORZADA: Si el botón existe y NO es la app instalada, MOSTRARLO.
+            // Esto arregla el problema de "Android imposible" porque muestra el botón aunque el evento tarde.
+            if (installBtn && !isStandalone) {
+                installBtn.style.display = 'flex'; 
+                // Añadimos 'important' vía CSS text para sobrescribir cualquier display:none previo
+                installBtn.style.cssText = "display: flex !important; align-items: center; justify-content: center;"; 
+            }
+
+            // 2. Captura del evento nativo (para Android/PC si está disponible)
+            window.addEventListener('beforeinstallprompt', (e) => {
+                e.preventDefault();
+                deferredPrompt = e;
+                console.log("PWA: Evento nativo capturado y listo.");
+            });
+
+            // 3. Manejador de Click INTELIGENTE (Cubre todos los casos)
+            if(installBtn) {
+                installBtn.addEventListener('click', async () => {
+                    if (deferredPrompt) {
+                        // A) El navegador lo permite nativamente (Android/PC Ideal)
+                        deferredPrompt.prompt();
+                        const { outcome } = await deferredPrompt.userChoice;
+                        console.log(`User response to install prompt: ${outcome}`);
+                        deferredPrompt = null;
+                        if(outcome === 'accepted') installBtn.style.display = 'none';
+                    } else if (isIos) {
+                        // B) Es iPhone/iPad (Instrucciones manuales)
+                        alert("Para instalar en iOS:\n1. Presiona el botón 'Compartir' (icono cuadrado con flecha) en la barra inferior.\n2. Busca y selecciona 'Agregar a Inicio'.");
+                    } else {
+                        // C) FALLBACK UNIVERSAL (Android sin evento / PC sin evento)
+                        // Esto garantiza que el botón SIEMPRE haga algo útil, aunque Chrome no quiera instalarlo automáticamente.
+                        alert("Instalación Manual:\n\nAndroid: Abre el menú del navegador (tres puntos) y selecciona 'Instalar aplicación' o 'Agregar a pantalla de inicio'.\n\nPC: Busca el icono (+) en la barra de direcciones.");
+                    }
+                });
+            }
+
+            // ==========================================
+            // REGISTRO DE SERVICE WORKER
+            // ==========================================
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.register('/sw.js')
+                .then(function(registration) {
+                    console.log('Service Worker registrado con éxito:', registration.scope);
+                })
+                .catch(function(error) {
+                    console.log('Fallo al registrar Service Worker:', error);
+                });
+            }
+
+            console.log("Base.html: initializeApp() complete.");
+        }
+
+    </script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            document.body.addEventListener('click', function(e) {
+                var target = e.target.closest('a');
+                
+                // Si no es un link o no tiene href, salir
+                if (!target || !target.getAttribute('href')) return;
+
+                var href = target.getAttribute('href');
+                var currentDomain = window.location.hostname;
+
+                // --- 1. LÓGICA DE YOUTUBE (Prioridad Alta) ---
+                // Si es YouTube, NO abrimos el modal. Forzamos nueva pestaña automáticamente.
+                // Esto evita el Error 153 porque el video carga directamente en youtube.com
+                if (href.includes('youtube.com/watch') || href.includes('youtu.be')) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    window.open(href, '_blank', 'noopener,noreferrer');
+                    return; 
+                }
+
+                // --- 2. LÓGICA DE ENLACES EXTERNOS (Evitar Error 153 en otros sitios) ---
+                // Verifica rigurosamente si el dominio destino es diferente al actual
+                try {
+                    // Solo analizamos URLs absolutas (http/https)
+                    if (href.indexOf('http') === 0) {
+                        var targetUrl = new URL(href);
+                        
+                        // Si el "hostname" es diferente, es externo -> FUERZA NUEVA PESTAÑA
+                        if (targetUrl.hostname !== currentDomain) {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            // 'noopener,noreferrer' es buena práctica de seguridad
+                            window.open(href, '_blank', 'noopener,noreferrer');
+                            console.log("Enlace externo detectado y redirigido a nueva pestaña:", href);
+                        }
+                    }
+                } catch (err) {
+                    // Si la URL es rara o falla el análisis, dejamos que el navegador decida,
+                    // pero por seguridad podríamos forzar _blank si parece http
+                    if (href.indexOf('http') === 0) {
+                         window.open(href, '_blank');
+                    }
+                }
+
+                // --- 3. LÓGICA PDF ---
+                if (href.toLowerCase().endsWith('.pdf')) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    // Abrir PDF en una pestaña nueva para evitar problemas de CORS/X-Frame
+                    window.open(href, '_blank', 'noopener,noreferrer');
+                }
+
+            }, true); // Use capture para interceptar antes que nadie
+        });
+
+        // NOTA: Estas funciones quedan aquí por si en el futuro decides arreglar el API,
+        // pero actualmente no se llamarán para enlaces de YouTube gracias al bloque anterior.
+        function openYtModal(url) {
+            var videoId = '';
+            var regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+            var match = url.match(regExp);
+
+            if (match && match[2].length == 11) {
+                videoId = match[2];
+                var embedUrl = 'https://www.youtube.com/embed/' + videoId + '?autoplay=1';
+                
+                document.getElementById('ytPlayer').src = embedUrl;
+                
+                // Actualizamos el botón de emergencia por si el video falla
+                var externalBtn = document.getElementById('ytExternalLink');
+                if(externalBtn) {
+                    externalBtn.href = url;
+                }
+
+                document.getElementById('youtubeModal').style.display = 'block';
+            } else {
+                // Si falla el regex (enlace roto), abrir en nueva pestaña por seguridad
+                window.open(url, '_blank');
+            }
+        }
+
+        function closeYtModal() {
+            var modal = document.getElementById('youtubeModal');
+            var iframe = document.getElementById('ytPlayer');
+            
+            modal.style.display = 'none';
+            iframe.src = ''; 
+        }
+
+        // Cerrar modal al hacer clic fuera del contenido
+        window.addEventListener('click', function(event) {
+            var modal = document.getElementById('youtubeModal');
+            if (event.target == modal) {
+                closeYtModal();
+            }
+        });
+    </script>
+    
+    <script>
+        const widgetWindow = document.getElementById('mentor-chat-window');
+        const backdrop = document.getElementById('mentor-backdrop');
+        const iconClosed = document.getElementById('icon-closed');
+        const iconOpen = document.getElementById('icon-open');
+        const widgetInput = document.getElementById('widget-user-input');
+        const widgetBox = document.getElementById('widget-chat-box');
+        const iconExpand = document.getElementById('icon-expand');
+        const iconCompress = document.getElementById('icon-compress');
+        
+        // Variables para el Drag & Drop
+        const dragItem = document.getElementById('mentor-trigger-btn');
+        const actionBtn = document.getElementById('btn-mentor-action');
+        let active = false;
+        let currentX;
+        let currentY;
+        let initialX;
+        let initialY;
+        let xOffset = 0;
+        let yOffset = 0;
+        let hasMoved = false; // Para diferenciar click de drag
+
+        // Inicializar al cargar
+        document.addEventListener('DOMContentLoaded', function() {
+            startNewChat(false);
+        });
+
+        // ==========================================
+        // LÓGICA DE ARRASTRAR (DRAG & DROP)
+        // ==========================================
+        
+        if(dragItem) {
+            dragItem.addEventListener("mousedown", dragStart, false);
+            dragItem.addEventListener("touchstart", dragStart, false);
+        }
+        document.addEventListener("mouseup", dragEnd, false);
+        document.addEventListener("mousemove", drag, false);
+
+        // Eventos Touch (Móvil)
+        document.addEventListener("touchend", dragEnd, false);
+        document.addEventListener("touchmove", drag, false);
+
+        function dragStart(e) {
+            if (e.type === "touchstart") {
+                initialX = e.touches[0].clientX - xOffset;
+                initialY = e.touches[0].clientY - yOffset;
+            } else {
+                initialX = e.clientX - xOffset;
+                initialY = e.clientY - yOffset;
+            }
+
+            if (e.target === actionBtn || actionBtn.contains(e.target)) {
+                active = true;
+                hasMoved = false; // Reiniciamos contador de movimiento
+            }
+        }
+
+        function dragEnd(e) {
+            initialX = currentX;
+            initialY = currentY;
+            active = false;
+        }
+
+        function drag(e) {
+            if (active) {
+                e.preventDefault();
+            
+                if (e.type === "touchmove") {
+                    currentX = e.touches[0].clientX - initialX;
+                    currentY = e.touches[0].clientY - initialY;
+                } else {
+                    currentX = e.clientX - initialX;
+                    currentY = e.clientY - initialY;
+                }
+
+                // Si se mueve más de 2 pixeles, consideramos que está arrastrando, no haciendo click
+                if (Math.abs(currentX - xOffset) > 2 || Math.abs(currentY - yOffset) > 2) {
+                    hasMoved = true;
+                }
+
+                xOffset = currentX;
+                yOffset = currentY;
+
+                setTranslate(currentX, currentY, dragItem);
+            }
+        }
+
+        function setTranslate(xPos, yPos, el) {
+            el.style.transform = "translate3d(" + xPos + "px, " + yPos + "px, 0)";
+        }
+
+        // ==========================================
+        // LÓGICA DE CHAT (CLICK INTELIGENTE)
+        // ==========================================
+
+        // Solo abrimos el chat si NO se movió el botón (fue un click limpio)
+        if(actionBtn) {
+            actionBtn.addEventListener('click', function(e) {
+                if (!hasMoved) {
+                    toggleMentorChat();
+                }
+            });
+        }
+
+        // 1. NUEVO CHAT (LIMPIAR)
+        function startNewChat(forceClear = true) {
+            if (forceClear) {
+                widgetBox.innerHTML = '<div class="text-center text-muted py-5"><i class="fas fa-magic fa-2x mb-3 animate__animated animate__fadeOut"></i><br>Limpiando pizarra...</div>';
+                setTimeout(() => { _injectWelcome(); }, 600);
+            } else {
+                if (widgetBox.innerHTML.trim() === "") _injectWelcome();
+            }
+        }
+
+        function _injectWelcome() {
+            widgetBox.innerHTML = `
+                <div class="d-flex justify-content-start mb-3 animate__animated animate__fadeIn">
+                    <div class="chat-bubble-ai shadow-sm">
+                        <strong><i class="fas fa-robot"></i> Mentor Institucional:</strong>
+                        <p class="mb-0 mt-2">¡Hola! Soy tu tutor pedagógico.</p>
+                        <p class="mb-0 small text-muted">¿Qué tema quieres dominar hoy?</p>
+                    </div>
+                </div>
+            `;
+            widgetInput.value = '';
+            widgetInput.focus();
+        }
+
+        // 2. TOGGLES DE VENTANA
+        function toggleMentorChat() {
+            if (widgetWindow.classList.contains('expanded')) toggleExpand();
+
+            if (widgetWindow.style.display === 'none' || widgetWindow.style.display === '') {
+                widgetWindow.style.display = 'flex';
+                iconClosed.style.display = 'none';
+                iconOpen.style.display = 'block';
+                setTimeout(() => widgetInput.focus(), 100);
+            } else {
+                widgetWindow.style.display = 'none';
+                iconClosed.style.display = 'block';
+                iconOpen.style.display = 'none';
+            }
+        }
+
+        function toggleExpand() {
+            widgetWindow.classList.toggle('expanded');
+            if (widgetWindow.classList.contains('expanded')) {
+                backdrop.style.display = 'block';
+                iconExpand.style.display = 'none';
+                iconCompress.style.display = 'inline';
+            } else {
+                backdrop.style.display = 'none';
+                iconExpand.style.display = 'inline';
+                iconCompress.style.display = 'none';
+            }
+        }
+
+        function closeMentorWidget() {
+            if (widgetWindow.classList.contains('expanded')) toggleExpand();
+            widgetWindow.style.display = 'none';
+            document.getElementById('mentor-trigger-btn').style.display = 'none';
+        }
+
+        // 3. ENVÍO DE MENSAJES
+        document.getElementById('widget-chat-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const text = widgetInput.value.trim();
+            if (!text) return;
+
+            appendWidgetMessage('user', text);
+            widgetInput.value = '';
+
+            const loading = document.getElementById('widget-loading');
+            loading.style.display = 'block';
+            widgetBox.scrollTop = widgetBox.scrollHeight;
+
+            try {
+                const url = `{% url 'ai_engine' %}?action=chat_socratico&user_query=${encodeURIComponent(text)}&format=json`;
+                const response = await fetch(url, { headers: { 'X-Requested-With': 'XMLHttpRequest' }});
+                const data = await response.json();
+                
+                loading.style.display = 'none';
+                if (data.success) appendWidgetMessage('ai', data.content);
+                else appendWidgetMessage('ai', `⚠️ Error: ${data.content}`);
+            } catch (error) {
+                loading.style.display = 'none';
+                appendWidgetMessage('ai', "❌ Error de conexión.");
+            }
+        });
+
+        function appendWidgetMessage(role, text) {
+            const div = document.createElement('div');
+            div.className = `d-flex justify-content-${role === 'user' ? 'end' : 'start'} mb-3 animate__animated animate__fadeIn`;
+            const content = role === 'user' 
+                ? `<div class="chat-bubble-user shadow-sm">${text}</div>`
+                : `<div class="chat-bubble-ai shadow-sm">${marked.parse(text)}</div>`;
+            div.innerHTML = content;
+            widgetBox.appendChild(div);
+            widgetBox.scrollTop = widgetBox.scrollHeight;
+        }
+    </script>
+</body>
+</html>

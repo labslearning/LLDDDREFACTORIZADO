@@ -1,0 +1,301 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+<style>
+    /* Estilos de Pantalla */
+    .report-header {
+        background: #F8FAFC;
+        border-bottom: 1px solid #E2E8F0;
+        padding: 20px;
+        border-radius: 12px;
+        margin-bottom: 30px;
+    }
+
+    /* Tabla Consolidada */
+    .consolidated-table { font-size: 0.8rem; border-color: #CBD5E1; }
+    .consolidated-table thead th { vertical-align: bottom; border-bottom: 2px solid #64748B; }
+    
+    .name-col { 
+        min-width: 250px; 
+        width: 250px; 
+        background-color: #F8FAFC !important;
+        position: sticky;
+        left: 0;
+        z-index: 10;
+        box-shadow: 2px 0 5px -2px rgba(0,0,0,0.1);
+    }
+    
+    .grade-cell { width: 45px; text-align: center; font-family: 'Courier New', monospace; font-weight: 600; }
+    .stats-col { width: 50px; font-weight: 800; background-color: #F1F5F9; }
+
+    /* Cabeceras Verticales Rotadas */
+    .vertical-header {
+        height: 140px;
+        white-space: nowrap;
+        position: relative;
+        padding: 0 !important;
+        vertical-align: bottom;
+    }
+    
+    .vertical-text {
+        transform: rotate(-90deg);
+        transform-origin: center bottom;
+        width: 30px;
+        position: absolute;
+        bottom: 10px;
+        left: 50%;
+        margin-left: -15px; /* Mitad del ancho */
+        text-align: left;
+        font-weight: 700;
+        color: #475569;
+        font-size: 0.75rem;
+    }
+
+    /* ESTILOS DE IMPRESIÓN (OFICIO HORIZONTAL) */
+    @media print {
+        @page { size: legal landscape; margin: 5mm; }
+        
+        body { 
+            background: white !important; 
+            font-family: 'Arial', sans-serif !important; 
+            -webkit-print-color-adjust: exact !important; 
+            print-color-adjust: exact !important;
+        }
+
+        .d-print-none, .navbar, .sidebar, footer, .btn { display: none !important; }
+        .d-print-flex { display: flex !important; }
+        
+        .card { border: none !important; shadow: none !important; }
+        .card-body { padding: 0 !important; }
+        .container-fluid { padding: 0 !important; width: 100% !important; }
+        
+        /* Tabla de Alta Definición para Impresión */
+        .table { width: 100% !important; border-collapse: collapse !important; }
+        .table-bordered th, .table-bordered td { 
+            border: 1px solid #000 !important; 
+            color: #000 !important; 
+            padding: 4px !important;
+        }
+        
+        .bg-danger { background-color: #fee2e2 !important; color: #991b1b !important; font-weight: bold; }
+        .bg-warning-subtle { background-color: #fef3c7 !important; }
+        
+        /* Ajustes de Texto */
+        .vertical-text { color: black !important; font-size: 9pt; bottom: 5px; }
+        .name-col { width: 220px; font-size: 9pt; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4"> 
+    
+    <div class="d-flex justify-content-between align-items-center mb-4 d-print-none animate__animated animate__fadeIn">
+        <div>
+            <h2 class="fw-bold text-dark mb-0"><i class="fas fa-table me-2 text-primary"></i>Sábana de Notas</h2>
+            <small class="text-muted">Reporte consolidado de calificaciones por periodo.</small>
+        </div>
+        
+        <div>
+            <a href="{% url 'admin_dashboard' %}" class="btn btn-outline-secondary rounded-pill fw-bold">
+                <i class="fas fa-arrow-left me-2"></i>Volver
+            </a>
+        </div>
+    </div>
+
+    <div class="card border-0 shadow-sm mb-4 bg-white d-print-none">
+        <div class="card-body p-4">
+            <form method="GET" class="row g-3 align-items-end">
+                
+                <div class="col-md-4">
+                    <label class="form-label fw-bold text-secondary text-uppercase small">1. Selecciona el Curso</label>
+                    <select name="curso_id" id="select_curso_consolidado" class="form-select border-2" required>
+                        <option value="">-- Seleccionar Curso --</option>
+                        {% for c in cursos %}
+                        <option value="{{ c.id }}" {% if curso_seleccionado and curso_seleccionado.id == c.id %}selected{% endif %}>
+                            {{ c.nombre }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <div class="col-md-4">
+                    <label class="form-label fw-bold text-secondary text-uppercase small">2. Selecciona el Periodo</label>
+                    <select name="periodo_id" id="select_periodo_consolidado" class="form-select border-2" required>
+                        <option value="">-- Primero selecciona curso --</option>
+                        {% if periodo_seleccionado %}
+                            <option value="{{ periodo_seleccionado.id }}" selected>{{ periodo_seleccionado.nombre }}</option>
+                        {% endif %}
+                    </select>
+                </div>
+
+                <div class="col-md-4">
+                    <button type="submit" class="btn btn-primary w-100 fw-bold shadow-sm py-2">
+                        <i class="fas fa-search me-2"></i>Generar Reporte
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    {% if datos_reporte %}
+    <div class="card border-0 shadow-lg overflow-hidden animate__animated animate__fadeInUp">
+        
+        <div class="card-header bg-light p-3 d-flex justify-content-between align-items-center d-print-none border-bottom">
+            <span class="fw-bold text-primary">
+                <i class="fas fa-eye me-2"></i>Vista Previa: {{ curso_seleccionado.nombre }}
+            </span>
+            <button class="btn btn-dark btn-sm fw-bold shadow-sm" onclick="window.print()">
+                <i class="fas fa-print me-2"></i>Imprimir Sábana
+            </button>
+        </div>
+
+        <div class="card-body p-0">
+            <div class="p-4 border-bottom bg-white text-center" id="encabezado-oficial">
+                <div class="d-flex align-items-center justify-content-center mb-3">
+                    {% if institucion.logo %}
+                        <img src="{{ institucion.logo.url }}" alt="Logo" style="height: 70px; margin-right: 20px;">
+                    {% endif %}
+                    <div>
+                        <h3 class="fw-bold text-uppercase mb-0" style="color: #003366;">{{ institucion.nombre|default:"INSTITUCIÓN EDUCATIVA" }}</h3>
+                        <p class="mb-0 text-muted small">NIT: {{ institucion.nit|default:"---" }} | DANE: {{ institucion.dane|default:"---" }}</p>
+                        <div class="mt-2 border-top border-bottom border-dark d-inline-block px-4 py-1">
+                            <h6 class="mb-0 fw-bold text-dark">CONSOLIDADO DE CALIFICACIONES</h6>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row text-start px-4 mt-2 small text-uppercase">
+                    <div class="col-4"><strong>CURSO:</strong> {{ curso_seleccionado.nombre }}</div>
+                    <div class="col-4 text-center"><strong>PERIODO:</strong> {{ periodo_seleccionado.nombre }}</div>
+                    <div class="col-4 text-end"><strong>FECHA:</strong> {% now "d/m/Y" %}</div>
+                </div>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table table-bordered table-sm mb-0 text-center align-middle consolidated-table">
+                    <thead class="bg-light text-dark">
+                        <tr>
+                            <th class="text-start ps-3 sticky-col bg-light name-col">ESTUDIANTES</th>
+                            {% for materia in materias %}
+                            <th class="vertical-header">
+                                <span class="vertical-text">
+                                    {{ materia.nombre|truncatechars:20 }}
+                                </span>
+                            </th>
+                            {% endfor %}
+                            <th class="stats-col bg-warning-subtle">PROM</th>
+                            <th class="stats-col bg-danger-subtle">REP</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for dato in datos_reporte %}
+                        <tr>
+                            <td class="text-start ps-3 fw-bold text-dark sticky-col bg-white name-cell text-uppercase text-truncate">
+                                {{ dato.estudiante.last_name }} {{ dato.estudiante.first_name }}
+                            </td>
+                            
+                            {% for nota in dato.notas %}
+                            <td class="grade-cell {% if nota.valor > 0 and nota.valor < 3.0 %}bg-danger text-white{% elif nota.valor == 0 %}text-muted bg-light{% endif %}">
+                                {% if nota.valor > 0 %}
+                                    {{ nota.valor|floatformat:1 }}
+                                {% else %}
+                                    -
+                                {% endif %}
+                            </td>
+                            {% endfor %}
+
+                            <td class="grade-cell bg-warning-subtle fw-bold">{{ dato.promedio }}</td>
+                            <td class="grade-cell {% if dato.perdidas > 0 %}text-danger fw-bold{% else %}text-muted{% endif %}">
+                                {{ dato.perdidas }}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                    <tfoot class="bg-light fw-bold text-muted small">
+                        <tr>
+                            <td class="text-end pe-3 sticky-col bg-light">PROMEDIO DE ÁREA:</td>
+                            {% for materia in materias %}
+                            <td>-</td>
+                            {% endfor %}
+                            <td colspan="2"></td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+
+            <div class="row mt-5 mb-4 px-5 d-none d-print-flex pt-5">
+                <div class="col-6 text-center">
+                    <div style="border-top: 1px solid black; width: 60%; margin: 0 auto; padding-top: 5px;">
+                        <strong>{{ curso_seleccionado.director.get_full_name|default:"Director de Grupo" }}</strong><br>
+                        <small>Director de Grupo</small>
+                    </div>
+                </div>
+                <div class="col-6 text-center">
+                    <div style="border-top: 1px solid black; width: 60%; margin: 0 auto; padding-top: 5px;">
+                        <strong>Coordinación Académica</strong><br>
+                        <small>Visto Bueno</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% elif curso_seleccionado %}
+    <div class="alert alert-info text-center shadow-sm mt-4 p-5 animate__animated animate__pulse">
+        <i class="fas fa-folder-open fa-3x mb-3 text-info"></i>
+        <h4 class="fw-bold">Sin registros académicos</h4>
+        <p class="mb-0 text-muted">No hay notas cargadas para <strong>{{ curso_seleccionado.nombre }}</strong> en el periodo seleccionado.</p>
+    </div>
+    {% endif %}
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const cursoSelect = document.getElementById('select_curso_consolidado');
+    const periodoSelect = document.getElementById('select_periodo_consolidado');
+
+    // IMPORTANTE: Asegúrate de tener esta ruta en urls.py
+    // path('api/periodos/', views.api_cargar_periodos, name='api_cargar_periodos')
+    const apiUrl = "{% url 'api_cargar_periodos' %}"; 
+
+    cursoSelect.addEventListener('change', function() {
+        const cursoId = this.value;
+        
+        periodoSelect.innerHTML = '<option value="">Cargando...</option>';
+        periodoSelect.disabled = true;
+
+        if (cursoId) {
+            fetch(`${apiUrl}?curso_id=${cursoId}`)
+                .then(response => {
+                    if (!response.ok) throw new Error('Error de conexión');
+                    return response.json();
+                })
+                .then(data => {
+                    periodoSelect.innerHTML = '<option value="">-- Seleccionar Periodo --</option>';
+                    if (data.length > 0) {
+                        data.forEach(periodo => {
+                            const option = document.createElement('option');
+                            option.value = periodo.id;
+                            option.textContent = periodo.nombre;
+                            periodoSelect.appendChild(option);
+                        });
+                        periodoSelect.disabled = false;
+                    } else {
+                        periodoSelect.innerHTML = '<option value="">Sin periodos activos</option>';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    periodoSelect.innerHTML = '<option value="">Error de carga (Ver Consola)</option>';
+                });
+        } else {
+            periodoSelect.innerHTML = '<option value="">-- Primero selecciona curso --</option>';
+            periodoSelect.disabled = true;
+        }
+    });
+});
+</script>
+{% endblock %}

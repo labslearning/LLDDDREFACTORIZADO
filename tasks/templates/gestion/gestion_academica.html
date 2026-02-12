@@ -1,0 +1,1119 @@
+{% extends 'base.html' %}
+{% load dict_filters %}
+{% load static %}
+
+{% block content %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+
+<div class="container-fluid py-5 bg-light-subtle" style="max-width: 1800px; min-height: 100vh;">
+  
+   <div class="row mb-5 align-items-center animate__animated animate__fadeInDown">
+       <div class="col-lg-5 mb-3 mb-lg-0">
+           <div class="d-flex align-items-center justify-content-center justify-content-lg-start">
+               <div class="icon-box-xl bg-gradient-primary text-white rounded-circle shadow-lg me-4 d-flex align-items-center justify-content-center transition-all hover-scale">
+                   <i class="fas fa-chart-pie fa-3x"></i>
+               </div>
+               <div class="text-center text-lg-start">
+                   <h6 class="text-uppercase text-secondary fw-bold ls-2 mb-1">Ecosistema Digital Stratos</h6>
+                   <h1 class="fw-bolder text-dark mb-0 display-5">Gestión & Bienestar</h1>
+                   <p class="text-muted lead mb-0">
+                       <span class="badge bg-soft-primary text-primary me-2 px-3 py-2 rounded-pill shadow-sm border">
+                           <i class="fas fa-user-shield me-1"></i> {{ user.perfil.get_rol_display }}
+                       </span>
+                       Centro de Control Institucional
+                   </p>
+               </div>
+           </div>
+       </div>
+       
+       <div class="col-lg-7">
+           <div class="d-flex flex-wrap justify-content-center justify-content-lg-end gap-3 align-items-center">
+                <button class="btn btn-ai-magic rounded-pill px-4 py-2 shadow-lg fw-bold text-white hover-lift" onclick="iniciarAnalisisIA()">
+                    <i class="fas fa-sparkles me-2 animate__animated animate__pulse animate__infinite"></i> Consultar IA Stratos
+                </button>
+
+                <div class="vr mx-2 opacity-25 d-none d-lg-block"></div>
+
+                <a href="{% url 'reporte_consolidado' %}" class="btn btn-white border shadow-sm text-success fw-bold hover-scale px-4 py-2" title="Descargar Sábana Excel">
+                    <i class="fas fa-file-excel me-2"></i>Sábana
+                </a>
+
+                <a href="{% url 'historial_global_observaciones' %}" class="btn btn-white border shadow-sm text-primary fw-bold hover-scale px-4 py-2" title="Ver Historial de Procesos">
+                    <i class="fas fa-history me-2"></i>Historial
+                </a>
+
+                <a href="{% url 'ai_engine' %}?action=cumplimiento_pei" class="btn btn-white border shadow-sm text-purple fw-bold hover-scale px-4 py-2" title="Analizar PEI con IA">
+                    <i class="fas fa-robot me-2"></i>Auditoría IA
+                </a>
+                
+                <a href="{% url 'dashboard_academico' %}" class="btn btn-warning shadow-lg text-dark fw-bold hover-scale px-4 py-2">
+                    <i class="fas fa-brain me-2"></i>IA Académica
+                </a>
+
+                <a href="{% url 'dashboard_bienestar' %}" class="btn btn-primary shadow-lg hover-scale px-3 py-2" title="Recargar Datos">
+                    <i class="fas fa-sync-alt"></i>
+                </a>
+           </div>
+           
+           <div class="text-center text-lg-end mt-3">
+               <div class="d-inline-flex align-items-center bg-white border px-3 py-1 rounded-pill shadow-sm">
+                   <span class="dot bg-success me-2"></span>
+                   <small class="text-muted fw-bold ls-1 text-uppercase">Sincronización Stratos: <span class="text-dark">{% now "d M, Y - H:i" %}</span></small>
+               </div>
+           </div>
+       </div>
+   </div>
+
+   <div class="card border-0 shadow-lg rounded-5 overflow-hidden mb-5 animate__animated animate__fadeInUp">
+       <div class="card-header bg-white border-0 pt-4 px-4 d-flex justify-content-between align-items-center">
+           <div>
+               <h4 class="fw-bold text-dark mb-1">
+                   <i class="fas fa-satellite-dish me-2 text-danger animate__animated animate__flash animate__infinite animate__slow"></i>
+                   Radar de Riesgo Académico Institucional
+               </h4>
+               <p class="text-muted small mb-0">Priorización automática de estudiantes con bajo rendimiento por volumen de asignaturas perdidas.</p>
+           </div>
+           <div class="d-flex gap-2">
+               <span class="badge bg-danger-subtle text-danger border border-danger-subtle px-3 py-2 rounded-pill fw-bold shadow-sm">
+                   <i class="fas fa-bell me-2"></i>Fallas Académicas Críticas
+               </span>
+               <span class="badge bg-dark text-white px-3 py-2 rounded-pill fw-bold shadow-sm">
+                   {{ top_riesgo_academico|length }} Casos en Seguimiento
+               </span>
+           </div>
+       </div>
+       <div class="card-body p-4">
+           <div class="row g-4">
+               <div class="col-lg-3">
+                   <div class="d-flex flex-column gap-3 h-100">
+                       <div class="card bg-soft-danger border-0 p-4 shadow-sm rounded-4 flex-grow-1 transition-all hover-lift border-start border-5 border-danger">
+                           <div class="text-center py-2">
+                               <h6 class="text-uppercase text-danger fw-bold x-small mb-2 ls-1">Materias Perdidas (Colegio)</h6>
+                               <h2 class="display-3 fw-black text-danger mb-0">{{ kpi.total_materias_perdidas|default:"0" }}</h2>
+                               <div class="mt-2">
+                                   <small class="text-danger fw-bold"><i class="fas fa-exclamation-circle me-1"></i>Impacto Curricular</small>
+                               </div>
+                           </div>
+                       </div>
+                       <div class="card bg-soft-info border-0 p-4 shadow-sm rounded-4 flex-grow-1 transition-all hover-lift border-start border-5 border-info">
+                           <div class="text-center py-2">
+                               <h6 class="text-uppercase text-info fw-bold x-small mb-2 ls-1">Promedio Institucional</h6>
+                               <h2 class="display-3 fw-black text-info mb-0">{{ kpi.prom_global_acad|default:"0.0" }}</h2>
+                               <div class="progress mt-3 mx-auto shadow-sm" style="height: 10px; width: 80%; border-radius: 10px;">
+                                   <div class="progress-bar bg-info progress-bar-striped progress-bar-animated" 
+                                        role="progressbar" 
+                                        style="width: {% widthratio kpi.prom_global_acad 5 100 %}%"></div>
+                               </div>
+                           </div>
+                       </div>
+                   </div>
+               </div>
+
+               <div class="col-lg-4">
+                   <div class="card border bg-white p-4 rounded-5 h-100 shadow-sm d-flex flex-column justify-content-center align-items-center border-0">
+                       <h6 class="text-center text-secondary x-small fw-bold text-uppercase mb-4">
+                           <i class="fas fa-chart-line me-2"></i>Mapa de Calor Académico
+                       </h6>
+                       <div style="height: 350px; width: 100%;">
+                           <canvas id="radarChartPro"></canvas>
+                       </div>
+                       <p class="small text-muted mt-3 text-center px-4">Desviación del rendimiento actual vs metas del PEI.</p>
+                   </div>
+               </div>
+
+               <div class="col-lg-5">
+                   <div class="d-flex justify-content-between align-items-center mb-3 px-2">
+                        <h6 class="text-secondary x-small fw-bold text-uppercase mb-0">Listado de Reprobación Crítica</h6>
+                        <span class="x-small text-muted fw-bold"><i class="fas fa-sort-amount-down me-1"></i>Mayor Riesgo Primero</span>
+                   </div>
+                   
+                   <div class="scroll-pro pe-2" style="max-height: 480px; overflow-y: auto;">
+                       <div class="list-group list-group-flush gap-3">
+                           {% for riesgo in top_riesgo_academico %}
+                           <div class="card border-0 shadow-sm rounded-4 mb-2 hover-elevate transition-all border-start border-5 {% if riesgo.materias_perdidas > 3 %}border-danger{% else %}border-warning{% endif %}">
+                               <div class="card-body p-3">
+                                   <div class="d-flex align-items-start">
+                                       <div class="position-relative me-3">
+                                           <div class="avatar-md rounded-circle {% if riesgo.materias_perdidas > 3 %}bg-danger{% else %}bg-warning{% endif %} text-white d-flex align-items-center justify-content-center fw-black shadow-lg">
+                                               {{ riesgo.estudiante.first_name|slice:":1" }}{{ riesgo.estudiante.last_name|slice:":1" }}
+                                           </div>
+                                           <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-dark border border-white">
+                                               #{{ forloop.counter }}
+                                           </span>
+                                       </div>
+                                       <div class="flex-grow-1 overflow-hidden">
+                                           <h6 class="mb-1 fw-bold text-dark">{{ riesgo.estudiante.get_full_name }}</h6>
+                                           <span class="badge bg-light text-muted border px-2 py-1 rounded-pill x-small">
+                                               <i class="fas fa-graduation-cap me-1"></i> {{ riesgo.curso.nombre }}
+                                           </span>
+                                           
+                                           <div class="mt-3 p-2 bg-light rounded-3 shadow-inner">
+                                               <p class="x-small fw-bold text-uppercase text-danger mb-1"><i class="fas fa-book-dead me-1"></i> Materias Reprobadas:</p>
+                                               <div class="d-flex flex-wrap gap-1">
+                                                   {% for materia_name in riesgo.materias_nombres %}
+                                                   <span class="badge bg-danger text-white x-small rounded-pill">{{ materia_name }}</span>
+                                                   {% empty %}
+                                                   <span class="x-small text-muted">Sin datos de materias.</span>
+                                                   {% endfor %}
+                                               </div>
+                                           </div>
+                                       </div>
+                                       <div class="text-end ms-2">
+                                           <div class="display-6 fw-black text-danger mb-0">{{ riesgo.materias_perdidas }}</div>
+                                           <small class="text-uppercase text-muted fw-bold" style="font-size: 0.5rem;">Asignaturas</small>
+                                           <div class="mt-3">
+                                               <a href="{% url 'ver_observador' riesgo.estudiante.id %}" class="btn btn-sm btn-primary rounded-circle shadow-sm">
+                                                   <i class="fas fa-search-plus"></i>
+                                               </a>
+                                           </div>
+                                       </div>
+                                   </div>
+                               </div>
+                           </div>
+                           {% empty %}
+                           <div class="text-center p-5 text-muted bg-white rounded-5 shadow-inner border border-dashed">
+                               <i class="fas fa-check-double fa-4x mb-3 text-success opacity-25"></i>
+                               <p class="mb-0 fw-bold">Ecosistema sin Alertas de Reprobación</p>
+                               <small>Todos los estudiantes cumplen satisfactoriamente el PEI.</small>
+                           </div>
+                           {% endfor %}
+                       </div>
+                   </div>
+                   
+                   <div class="mt-4 bg-primary bg-opacity-10 p-3 rounded-4 border border-primary border-dashed text-center">
+                       <p class="x-small text-primary fw-bold mb-0">
+                           <i class="fas fa-shield-alt me-1"></i> 
+                           El sistema analiza en tiempo real las notas finales de cada asignatura.
+                       </p>
+                   </div>
+               </div>
+           </div>
+       </div>
+   </div>
+
+   <div class="row mb-5 animate__animated animate__fadeIn">
+       <div class="col-12 mb-4 d-flex align-items-center border-bottom pb-3">
+           <h4 class="fw-bold text-dark mb-0"><i class="fas fa-folder-tree me-3 text-secondary"></i>Gobierno Institucional</h4>
+           <span class="badge bg-light text-muted ms-3 border py-2 px-3 rounded-pill fw-bold">Archivo Maestro</span>
+       </div>
+
+       <div class="col-md-6 col-lg-3 mb-4">
+           <div class="card h-100 border-0 shadow-sm hover-elevate card-doc pei-border rounded-5">
+               <div class="card-body p-4 d-flex flex-column">
+                   <div class="d-flex justify-content-between align-items-start mb-4">
+                       <div class="icon-box-lg bg-purple-soft rounded-4 d-flex align-items-center justify-content-center text-purple shadow-sm">
+                           <i class="fas fa-university fa-lg"></i>
+                       </div>
+                       {% if institucion.archivo_pei %}
+                           <span class="badge bg-success-subtle text-success border border-success rounded-pill px-3">Vigente</span>
+                       {% else %}
+                           <span class="badge bg-warning-subtle text-warning border border-warning rounded-pill px-3">Pendiente</span>
+                       {% endif %}
+                   </div>
+                   <h5 class="fw-bold text-dark mb-2">Proyecto Educativo (PEI)</h5>
+                   <p class="text-muted small">Marco pedagógico y horizonte institucional que rige el modelo de aprendizaje.</p>
+                   <div class="mt-auto pt-3 d-grid gap-2">
+                       {% if institucion.archivo_pei %}
+                           <a href="{{ institucion.archivo_pei.url }}" target="_blank" class="btn btn-sm btn-outline-purple rounded-pill fw-bold py-2 shadow-sm">
+                               <i class="fas fa-external-link-alt me-2"></i> Consultar PDF
+                           </a>
+                       {% endif %}
+                       {% if user.perfil.rol in 'ADMINISTRADOR,COORD_ACADEMICO' %}
+                           <button class="btn btn-sm btn-light text-muted rounded-pill py-2" type="button" data-bs-toggle="collapse" data-bs-target="#uploadPEI">
+                               <i class="fas fa-cloud-upload-alt me-2"></i> Actualizar
+                           </button>
+                           <div class="collapse mt-2" id="uploadPEI">
+                               <form method="POST" enctype="multipart/form-data" class="p-3 bg-white rounded-4 border shadow-sm">{% csrf_token %}
+                                   <input type="file" name="pei_file" class="form-control form-control-sm mb-2" accept=".pdf" required>
+                                   <button type="submit" class="btn btn-purple btn-sm w-100 fw-bold rounded-pill">Subir a Nube</button>
+                               </form>
+                           </div>
+                       {% endif %}
+                   </div>
+               </div>
+           </div>
+       </div>
+
+       <div class="col-md-6 col-lg-3 mb-4">
+           <div class="card h-100 border-0 shadow-sm hover-elevate card-doc manual-border rounded-5">
+               <div class="card-body p-4 d-flex flex-column">
+                   <div class="d-flex justify-content-between align-items-start mb-4">
+                       <div class="icon-box-lg bg-orange-soft rounded-4 d-flex align-items-center justify-content-center text-orange shadow-sm">
+                           <i class="fas fa-gavel fa-lg"></i>
+                       </div>
+                       {% if institucion.archivo_manual_convivencia %}
+                           <span class="badge bg-success-subtle text-success border border-success rounded-pill px-3">Activo</span>
+                       {% else %}
+                           <span class="badge bg-danger-subtle text-danger border border-danger rounded-pill px-3">Requerido</span>
+                       {% endif %}
+                   </div>
+                   <h5 class="fw-bold text-dark mb-2">Manual Convivencial</h5>
+                   <p class="text-muted small">Normas, derechos y deberes que rigen la vida comunitaria y ruta integral.</p>
+                   <div class="mt-auto pt-3 d-grid gap-2">
+                       {% if institucion.archivo_manual_convivencia %}
+                           <a href="{{ institucion.archivo_manual_convivencia.url }}" target="_blank" class="btn btn-sm btn-outline-orange rounded-pill fw-bold py-2">
+                               <i class="fas fa-eye me-2"></i> Ver Normativa
+                           </a>
+                       {% endif %}
+                       {% if user.perfil.rol in 'ADMINISTRADOR,COORD_CONVIVENCIA' %}
+                           <button class="btn btn-sm btn-light text-muted rounded-pill py-2" type="button" data-bs-toggle="collapse" data-bs-target="#uploadManual">
+                               <i class="fas fa-upload me-2"></i> Actualizar
+                           </button>
+                           <div class="collapse mt-2" id="uploadManual">
+                               <form method="POST" enctype="multipart/form-data" class="p-3 bg-white rounded-4 border shadow-sm">{% csrf_token %}
+                                   <input type="file" name="manual_file" class="form-control form-control-sm mb-2" accept=".pdf" required>
+                                   <button type="submit" class="btn btn-warning btn-sm w-100 fw-bold text-white rounded-pill">Sincronizar</button>
+                               </form>
+                           </div>
+                       {% endif %}
+                   </div>
+               </div>
+           </div>
+       </div>
+
+       <div class="col-md-6 col-lg-3 mb-4">
+           <div class="card h-100 border-0 shadow-sm hover-elevate card-doc malla-border rounded-5">
+               <div class="card-body p-4 d-flex flex-column">
+                   <div class="d-flex justify-content-between align-items-start mb-4">
+                       <div class="icon-box-lg bg-teal-soft rounded-4 d-flex align-items-center justify-content-center text-teal shadow-sm">
+                           <i class="fas fa-scroll fa-lg"></i>
+                       </div>
+                       <span class="badge bg-success-subtle text-success border border-success rounded-pill px-3">DBA Estructurado</span>
+                   </div>
+                   <h5 class="fw-bold text-dark mb-2">Malla Curricular</h5>
+                   <p class="text-muted small">Contenidos programáticos, competencias y estándares por nivel académico.</p>
+                   <div class="mt-auto pt-3 d-grid gap-2">
+                       {% if institucion.archivo_malla_curricular %}
+                           <a href="{{ institucion.archivo_malla_curricular.url }}" target="_blank" class="btn btn-sm btn-outline-teal rounded-pill fw-bold py-2">
+                               <i class="fas fa-th-list me-2"></i> Ver Planes
+                           </a>
+                       {% endif %}
+                   </div>
+               </div>
+           </div>
+       </div>
+
+       <div class="col-md-6 col-lg-3 mb-4">
+           <div class="card h-100 border-0 shadow-sm hover-elevate card-doc calendario-border rounded-5">
+               <div class="card-body p-4 d-flex flex-column">
+                   <div class="d-flex justify-content-between align-items-start mb-4">
+                       <div class="icon-box-lg bg-danger-soft rounded-4 d-flex align-items-center justify-content-center text-danger shadow-sm">
+                           <i class="fas fa-calendar-alt fa-lg"></i>
+                       </div>
+                       <span class="badge bg-success-subtle text-success border border-success rounded-pill px-3">2025 Activo</span>
+                   </div>
+                   <h5 class="fw-bold text-dark mb-2">Cronograma Anual</h5>
+                   <p class="text-muted small">Agenda de actividades, evaluaciones institucionales y jornadas pedagógicas.</p>
+                   <div class="mt-auto pt-3 d-grid gap-2">
+                       {% if institucion.archivo_calendario %}
+                           <a href="{{ institucion.archivo_calendario.url }}" target="_blank" class="btn btn-sm btn-outline-danger rounded-pill fw-bold py-2">
+                               <i class="fas fa-clock me-2"></i> Ver Agenda
+                           </a>
+                       {% endif %}
+                   </div>
+               </div>
+           </div>
+       </div>
+   </div>
+
+   <div class="row g-4 mb-5 animate__animated animate__fadeIn">
+       <div class="col-md-6 col-lg-3">
+           <div class="card border-0 shadow-lg h-100 bg-white overflow-hidden hover-elevate border-start border-5 border-primary rounded-4">
+               <div class="card-body p-4">
+                   <div class="d-flex justify-content-between align-items-center">
+                       <div>
+                           <p class="text-uppercase fw-bold text-muted x-small ls-1 mb-1">Matrícula Total</p>
+                            <h2 class="fw-black text-dark mb-0">{{ kpi.total_alumnos }}</h2>
+                           <small class="text-success fw-bold"><i class="fas fa-check-circle me-1"></i>Estudiantes Activos</small>
+                       </div>
+                       <div class="bg-soft-primary rounded-4 p-3 text-primary shadow-sm">
+                           <i class="fas fa-users fa-2x"></i>
+                       </div>
+                   </div>
+               </div>
+           </div>
+       </div>
+
+       <div class="col-md-6 col-lg-3">
+           <div class="card border-0 shadow-lg h-100 bg-white overflow-hidden hover-elevate border-start border-5 border-info rounded-4">
+               <div class="card-body p-4">
+                   <div class="d-flex justify-content-between align-items-center">
+                       <div>
+                           <p class="text-uppercase fw-bold text-muted x-small ls-1 mb-1">Rendimiento Global</p>
+                            <h2 class="fw-black text-info mb-0">{{ kpi.prom_global_acad }}</h2>
+                           <small class="text-muted fw-bold">GPA Institucional</small>
+                       </div>
+                       <div class="radial-progress-kpi">
+                           <span class="fw-bold text-info" style="font-size: 0.8rem;">META</span>
+                       </div>
+                   </div>
+               </div>
+           </div>
+       </div>
+
+       <div class="col-md-6 col-lg-3">
+           <div class="card border-0 shadow-lg h-100 bg-white overflow-hidden hover-elevate border-start border-5 border-warning rounded-4">
+                <div class="card-body p-4">
+                   <div class="d-flex justify-content-between align-items-center">
+                       <div>
+                           <p class="text-uppercase fw-bold text-muted x-small ls-1 mb-1">Clima Escolar</p>
+                           <h2 class="fw-black text-dark mb-0">{{ kpi.prom_global_conv }}</h2>
+                           <small class="text-muted fw-bold">Índice Convivencial</small>
+                       </div>
+                       <div class="bg-soft-warning rounded-4 p-3 text-warning shadow-sm">
+                           <i class="fas fa-smile-beam fa-2x"></i>
+                        </div>
+                   </div>
+               </div>
+           </div>
+       </div>
+
+       <div class="col-md-6 col-lg-3">
+           <div class="card border-0 shadow-lg h-100 bg-white overflow-hidden hover-elevate border-start border-5 border-success rounded-4">
+               <div class="card-body p-4">
+                   <div class="d-flex justify-content-between align-items-center">
+                       <div>
+                           <p class="text-uppercase fw-bold text-muted x-small ls-1 mb-1">Gestión de Cursos</p>
+                           <h2 class="fw-black text-dark mb-0">{{ kpi.total_cursos }}</h2>
+                           <small class="text-success fw-bold">Grupos Académicos</small>
+                       </div>
+                        <div class="bg-soft-success rounded-4 p-3 text-success shadow-sm">
+                           <i class="fas fa-layer-group fa-2x"></i>
+                       </div>
+                   </div>
+               </div>
+           </div>
+        </div>
+   </div>
+
+   <div class="row mb-5 animate__animated animate__fadeInUp">
+       <div class="col-lg-8 mb-4 mb-lg-0">
+           <div class="card border-0 shadow-lg h-100 bg-white rounded-5 overflow-hidden">
+               <div class="card-header bg-white border-0 pt-4 px-4 d-flex justify-content-between align-items-center">
+                   <h5 class="fw-bold text-dark mb-0"><i class="fas fa-chart-bar me-3 text-primary"></i>Desempeño Comparativo Grupal</h5>
+                   <div class="btn-group shadow-sm border rounded-pill overflow-hidden">
+                       <button class="btn btn-xs btn-light px-3 py-1 fw-bold border-0">GPA</button>
+                       <button class="btn btn-xs btn-primary px-3 py-1 fw-bold shadow-none">Analítica</button>
+                   </div>
+               </div>
+                <div class="card-body p-4">
+                   <div style="height: 400px; width: 100%;">
+                       <canvas id="peiChartSupremo"></canvas>
+                   </div>
+               </div>
+           </div>
+       </div>
+       
+       <div class="col-lg-4">
+            <div class="card border-0 shadow-lg h-100 bg-white rounded-5 overflow-hidden">
+               <div class="card-header bg-gradient-success border-0 pt-4 px-4 text-center">
+                   <h5 class="fw-bold text-white mb-0"><i class="fas fa-user-clock me-2"></i>Monitor de Asistencia</h5>
+                   <small class="text-white-50">Reporte Diario Institucional</small>
+               </div>
+               <div class="card-body p-4 d-flex flex-column justify-content-center align-items-center">
+                   <div style="height: 280px; width: 100%; position: relative;">
+                       <canvas id="asistenciaChartSupremo"></canvas>
+                       <div class="chart-center-label">
+                           <h4 class="mb-0 fw-black text-success">92%</h4>
+                           <small class="text-muted fw-bold">Efectividad</small>
+                       </div>
+                   </div>
+                   <div class="mt-4 w-100 border-top pt-4 text-center">
+                       <div class="row">
+                           <div class="col-6 border-end">
+                               <h6 class="mb-0 fw-bold text-dark">Estable</h6>
+                               <small class="text-muted">Estado Red</small>
+                           </div>
+                           <div class="col-6">
+                               <h6 class="mb-0 fw-bold text-success">-2.4%</h6>
+                               <small class="text-muted">Deserción Prev.</small>
+                           </div>
+                       </div>
+                   </div>
+               </div>
+           </div>
+       </div>
+   </div>
+
+   <div class="row mb-5 animate__animated animate__fadeInUp">
+       <div class="col-lg-6 mb-4 mb-lg-0">
+           <div class="card border-0 shadow-lg h-100 bg-white rounded-5 overflow-hidden">
+               <div class="card-header bg-white border-0 pt-4 px-4 d-flex justify-content-between align-items-center">
+                   <div>
+                       <h5 class="fw-bold text-danger mb-0"><i class="fas fa-user-times me-2"></i>Alertas de Ausentismo Crítico</h5>
+                       <p class="text-muted x-small mb-0">Estudiantes con inasistencia superior al umbral establecido.</p>
+                   </div>
+                   <a href="{% url 'historial_asistencia' %}" class="btn btn-xs btn-outline-danger rounded-pill px-3 fw-bold">Gestionar</a>
+               </div>
+               <div class="card-body p-0">
+                   <div class="table-responsive">
+                       <table class="table table-hover align-middle mb-0">
+                           <thead class="bg-light text-muted x-small text-uppercase fw-bold border-bottom">
+                               <tr>
+                                   <th class="ps-4">Identidad del Alumno</th>
+                                   <th class="text-center">Fallas Totales</th>
+                                   <th class="text-end pe-4">Acción</th>
+                               </tr>
+                           </thead>
+                           <tbody>
+                               {% for alerta in top_fallas %}
+                               <tr>
+                                   <td class="ps-4 py-3">
+                                       <div class="d-flex align-items-center">
+                                           <div class="avatar-xs rounded-circle bg-danger-subtle text-danger d-flex align-items-center justify-content-center me-3 fw-bold shadow-sm">
+                                               {{ alerta.estudiante__first_name|slice:":1" }}
+                                           </div>
+                                           <div>
+                                               <div class="fw-bold text-dark small">{{ alerta.estudiante__first_name }} {{ alerta.estudiante__last_name }}</div>
+                                               <small class="text-muted x-small">{{ alerta.curso__nombre }}</small>
+                                           </div>
+                                       </div>
+                                   </td>
+                                   <td class="text-center">
+                                       <span class="badge bg-danger rounded-pill px-3 py-2 shadow-sm fw-bold">{{ alerta.total }}</span>
+                                   </td>
+                                   <td class="text-end pe-4">
+                                       <a href="{% url 'ver_observador' alerta.estudiante__id %}" class="btn btn-sm btn-light text-primary border rounded-circle shadow-sm"><i class="fas fa-eye"></i></a>
+                                   </td>
+                               </tr>
+                               {% empty %}
+                               <tr><td colspan="3" class="text-center py-5 text-muted fst-italic">Sin alertas críticas de inasistencia.</td></tr>
+                               {% endfor %}
+                           </tbody>
+                       </table>
+                   </div>
+               </div>
+           </div>
+       </div>
+
+       <div class="col-lg-6">
+           <div class="card border-0 shadow-lg h-100 bg-white rounded-5 overflow-hidden">
+               <div class="card-header bg-white border-0 pt-4 px-4 d-flex justify-content-between align-items-center">
+                   <div>
+                       <h5 class="fw-bold text-dark mb-0"><i class="fas fa-exclamation-triangle me-2 text-warning"></i>Zonas de Riesgo Convivencial</h5>
+                       <p class="text-muted x-small mb-0">Estudiantes con calificación de convivencia inferior a 3.5.</p>
+                   </div>
+               </div>
+               <div class="card-body p-0">
+                   <div class="table-responsive">
+                       <table class="table table-hover align-middle mb-0">
+                           <thead class="bg-light text-muted x-small text-uppercase fw-bold border-bottom">
+                               <tr>
+                                   <th class="ps-4">Identidad del Alumno</th>
+                                   <th class="text-center">Nota Promedio</th>
+                                   <th class="text-end pe-4">Intervenir</th>
+                               </tr>
+                           </thead>
+                           <tbody>
+                               {% for alerta in alertas_convivencia %}
+                               <tr>
+                                   <td class="ps-4 py-3">
+                                       <div class="d-flex align-items-center">
+                                           <div class="avatar-xs rounded-circle bg-warning-subtle text-warning d-flex align-items-center justify-content-center me-3 fw-bold border border-warning-subtle shadow-sm">
+                                               {{ alerta.estudiante__first_name|slice:":1" }}
+                                           </div>
+                                           <div>
+                                               <div class="fw-bold text-dark small">{{ alerta.estudiante__first_name }} {{ alerta.estudiante__last_name }}</div>
+                                               <small class="text-muted x-small">{{ alerta.materia__curso__nombre }}</small>
+                                           </div>
+                                       </div>
+                                   </td>
+                                   <td class="text-center">
+                                       <span class="badge bg-warning text-dark border border-warning rounded-pill px-3 py-2 fw-black shadow-sm">{{ alerta.nota_promedio|floatformat:2 }}</span>
+                                   </td>
+                                   <td class="text-end pe-4">
+                                       <a href="{% url 'ver_observador' alerta.estudiante__id %}" class="btn btn-sm btn-light text-primary border rounded-circle transition-all"><i class="fas fa-pen-nib"></i></a>
+                                   </td>
+                               </tr>
+                               {% empty %}
+                               <tr><td colspan="3" class="text-center py-5 text-muted fst-italic">El clima escolar es excelente. No hay alertas.</td></tr>
+                               {% endfor %}
+                           </tbody>
+                       </table>
+                   </div>
+               </div>
+           </div>
+       </div>
+   </div>
+
+   <div class="card border-0 shadow-lg mb-5 overflow-hidden rounded-5" style="background-color: #ffffff;">
+       <div class="card-body p-5 text-center bg-gradient-light-subtle">
+           <h3 class="fw-black mb-2 text-dark">Búsqueda Maestra Stratos</h3>
+           <p class="text-muted mb-4 lead">Acceda instantáneamente a observador, notas y analítica del alumno.</p>
+           <form method="GET" action="">
+               <div class="input-group input-group-lg shadow-2xl rounded-pill overflow-hidden border w-75 mx-auto transition-all focus-within-scale border-primary-subtle">
+                   <span class="input-group-text bg-white border-0 ps-4"><i class="fas fa-search text-muted"></i></span>
+                   <input type="text" name="q" class="form-control bg-white border-0 py-4 shadow-none"
+                          placeholder="Ingrese nombre, código de matrícula o ID..."
+                          value="{{ query|default:'' }}">
+                    <button class="btn btn-primary px-5 fw-bold text-uppercase" type="submit">Ejecutar Búsqueda</button>
+               </div>
+           </form>
+       </div>
+   </div>
+
+   {% if query %}
+       <div class="mb-5 animate__animated animate__fadeIn px-2">
+           <h5 class="fw-bold text-secondary mb-4 px-3 d-flex align-items-center">
+               <i class="fas fa-list-ul me-3 text-primary"></i>
+               Coincidencias detectadas para: <span class="text-primary ms-2">"{{ query }}"</span>
+           </h5>
+            {% if estudiantes %}
+               <div class="row g-4">
+                   {% for estudiante in estudiantes %}
+                   <div class="col-md-6 col-lg-4 col-xl-3">
+                       <div class="card h-100 border-0 shadow-sm hover-elevate rounded-5 overflow-hidden">
+                           <div class="card-body d-flex align-items-center p-3">
+                               <div class="avatar-md me-3 bg-primary-subtle text-primary d-flex align-items-center justify-content-center rounded-circle fw-black shadow-sm">
+                                   {{ estudiante.first_name|slice:":1" }}{{ estudiante.last_name|slice:":1" }}
+                               </div>
+                               <div class="flex-grow-1 overflow-hidden">
+                                   <h6 class="fw-bold mb-0 text-dark text-truncate">{{ estudiante.get_full_name }}</h6>
+                                    <small class="text-muted">ID: {{ estudiante.username }}</small>
+                               </div>
+                               <div class="d-flex flex-column gap-1">
+                                   <a href="{% url 'ver_observador' estudiante.id %}" class="btn btn-sm btn-primary rounded-circle shadow-sm">
+                                       <i class="fas fa-folder-open"></i>
+                                   </a>
+                                   <a href="{% url 'ai_engine' %}?action=analisis_convivencia&target_id={{ estudiante.id }}" class="btn btn-sm btn-purple rounded-circle shadow-sm">
+                                       <i class="fas fa-robot"></i>
+                                   </a>
+                               </div>
+                           </div>
+                       </div>
+                   </div>
+                   {% endfor %}
+                </div>
+           {% else %}
+               <div class="alert alert-warning border-0 shadow-lg p-4 rounded-5 text-center">
+                   <i class="fas fa-user-slash fa-3x mb-3 opacity-25"></i>
+                   <p class="mb-0 fw-bold">No se han detectado registros asociados en la base de datos.</p>
+               </div>
+           {% endif %}
+       </div>
+   {% endif %}
+
+   <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-4 px-2">
+       <h4 class="fw-bold text-dark mb-0 d-flex align-items-center">
+           <div class="bg-primary rounded-3 p-2 me-3 text-white shadow-sm transition-all hover-scale"><i class="fas fa-chalkboard-teacher"></i></div>
+           Rendimiento Académico por Grupos
+       </h4>
+       <div class="d-flex gap-2">
+           <span class="badge bg-soft-primary text-primary px-4 py-2 rounded-pill fw-bold border border-primary-subtle shadow-sm">Cursos Activos: {{ vista_cursos|length }}</span>
+       </div>
+    </div>
+
+   <div class="accordion shadow-sm rounded-5 overflow-hidden border-0" id="accordionProMaster">
+       {% for item in vista_cursos %}
+       <div class="accordion-item border-0 mb-4 shadow-lg rounded-5 overflow-hidden">
+           <h2 class="accordion-header">
+               <button class="accordion-button collapsed py-4 bg-white text-dark fw-bold shadow-none" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{ item.curso.id }}">
+                   <div class="row w-100 align-items-center">
+                       <div class="col-md-3 d-flex align-items-center">
+                            <span class="badge bg-primary px-4 py-2 me-3 shadow-lg rounded-pill">{{ item.curso.nombre }}</span>
+                           <span class="small text-muted fw-bold">{{ item.stats.alumnos }} Matrículas</span>
+                       </div>
+                       <div class="col-md-3 text-center d-none d-md-block border-start">
+                           <small class="text-muted text-uppercase fw-bold ls-1" style="font-size: 0.65rem;">Promedio Grupo</small>
+                           <div class="fw-black text-info fs-4">{{ item.stats.acad }}</div>
+                       </div>
+                       <div class="col-md-3 text-center d-none d-md-block border-start">
+                           <small class="text-muted text-uppercase fw-bold ls-1" style="font-size: 0.65rem;">Índice Clima</small>
+                            <div class="fw-black text-warning fs-4">{{ item.stats.conv }}</div>
+                       </div>
+                       <div class="col-md-3 text-end d-none d-md-block border-start">
+                           <span class="badge {% if item.stats.acad < 3.2 %}bg-danger animate__animated animate__pulse animate__infinite{% else %}bg-success{% endif %} px-4 py-2 rounded-pill shadow-sm">
+                               {% if item.stats.acad < 3.2 %}Acción Prioritaria{% else %}Óptimo{% endif %}
+                           </span>
+                       </div>
+                   </div>
+               </button>
+           </h2>
+           <div id="collapse{{ item.curso.id }}" class="accordion-collapse collapse" data-bs-parent="#accordionProMaster">
+               <div class="accordion-body p-0 bg-light-subtle">
+                   
+                   {% if item.top_10_academico %}
+                   <div class="p-4 bg-white border-bottom shadow-inner">
+                       <div class="card border-0 shadow-lg rounded-5 overflow-hidden">
+                           <div class="card-header bg-gradient-success text-white py-3 d-flex justify-content-between align-items-center border-0">
+                               <h6 class="mb-0 fw-bold"><i class="fas fa-award me-2 text-warning"></i>Excelencia Académica (Top 10)</h6>
+                               <span class="badge bg-white text-success rounded-pill fw-bold border px-3">2024-B</span>
+                           </div>
+                           <div class="card-body p-0">
+                               <div class="table-responsive">
+                                   <table class="table table-sm table-striped mb-0 small text-center align-middle">
+                                       <thead class="text-secondary bg-light text-uppercase fw-bold" style="font-size: 0.65rem;">
+                                           <tr>
+                                               <th style="width: 100px;">Ranking</th>
+                                               <th class="text-start ps-5">Nombre del Alumno</th>
+                                               <th style="width: 200px;">GPA Definitivo</th>
+                                           </tr>
+                                       </thead>
+                                       <tbody>
+                                           {% for top_est in item.top_10_academico %}
+                                           <tr>
+                                               <td class="fw-bold py-3 text-center">
+                                                   {% if forloop.counter == 1 %}<div class="rank-circle rank-gold mx-auto">1</div>
+                                                   {% elif forloop.counter == 2 %}<div class="rank-circle rank-silver mx-auto">2</div>
+                                                   {% elif forloop.counter == 3 %}<div class="rank-circle rank-bronze mx-auto">3</div>
+                                                   {% else %}<span class="text-muted fw-black">#{{ forloop.counter }}</span>{% endif %}
+                                               </td>
+                                               <td class="text-start ps-5 fw-bold text-dark fs-6">{{ top_est.nombre }}</td>
+                                               <td><div class="d-inline-block px-3 py-1 bg-success bg-opacity-10 text-success rounded-pill fw-black shadow-sm">{{ top_est.promedio }}</div></td>
+                                           </tr>
+                                           {% endfor %}
+                                       </tbody>
+                                   </table>
+                               </div>
+                           </div>
+                       </div>
+                   </div>
+                   {% endif %}
+
+                   <div class="table-responsive p-4">
+                       <table class="table table-hover align-middle mb-0 bg-white rounded-5 shadow-sm border overflow-hidden">
+                            <thead class="bg-dark text-white small text-uppercase fw-bold border-0">
+                               <tr>
+                                   <th class="ps-4 py-4">Información del Estudiante</th>
+                                   {% for p in periodos %}
+                                       <th class="text-center">Periodo {{ forloop.counter }}</th>
+                                   {% endfor %}
+                                   <th class="text-end pe-5">Gestión Individual</th>
+                               </tr>
+                           </thead>
+                            <tbody>
+                               {% for obj_est in item.estudiantes %}
+                               <tr>
+                                   <td class="ps-4 py-3">
+                                       <div class="d-flex align-items-center">
+                                           <div class="avatar-xs rounded-circle bg-soft-primary text-primary d-flex align-items-center justify-content-center me-3 border border-primary-subtle fw-black shadow-sm">
+                                               {{ obj_est.obj.first_name|slice:":1" }}
+                                           </div>
+                                           <div>
+                                               <span class="fw-bold text-dark d-block mb-0">{{ obj_est.obj.get_full_name }}</span>
+                                               <small class="text-muted x-small fw-bold">Matrícula: {{ obj_est.obj.username }}</small>
+                                           </div>
+                                        </div>
+                                   </td>
+                                  
+                                   {% for p in periodos %}
+                                       <td class="text-center">
+                                           {% with nota=obj_est.notas|get_item:p.id %}
+                                               {% if nota != "-" %}
+                                                   <div class="nota-bubble {% if nota < 3.0 %}nota-fail{% elif nota >= 4.0 %}nota-success{% else %}nota-warning{% endif %}">
+                                                       {{ nota }}
+                                                    </div>
+                                               {% else %}
+                                                   <span class="text-muted opacity-25 x-small"><i class="fas fa-minus"></i></span>
+                                               {% endif %}
+                                           {% endwith %}
+                                       </td>
+                                   {% endfor %}
+
+                                   <td class="text-end pe-5">
+                                       <div class="btn-group btn-group-sm shadow-sm rounded-pill overflow-hidden border">
+                                           <a href="{% url 'ai_engine' %}?action=analisis_convivencia&target_id={{ obj_est.obj.id }}" class="btn btn-white text-purple" title="Analítica IA"><i class="fas fa-robot"></i></a>
+                                           <a href="{% url 'crear_observacion' obj_est.obj.id %}" class="btn btn-white text-primary" title="Generar Nota"><i class="fas fa-plus-circle"></i></a>
+                                           <a href="{% url 'ver_observador' obj_est.obj.id %}" class="btn btn-white text-dark" title="Abrir Historial"><i class="fas fa-folder-open"></i></a>
+                                       </div>
+                                   </td>
+                               </tr>
+                               {% endfor %}
+                           </tbody>
+                       </table>
+                   </div>
+                </div>
+           </div>
+       </div>
+       {% empty %}
+       <div class="p-5 text-center text-muted bg-white rounded-5 border border-dashed shadow-sm">
+           <i class="fas fa-project-diagram fa-4x mb-4 opacity-25"></i>
+           <h5 class="fw-bold">No hay Cursos Detectados</h5>
+           <p class="mb-0">Verifique la configuración académica en el panel administrativo.</p>
+       </div>
+       {% endfor %}
+    </div>
+</div>
+
+<div class="modal fade" id="modalIA" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
+    <div class="modal-dialog modal-dialog-centered modal-xl">
+        <div class="modal-content border-0 rounded-5 shadow-2xl overflow-hidden">
+            <div class="modal-header border-0 p-4 bg-gradient-ai text-white position-relative">
+                <div class="position-relative z-1 d-flex align-items-center w-100">
+                    <div class="icon-box-md bg-white-20 rounded-4 me-3 animate__animated animate__pulse animate__infinite">
+                        <i class="fas fa-robot fa-lg"></i>
+                    </div>
+                    <div>
+                        <h5 class="modal-title fw-black fs-4">Consultoría Estratégica Stratos AI</h5>
+                        <p class="mb-0 small opacity-75">Análisis heurístico basado en datos institucionales en tiempo real.</p>
+                    </div>
+                    <button type="button" class="btn-close btn-close-white ms-auto shadow-none" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="position-absolute top-0 end-0 h-100 w-100 opacity-10">
+                    <i class="fas fa-network-wired fa-12x position-absolute" style="top:-30px; right:-30px;"></i>
+                </div>
+            </div>
+            <div class="modal-body p-5 bg-light-subtle" style="min-height: 600px;">
+                <div id="aiLoading" class="text-center py-5">
+                    <div class="spinner-grow text-primary mb-4" style="width: 4rem; height: 4rem;"></div>
+                    <h5 class="fw-bold text-dark animate__animated animate__fadeIn">Escaneando Ecosistema Digital...</h5>
+                    <p class="text-muted" id="aiStatusText">Conectando con motor de Inteligencia Artificial...</p>
+                </div>
+                <div id="aiResults" class="d-none animate__animated animate__fadeIn">
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div id="aiTextContent" class="markdown-body bg-white p-5 rounded-5 border shadow-xl transition-all" style="max-height: 550px; overflow-y: auto;"></div>
+                        </div>
+                    </div>
+                    <div class="mt-4 d-flex justify-content-between align-items-center">
+                        <span class="x-small text-muted fw-bold"><i class="fas fa-shield-alt me-1"></i> Análisis basado en PEI y Manual de Convivencia vigente.</span>
+                        <div>
+                            <button class="btn btn-outline-dark rounded-pill px-4 me-2 fw-bold" data-bs-dismiss="modal">Cerrar</button>
+                            <button class="btn btn-primary rounded-pill px-5 shadow-lg fw-black" onclick="window.print()">
+                                <i class="fas fa-file-pdf me-2"></i> Exportar Diagnóstico PDF
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+   document.addEventListener('DOMContentLoaded', function() {
+       
+       // 1. CONFIGURACIÓN DEL RADAR CHART ESTRATÉGICO
+       const ctxRadar = document.getElementById('radarChartPro');
+       if (ctxRadar) {
+           new Chart(ctxRadar, {
+               type: 'radar',
+               data: {
+                   labels: ['Matemáticas', 'Español', 'Ciencias Nat.', 'C. Sociales', 'Inglés', 'Tecnología'],
+                   datasets: [{
+                       label: 'Rendimiento Promedio Institucional',
+                       data: [3.8, 4.2, 3.1, 4.0, 3.4, 4.6],
+                       backgroundColor: 'rgba(67, 97, 238, 0.25)',
+                       borderColor: '#4361ee',
+                       borderWidth: 4,
+                       pointBackgroundColor: '#4361ee',
+                       pointBorderColor: '#fff',
+                       pointHoverRadius: 10,
+                       fill: true
+                   }, {
+                       label: 'Estándar PEI (Meta)',
+                       data: [4.0, 4.0, 4.0, 4.0, 4.0, 4.0],
+                       backgroundColor: 'rgba(25, 135, 84, 0.05)',
+                       borderColor: 'rgba(25, 135, 84, 0.5)',
+                       borderWidth: 2,
+                       borderDash: [5, 5],
+                       pointRadius: 0
+                   }]
+               },
+               options: {
+                   responsive: true,
+                   maintainAspectRatio: false,
+                   scales: {
+                       r: { 
+                           beginAtZero: true, 
+                           max: 5, 
+                           grid: { color: 'rgba(0,0,0,0.05)' },
+                           angleLines: { color: 'rgba(0,0,0,0.1)' },
+                           ticks: { display: false } 
+                       }
+                   },
+                   plugins: { 
+                       legend: { 
+                           position: 'bottom', 
+                           labels: { usePointStyle: true, font: { weight: 'bold', size: 11 } } 
+                       } 
+                   }
+               }
+           });
+       }
+
+       // 2. CONFIGURACIÓN GRÁFICO BARRA SUPREMO (PEI VS REAL)
+       const ctxBar = document.getElementById('peiChartSupremo');
+       if (ctxBar) {
+           const labels = JSON.parse('{{ chart_data.labels|safe }}');
+           const dataAcad = JSON.parse('{{ chart_data.acad|safe }}');
+           const dataConv = JSON.parse('{{ chart_data.conv|safe }}');
+
+           new Chart(ctxBar, {
+               type: 'bar',
+               data: {
+                   labels: labels,
+                   datasets: [
+                       {
+                           label: 'Promedio Académico',
+                           data: dataAcad,
+                           backgroundColor: '#4361ee', 
+                           borderRadius: 12,
+                           barThickness: 24,
+                           hoverBackgroundColor: '#3a0ca3'
+                       },
+                       {
+                           label: 'Índice Convivencial',
+                           data: dataConv,
+                           backgroundColor: '#ffc107', 
+                           borderRadius: 12,
+                           barThickness: 24,
+                           hoverBackgroundColor: '#fb8500'
+                       }
+                   ]
+               },
+               options: {
+                   responsive: true,
+                   maintainAspectRatio: false,
+                   plugins: { 
+                       legend: { position: 'top', align: 'end', labels: { usePointStyle: true, font: { weight: 'bold' } } },
+                       tooltip: { padding: 15, backgroundColor: 'rgba(0,0,0,0.85)', titleFont: { size: 14, weight: 'bold' }, cornerRadius: 12 }
+                   },
+                   scales: {
+                       y: { beginAtZero: true, max: 5, grid: { color: 'rgba(0,0,0,0.05)', drawBorder: false } },
+                       x: { grid: { display: false } }
+                   }
+               }
+           });
+       }
+
+       // 3. CONFIGURACIÓN GRÁFICO ASISTENCIA (DONUT)
+       const ctxDonut = document.getElementById('asistenciaChartSupremo');
+       if (ctxDonut) {
+           const dataAsistencia = JSON.parse('{{ stats_asistencia|safe }}');
+           new Chart(ctxDonut, {
+               type: 'doughnut',
+               data: {
+                   labels: ['Presentes', 'Fallas', 'Excusas', 'Tardanzas'],
+                   datasets: [{
+                       data: dataAsistencia,
+                       backgroundColor: ['#198754', '#dc3545', '#0dcaf0', '#ffc107'],
+                       borderWidth: 8,
+                       borderColor: '#ffffff',
+                       hoverOffset: 20
+                   }]
+               },
+               options: {
+                   responsive: true,
+                   maintainAspectRatio: false,
+                   cutout: '80%',
+                   plugins: {
+                       legend: { position: 'bottom', labels: { padding: 25, usePointStyle: true, font: { weight: 'bold' } } }
+                   }
+               }
+           });
+       }
+   });
+
+   // MOTOR DE AUDITORÍA IA STRATOS - VERSIÓN FINAL (CONTEXTO FULL BLINDADO)
+   async function iniciarAnalisisIA() {
+       const modal = new bootstrap.Modal(document.getElementById('modalIA'));
+       const loading = document.getElementById('aiLoading');
+       const results = document.getElementById('aiResults');
+       const statusText = document.getElementById('aiStatusText');
+       const contentDiv = document.getElementById('aiTextContent');
+
+       modal.show();
+       loading.classList.remove('d-none');
+       results.classList.add('d-none');
+
+       // 1. RECOLECCIÓN DE DATOS DE TODA LA INSTITUCIÓN
+       // MODIFICACIÓN CRÍTICA: Eliminamos al solicitante para evitar sesgo de la IA.
+       
+       const datosContexto = {
+            tipo_reporte: "AUDITORIA_GLOBAL_INSTITUCIONAL", // Nombre técnico que suena a "solo datos"
+            // solicitante: "{{ user.get_full_name }}...",  <-- ELIMINADO PARA QUE NO ANALICE AL ADMIN
+            
+            entidad_analizada: "COLEGIO COMPLETO (TODOS LOS ESTUDIANTES)", // Le decimos explícitamente a quién analizar
+            
+            indicadores_globales: {
+                total_alumnos: "{{ kpi.total_alumnos }}",
+                promedio_academico_global: "{{ kpi.prom_global_acad }}",
+                indice_convivencia_global: "{{ kpi.prom_global_conv }}",
+                materias_reprobadas_totales: "{{ kpi.total_materias_perdidas }}",
+                total_cursos_activos: "{{ kpi.total_cursos }}"
+            },
+            
+            // LISTA DE ESTUDIANTES EN RIESGO (Notas Reales)
+            riesgos_criticos_detectados: [
+                {% for riesgo in top_riesgo_academico %}
+                {
+                    nombre_estudiante: "{{ riesgo.estudiante.get_full_name|escapejs }}",
+                    curso: "{{ riesgo.curso.nombre|escapejs }}",
+                    materias_perdidas_cantidad: {{ riesgo.materias_perdidas }},
+                    lista_materias: [{% for mat in riesgo.materias_nombres %}"{{ mat|escapejs }}",{% endfor %}]
+                },
+                {% endfor %}
+            ],
+
+            // LISTA DE ALERTAS DE CONVIVENCIA
+            alertas_convivencia: [
+                {% for alerta in alertas_convivencia %}
+                {
+                    nombre_estudiante: "{{ alerta.estudiante__first_name|escapejs }} {{ alerta.estudiante__last_name|escapejs }}",
+                    curso: "{{ alerta.materia__curso__nombre|escapejs }}",
+                    nota_conducta: "{{ alerta.nota_promedio|floatformat:2 }}"
+                },
+                {% endfor %}
+            ],
+            
+            // LISTA DE ALERTAS DE ASISTENCIA
+            alertas_asistencia: [
+                {% for alerta in top_fallas %}
+                {
+                    nombre_estudiante: "{{ alerta.estudiante__first_name|escapejs }} {{ alerta.estudiante__last_name|escapejs }}",
+                    fallas_acumuladas: {{ alerta.total }},
+                    curso: "{{ alerta.curso__nombre|escapejs }}"
+                },
+                {% endfor %}
+            ],
+
+            // RENDIMIENTO POR CURSOS
+            rendimiento_cursos: [
+                {% for item in vista_cursos %}
+                {
+                    nombre_curso: "{{ item.curso.nombre|escapejs }}",
+                    promedio_grupo: "{{ item.stats.acad }}",
+                    indice_clima: "{{ item.stats.conv }}",
+                    cantidad_alumnos: "{{ item.stats.alumnos }}"
+                },
+                {% endfor %}
+            ]
+       };
+
+       // 2. UX: Mensajes de estado para el usuario
+       const steps = [
+           "Leyendo Archivo Maestro PEI...",
+           "Analizando Manual de Convivencia...",
+           "Procesando " + datosContexto.riesgos_criticos_detectados.length + " alertas de riesgo académico...",
+           "Cruzando datos de convivencia con normativa...",
+           "Generando informe rectoral..."
+       ];
+
+       let stepIndex = 0;
+       const stepInterval = setInterval(() => {
+           if (stepIndex < steps.length) {
+               statusText.innerText = steps[stepIndex];
+               stepIndex++;
+           }
+       }, 1200);
+
+       try {
+           // 3. ENVÍO AL BACKEND
+           const response = await fetch("{% url 'ai_engine' %}?action=analisis_global_bienestar", {
+               method: "POST",
+               headers: {
+                   "Content-Type": "application/json",
+                   "X-CSRFToken": "{{ csrf_token }}",
+                   "X-Requested-With": "XMLHttpRequest"
+               },
+               // INSTRUCCIÓN IMPERSONAL
+               body: JSON.stringify({
+                   contexto_datos: datosContexto,
+                   instruccion: "Genera un reporte de auditoría basado estrictamente en los arrays de datos suministrados (riesgos_criticos, alertas). Identifica los estudiantes con problemas y propón soluciones."
+               })
+           });
+
+           // Diagnóstico de error HTML
+           const rawText = await response.text();
+           clearInterval(stepInterval);
+
+           let data;
+           try {
+                data = JSON.parse(rawText);
+           } catch (e) {
+                console.error("Respuesta no JSON:", rawText);
+                throw new Error("El servidor devolvió un error HTML. Revisa consola.");
+           }
+
+           if (data.success) {
+               contentDiv.innerHTML = marked.parse(data.content);
+               loading.classList.add('d-none');
+               results.classList.remove('d-none');
+           } else {
+               contentDiv.innerHTML = `<div class="alert alert-danger">Error IA: ${data.message}</div>`;
+               loading.classList.add('d-none');
+               results.classList.remove('d-none');
+           }
+
+       } catch (error) {
+           clearInterval(stepInterval);
+           contentDiv.innerHTML = `<div class="alert alert-warning">Error de conexión: ${error.message}</div>`;
+           loading.classList.add('d-none');
+           results.classList.remove('d-none');
+       }
+   }
+</script>
+
+<style>
+    /* Tu CSS existente se mantiene aquí */
+    :root { --purple-primary: #6610f2; --blue-institutional: #4361ee; --soft-gray: #f4f7fe; --text-dark: #1a1c23; }
+    body { background-color: var(--soft-gray); font-family: 'Inter', sans-serif; }
+    .bg-gradient-ai { background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%); }
+    .markdown-body h3 { color: var(--blue-institutional); border-bottom: 2px solid #f1f5f9; padding-bottom: 10px; margin-top: 20px; }
+    .markdown-body ul { padding-left: 20px; }
+    .markdown-body blockquote { border-left: 5px solid #a855f7; padding-left: 15px; background: #f8fafc; color: #555; }
+    
+    /* === CORE DESIGN SYSTEM STRATOS === */
+   .fw-black { font-weight: 900; }
+   .ls-2 { letter-spacing: 2px; }
+   .ls-1 { letter-spacing: 1px; }
+   .x-small { font-size: 0.75rem; }
+   
+   .icon-box-xl { width: 95px; height: 95px; border-radius: 50%; }
+   .icon-box-lg { width: 65px; height: 65px; }
+   .icon-box-md { width: 55px; height: 55px; }
+   
+   .bg-gradient-primary { background: linear-gradient(135deg, #4361ee 0%, #3a0ca3 100%); }
+   .bg-gradient-ai { background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%); }
+   .btn-ai-magic { background: linear-gradient(90deg, #6366f1, #a855f7); border: none; transition: all 0.4s; box-shadow: 0 10px 20px rgba(99, 102, 241, 0.3); }
+   .btn-ai-magic:hover { transform: scale(1.05) translateY(-3px); box-shadow: 0 15px 30px rgba(99, 102, 241, 0.4); }
+
+   /* === INTERFAZ PREMIUM === */
+   .hover-elevate { transition: all 0.3s ease-out; }
+   .hover-elevate:hover { transform: translateY(-12px); box-shadow: 0 25px 50px rgba(0,0,0,0.1) !important; }
+   
+   .card-doc { border-top-width: 8px !important; }
+   .pei-border { border-top: 8px solid var(--purple-primary) !important; }
+   .manual-border { border-top: 8px solid #fd7e14 !important; }
+   .malla-border { border-top: 8px solid #20c997 !important; }
+   .calendario-border { border-top: 8px solid #dc3545 !important; }
+
+   .bg-soft-danger { background-color: #fff5f5; }
+   .bg-soft-info { background-color: #eefbff; }
+   .bg-soft-primary { background-color: #eef2ff; }
+   .bg-soft-warning { background-color: #fffcf0; }
+   .bg-purple-soft { background-color: #f3e8ff; }
+   .bg-orange-soft { background-color: #fff7ed; }
+   .bg-teal-soft { background-color: #f0fdfa; }
+   .bg-danger-soft { background-color: #fef2f2; }
+
+   /* === NOTAS Y RANKING === */
+   .nota-bubble { display: inline-block; padding: 6px 14px; border-radius: 50px; font-weight: 800; font-size: 0.85rem; }
+   .nota-fail { background: #fff1f2; color: #e11d48; border: 1px solid #fecdd3; }
+   .nota-success { background: #f0fdf4; color: #16a34a; border: 1px solid #bbf7d0; }
+   .nota-warning { background: #fffbeb; color: #d97706; border: 1px solid #fef3c7; }
+
+   .rank-circle { width: 35px; height: 35px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: 900; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+   .rank-gold { background: linear-gradient(135deg, #fbbf24, #d97706); }
+   .rank-silver { background: linear-gradient(135deg, #94a3b8, #475569); }
+   .rank-bronze { background: linear-gradient(135deg, #d97706, #78350f); }
+
+   /* === SCROLL Y ETIQUETAS === */
+   .scroll-pro::-webkit-scrollbar { width: 8px; }
+   .scroll-pro::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 20px; border: 2px solid #f8fafc; }
+   .scroll-pro::-webkit-scrollbar-track { background: #f1f5f9; }
+
+   .chart-center-label { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; margin-top: -15px; }
+   .radial-progress-kpi { width: 65px; height: 65px; border-radius: 50%; border: 6px solid #eef2ff; border-top-color: var(--blue-institutional); display: flex; align-items: center; justify-content: center; }
+
+   .markdown-body h3 { color: var(--blue-institutional); border-bottom: 2px solid #f1f5f9; padding-bottom: 15px; margin-top: 30px; font-weight: 800; }
+   .markdown-body blockquote { border-left: 6px solid #6366f1; background: #f8fafc; padding: 20px; border-radius: 0 20px 20px 0; font-style: italic; }
+
+   .dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+</style>
+{% endblock %}
+
+

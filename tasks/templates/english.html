@@ -1,0 +1,1359 @@
+{% extends 'base.html' %}
+{% block content %}
+<main class="container py-5 main-content-area">
+    <section class="text-center mb-5 page-header">
+        <h1 class="display-4 page-title">Aprende inglés con el Efecto Miller</h1>
+        <p class="lead page-subtitle">Explora nuestras clases y mejora tus habilidades en inglés de manera efectiva y memorable.</p>
+    </section>
+
+    <div class="accordion" id="accordionGrados">
+
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="headingSexto">
+                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseSexto" aria-expanded="true" aria-controls="collapseSexto">
+                    <i class="fas fa-book-open me-2"></i> Sexto Grado
+                    
+                    <div class="progress-container ms-auto d-flex align-items-center">
+                        <span class="progress-text me-2">Progreso: 0 / 0</span>
+                        <div class="progress" style="width: 100px; height: 10px;">
+                            <div class="progress-bar bg-success" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="0"></div>
+                        </div>
+                        <span class="badge bg-light text-dark ms-2 lesson-count-badge">0 Clases</span>
+                    </div>
+                </button>
+            </h2>
+            <div id="collapseSexto" class="accordion-collapse collapse show" aria-labelledby="headingSexto" data-bs-parent="#accordionGrados">
+                <div class="accordion-body">
+                    <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-3 row-cols-xl-4 g-4 g-md-5 lesson-grid">
+                        
+                        <div class="col">
+                            <div class="card h-100 lesson-card" id="card-clase1">
+                                <div class="card-body text-center d-flex flex-column">
+                                    <h5 class="card-title">Clase 1</h5>
+                                    <p class="card-text">Descubre el Efecto Miller y su revolucionaria importancia...</p>
+                                    <button class="btn btn-primary btn-lg mt-auto card-button" data-lesson-id="clase1" data-video-url="https://res.cloudinary.com/do9orhb4k/video/upload/v1739634103/WhatsApp_Video_2025-02-15_at_8.34.38_AM_v0bpfq.mp4" data-video-title="Clase 1: Fundamentos del Efecto Miller">
+                                        <i class="fas fa-play-circle me-2"></i><span class="button-text">Ver Clase</span>
+                                    </button>
+                                    <div class="form-check text-start mt-3 lesson-viewed-toggle">
+                                        <input class="form-check-input" type="checkbox" value="" id="clase1-check" data-lesson-id="clase1">
+                                        <label class="form-check-label" for="clase1-check">Marcar como visto</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col">
+                            <div class="card h-100 lesson-card" id="card-clase2">
+                                <div class="card-body text-center d-flex flex-column">
+                                    <h5 class="card-title">Clase 2</h5>
+                                    <p class="card-text">Primeros pasos prácticos para aplicar el Efecto Miller...</p>
+                                    <button class="btn btn-primary btn-lg mt-auto card-button" data-lesson-id="clase2" data-video-url="https://res.cloudinary.com/do9orhb4k/video/upload/v1739634103/WhatsApp_Video_2025-02-15_at_8.34.38_AM_v0bpfq.mp4" data-video-title="Clase 2: Aplicación Inicial del Efecto Miller">
+                                        <i class="fas fa-play-circle me-2"></i><span class="button-text">Ver Clase</span>
+                                    </button>
+                                    <div class="form-check text-start mt-3 lesson-viewed-toggle">
+                                        <input class="form-check-input" type="checkbox" value="" id="clase2-check" data-lesson-id="clase2">
+                                        <label class="form-check-label" for="clase2-check">Marcar como visto</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col">
+                            <div class="card h-100 lesson-card" id="card-clase3">
+                                <div class="card-body text-center d-flex flex-column">
+                                    <h5 class="card-title">Clase 3</h5>
+                                    <p class="card-text">Ejercicios prácticos de fonética y pronunciación...</p>
+                                    <button class="btn btn-primary btn-lg mt-auto card-button" data-lesson-id="clase3" data-video-url="TU_URL_AQUI" data-video-title="Clase 3: Dominando la Pronunciación Inglesa">
+                                        <i class="fas fa-play-circle me-2"></i><span class="button-text">Ver Clase</span>
+                                    </button>
+                                    <div class="form-check text-start mt-3 lesson-viewed-toggle">
+                                        <input class="form-check-input" type="checkbox" value="" id="clase3-check" data-lesson-id="clase3">
+                                        <label class="form-check-label" for="clase3-check">Marcar como visto</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col">
+                            <div class="card h-100 lesson-card" id="card-clase4">
+                                <div class="card-body text-center d-flex flex-column">
+                                    <h5 class="card-title">Clase 4</h5>
+                                    <p class="card-text">Explora técnicas avanzadas de memorización...</p>
+                                    <button class="btn btn-primary btn-lg mt-auto card-button" data-lesson-id="clase4" data-video-url="TU_URL_AQUI" data-video-title="Clase 4: Estrategias de Memorización Avanzada">
+                                        <i class="fas fa-play-circle me-2"></i><span class="button-text">Ver Clase</span>
+                                    </button>
+                                    <div class="form-check text-start mt-3 lesson-viewed-toggle">
+                                        <input class="form-check-input" type="checkbox" value="" id="clase4-check" data-lesson-id="clase4">
+                                        <label class="form-check-label" for="clase4-check">Marcar como visto</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col">
+                            <div class="card h-100 lesson-card" id="card-clase5">
+                                <div class="card-body text-center d-flex flex-column">
+                                    <h5 class="card-title">Clase 5</h5>
+                                    <p class="card-text">Aplicación del Efecto Miller para mejorar tu redacción...</p>
+                                    <button class="btn btn-primary btn-lg mt-auto card-button" data-lesson-id="clase5" data-video-url="TU_URL_AQUI" data-video-title="Clase 5: El Efecto Miller en la Escritura">
+                                        <i class="fas fa-play-circle me-2"></i><span class="button-text">Ver Clase</span>
+                                    </button>
+                                    <div class="form-check text-start mt-3 lesson-viewed-toggle">
+                                        <input class="form-check-input" type="checkbox" value="" id="clase5-check" data-lesson-id="clase5">
+                                        <label class="form-check-label" for="clase5-check">Marcar como visto</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col">
+                            <div class="card h-100 lesson-card" id="card-clase6">
+                                <div class="card-body text-center d-flex flex-column">
+                                    <h5 class="card-title">Clase 6</h5>
+                                    <p class="card-text">Desarrolla tu comprensión auditiva con ejercicios...</p>
+                                    <button class="btn btn-primary btn-lg mt-auto card-button" data-lesson-id="clase6" data-video-url="TU_URL_AQUI" data-video-title="Clase 6: Mejorando tu Listening Skill">
+                                        <i class="fas fa-play-circle me-2"></i><span class="button-text">Ver Clase</span>
+                                    </button>
+                                    <div class="form-check text-start mt-3 lesson-viewed-toggle">
+                                        <input class="form-check-input" type="checkbox" value="" id="clase6-check" data-lesson-id="clase6">
+                                        <label class="form-check-label" for="clase6-check">Marcar como visto</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col">
+                            <div class="card h-100 lesson-card" id="card-clase7">
+                                <div class="card-body text-center d-flex flex-column">
+                                    <h5 class="card-title">Clase 7</h5>
+                                    <p class="card-text">Técnicas y trucos esenciales para aumentar tu fluidez...</p>
+                                    <button class="btn btn-primary btn-lg mt-auto card-button" data-lesson-id="clase7" data-video-url="TU_URL_AQUI" data-video-title="Clase 7: Alcanzando la Fluidez Verbal">
+                                        <i class="fas fa-play-circle me-2"></i><span class="button-text">Ver Clase</span>
+                                    </button>
+                                    <div class="form-check text-start mt-3 lesson-viewed-toggle">
+                                        <input class="form-check-input" type="checkbox" value="" id="clase7-check" data-lesson-id="clase7">
+                                        <label class="form-check-label" for="clase7-check">Marcar como visto</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col">
+                            <div class="card h-100 lesson-card" id="card-clase8">
+                                <div class="card-body text-center d-flex flex-column">
+                                    <h5 class="card-title">Clase 8</h5>
+                                    <p class="card-text">Fundamentos de la gramática inglesa explicados...</p>
+                                    <button class="btn btn-primary btn-lg mt-auto card-button" data-lesson-id="clase8" data-video-url="TU_URL_AQUI" data-video-title="Clase 8: Gramática Esencial Desmitificada">
+                                        <i class="fas fa-play-circle me-2"></i><span class="button-text">Ver Clase</span>
+                                    </button>
+                                    <div class="form-check text-start mt-3 lesson-viewed-toggle">
+                                        <input class="form-check-input" type="checkbox" value="" id="clase8-check" data-lesson-id="clase8">
+                                        <label class="form-check-label" for="clase8-check">Marcar como visto</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col">
+                            <div class="card h-100 lesson-card" id="card-clase9">
+                                <div class="card-body text-center d-flex flex-column">
+                                    <h5 class="card-title">Clase 9</h5>
+                                    <p class="card-text">Cómo aplicar el Efecto Miller para una lectura más rápida...</p>
+                                    <button class="btn btn-primary btn-lg mt-auto card-button" data-lesson-id="clase9" data-video-url="TU_URL_AQUI" data-video-title="Clase 9: Lectura Eficaz con Efecto Miller">
+                                        <i class="fas fa-play-circle me-2"></i><span class="button-text">Ver Clase</span>
+                                    </button>
+                                    <div class="form-check text-start mt-3 lesson-viewed-toggle">
+                                        <input class="form-check-input" type="checkbox" value="" id="clase9-check" data-lesson-id="clase9">
+                                        <label class="form-check-label" for="clase9-check">Marcar como visto</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="headingSeptimo">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseSeptimo" aria-expanded="false" aria-controls="collapseSeptimo">
+                    <i class="fas fa-book-open me-2"></i> Séptimo Grado
+                    <div class="progress-container ms-auto d-flex align-items-center">
+                        <span class="progress-text me-2">Progreso: 0 / 0</span>
+                        <div class="progress" style="width: 100px; height: 10px;">
+                            <div class="progress-bar bg-success" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="0"></div>
+                        </div>
+                        <span class="badge bg-light text-dark ms-2 lesson-count-badge">0 Clases</span>
+                    </div>
+                </button>
+            </h2>
+            <div id="collapseSeptimo" class="accordion-collapse collapse" aria-labelledby="headingSeptimo" data-bs-parent="#accordionGrados">
+                <div class="accordion-body">
+                    <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-3 row-cols-xl-4 g-4 g-md-5 lesson-grid">
+                        
+                        <div class="col">
+                            <div class="card h-100 lesson-card" id="card-clase10">
+                                <div class="card-body text-center d-flex flex-column">
+                                    <h5 class="card-title">Clase 10</h5>
+                                    <p class="card-text">Expande tu vocabulario con métodos mnemotécnicos...</p>
+                                    <button class="btn btn-primary btn-lg mt-auto card-button" data-lesson-id="clase10" data-video-url="TU_URL_AQUI" data-video-title="Clase 10: Estrategias para Ampliar Vocabulario">
+                                        <i class="fas fa-play-circle me-2"></i><span class="button-text">Ver Clase</span>
+                                    </button>
+                                    <div class="form-check text-start mt-3 lesson-viewed-toggle">
+                                        <input class="form-check-input" type="checkbox" value="" id="clase10-check" data-lesson-id="clase10">
+                                        <label class="form-check-label" for="clase10-check">Marcar como visto</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col">
+                            <div class="card h-100 lesson-card" id="card-clase11">
+                                <div class="card-body text-center d-flex flex-column">
+                                    <h5 class="card-title">Clase 11</h5>
+                                    <p class="card-text">Refuerza tu pronunciación con ejercicios...</p>
+                                    <button class="btn btn-primary btn-lg mt-auto card-button" data-lesson-id="clase11" data-video-url="TU_URL_AQUI" data-video-title="Clase 11: Perfeccionamiento de la Pronunciación">
+                                        <i class="fas fa-play-circle me-2"></i><span class="button-text">Ver Clase</span>
+                                    </button>
+                                    <div class="form-check text-start mt-3 lesson-viewed-toggle">
+                                        <input class="form-check-input" type="checkbox" value="" id="clase11-check" data-lesson-id="clase11">
+                                        <label class="form-check-label" for="clase11-check">Marcar como visto</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col">
+                            <div class="card h-100 lesson-card" id="card-clase12">
+                                <div class="card-body text-center d-flex flex-column">
+                                    <h5 class="card-title">Clase 12</h5>
+                                    <p class="card-text">Comprensión auditiva avanzada: diálogos reales...</p>
+                                    <button class="btn btn-primary btn-lg mt-auto card-button" data-lesson-id="clase12" data-video-url="TU_URL_AQUI" data-video-title="Clase 12: Listening Avanzado en Contexto">
+                                        <i class="fas fa-play-circle me-2"></i><span class="button-text">Ver Clase</span>
+                                    </button>
+                                    <div class="form-check text-start mt-3 lesson-viewed-toggle">
+                                        <input class="form-check-input" type="checkbox" value="" id="clase12-check" data-lesson-id="clase12">
+                                        <label class="form-check-label" for="clase12-check">Marcar como visto</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col">
+                            <div class="card h-100 lesson-card" id="card-clase13">
+                                <div class="card-body text-center d-flex flex-column">
+                                    <h5 class="card-title">Clase 13</h5>
+                                    <p class="card-text">Estructuras y estilos para una escritura avanzada...</p>
+                                    <button class="btn btn-primary btn-lg mt-auto card-button" data-lesson-id="clase13" data-video-url="TU_URL_AQUI" data-video-title="Clase 13: Técnicas de Escritura Avanzada">
+                                        <i class="fas fa-play-circle me-2"></i><span class="button-text">Ver Clase</span>
+                                    </button>
+                                    <div class="form-check text-start mt-3 lesson-viewed-toggle">
+                                        <input class="form-check-input" type="checkbox" value="" id="clase13-check" data-lesson-id="clase13">
+                                        <label class="form-check-label" for="clase13-check">Marcar como visto</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col">
+                            <div class="card h-100 lesson-card" id="card-clase14">
+                                <div class="card-body text-center d-flex flex-column">
+                                    <h5 class="card-title">Clase 14</h5>
+                                    <p class="card-text">Profundización en tiempos verbales complejos...</p>
+                                    <button class="btn btn-primary btn-lg mt-auto card-button" data-lesson-id="clase14" data-video-url="TU_URL_AQUI" data-video-title="Clase 14: Dominio de Tiempos Verbales">
+                                        <i class="fas fa-play-circle me-2"></i><span class="button-text">Ver Clase</span>
+                                    </button>
+                                    <div class="form-check text-start mt-3 lesson-viewed-toggle">
+                                        <input class="form-check-input" type="checkbox" value="" id="clase14-check" data-lesson-id="clase14">
+                                        <label class="form-check-label" for="clase14-check">Marcar como visto</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col">
+                            <div class="card h-100 lesson-card" id="card-clase15">
+                                <div class="card-body text-center d-flex flex-column">
+                                    <h5 class="card-title">Clase 15</h5>
+                                    <p class="card-text">Desarrolla la fluidez en conversaciones y debates...</p>
+                                    <button class="btn btn-primary btn-lg mt-auto card-button" data-lesson-id="clase15" data-video-url="TU_URL_AQUI" data-video-title="Clase 15: Fluidez Conversacional Avanzada">
+                                        <i class="fas fa-play-circle me-2"></i><span class="button-text">Ver Clase</span>
+                                    </button>
+                                    <div class="form-check text-start mt-3 lesson-viewed-toggle">
+                                        <input class="form-check-input" type="checkbox" value="" id="clase15-check" data-lesson-id="clase15">
+                                        <label class="form-check-label" for="clase15-check">Marcar como visto</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col">
+                            <div class="card h-100 lesson-card" id="card-clase16">
+                                <div class="card-body text-center d-flex flex-column">
+                                    <h5 class="card-title">Clase 16</h5>
+                                    <p class="card-text">Vocabulario específico para negocios y entornos...</p>
+                                    <button class="btn btn-primary btn-lg mt-auto card-button" data-lesson-id="clase16" data-video-url="TU_URL_AQUI" data-video-title="Clase 16: Vocabulario Profesional y de Negocios">
+                                        <i class="fas fa-play-circle me-2"></i><span class="button-text">Ver Clase</span>
+                                    </button>
+                                    <div class="form-check text-start mt-3 lesson-viewed-toggle">
+                                        <input class="form-check-input" type="checkbox" value="" id="clase16-check" data-lesson-id="clase16">
+                                        <label class="form-check-label" for="clase16-check">Marcar como visto</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col">
+                            <div class="card h-100 lesson-card" id="card-clase17">
+                                <div class="card-body text-center d-flex flex-column">
+                                    <h5 class="card-title">Clase 17</h5>
+                                    <p class="card-text">Lectura crítica de textos complejos y análisis...</p>
+                                    <button class="btn btn-primary btn-lg mt-auto card-button" data-lesson-id="clase17" data-video-url="TU_URL_AQUI" data-video-title="Clase 17: Lectura Crítica y Analítica">
+                                        <i class="fas fa-play-circle me-2"></i><span class="button-text">Ver Clase</span>
+                                    </button>
+                                    <div class="form-check text-start mt-3 lesson-viewed-toggle">
+                                        <input class="form-check-input" type="checkbox" value="" id="clase17-check" data-lesson-id="clase17">
+                                        <label class="form-check-label" for="clase17-check">Marcar como visto</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col">
+                            <div class="card h-100 lesson-card" id="card-clase18">
+                                <div class="card-body text-center d-flex flex-column">
+                                    <h5 class="card-title">Clase 18</h5>
+                                    <p class="card-text">Comprensión de matices culturales a través del listening...</p>
+                                    <button class="btn btn-primary btn-lg mt-auto card-button" data-lesson-id="clase18" data-video-url="TU_URL_AQUI" data-video-title="Clase 18: Listening y Contexto Cultural">
+                                        <i class="fas fa-play-circle me-2"></i><span class="button-text">Ver Clase</span>
+                                    </button>
+                                    <div class="form-check text-start mt-3 lesson-viewed-toggle">
+                                        <input class="form-check-input" type="checkbox" value="" id="clase18-check" data-lesson-id="clase18">
+                                        <label class="form-check-label" for="clase18-check">Marcar como visto</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="headingOctavo">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOctavo" aria-expanded="false" aria-controls="collapseOctavo">
+                    <i class="fas fa-book-open me-2"></i> Octavo Grado
+                    <div class="progress-container ms-auto d-flex align-items-center">
+                        <span class="progress-text me-2">Progreso: 0 / 0</span>
+                        <div class="progress" style="width: 100px; height: 10px;">
+                            <div class="progress-bar bg-success" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="0"></div>
+                        </div>
+                        <span class="badge bg-light text-dark ms-2 lesson-count-badge">0 Clases</span>
+                    </div>
+                </button>
+            </h2>
+            <div id="collapseOctavo" class="accordion-collapse collapse" aria-labelledby="headingOctavo" data-bs-parent="#accordionGrados">
+                <div class="accordion-body">
+                    <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-3 row-cols-xl-4 g-4 g-md-5 lesson-grid">
+                        
+                        <div class="col">
+                            <div class="card h-100 lesson-card" id="card-clase19">
+                                <div class="card-body text-center d-flex flex-column">
+                                    <h5 class="card-title">Clase 19</h5>
+                                    <p class="card-text">Reducción del acento y mejora de la claridad...</p>
+                                    <button class="btn btn-primary btn-lg mt-auto card-button" data-lesson-id="clase19" data-video-url="TU_URL_AQUI" data-video-title="Clase 19: Refinando tu Acento Inglés">
+                                        <i class="fas fa-play-circle me-2"></i><span class="button-text">Ver Clase</span>
+                                    </button>
+                                    <div class="form-check text-start mt-3 lesson-viewed-toggle">
+                                        <input class="form-check-input" type="checkbox" value="" id="clase19-check" data-lesson-id="clase19">
+                                        <label class="form-check-label" for="clase19-check">Marcar como visto</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col">
+                            <div class="card h-100 lesson-card" id="card-clase20">
+                                <div class="card-body text-center d-flex flex-column">
+                                    <h5 class="card-title">Clase 20</h5>
+                                    <p class="card-text">Uso avanzado de conectores y frases de transición...</p>
+                                    <button class="btn btn-primary btn-lg mt-auto card-button" data-lesson-id="clase20" data-video-url="TU_URL_AQUI" data-video-title="Clase 20: Conectores y Cohesión Gramatical">
+                                        <i class="fas fa-play-circle me-2"></i><span class="button-text">Ver Clase</span>
+                                    </button>
+                                    <div class="form-check text-start mt-3 lesson-viewed-toggle">
+                                        <input class="form-check-input" type="checkbox" value="" id="clase20-check" data-lesson-id="clase20">
+                                        <label class="form-check-label" for="clase20-check">Marcar como visto</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col">
+                            <div class="card h-100 lesson-card" id="card-clase21">
+                                <div class="card-body text-center d-flex flex-column">
+                                    <h5 class="card-title">Clase 21</h5>
+                                    <p class="card-text">Estrategias de escritura para ensayos y reportes...</p>
+                                    <button class="btn btn-primary btn-lg mt-auto card-button" data-lesson-id="clase21" data-video-url="TU_URL_AQUI" data-video-title="Clase 21: Escritura Académica y Formal">
+                                        <i class="fas fa-play-circle me-2"></i><span class="button-text">Ver Clase</span>
+                                    </button>
+                                    <div class="form-check text-start mt-3 lesson-viewed-toggle">
+                                        <input class="form-check-input" type="checkbox" value="" id="clase21-check" data-lesson-id="clase21">
+                                        <label class="form-check-label" for="clase21-check">Marcar como visto</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col">
+                            <div class="card h-100 lesson-card" id="card-clase22">
+                                <div class="card-body text-center d-flex flex-column">
+                                    <h5 class="card-title">Clase 22</h5>
+                                    <p class="card-text">Dominio de phrasal verbs comunes y su aplicación...</p>
+                                    <button class="btn btn-primary btn-lg mt-auto card-button" data-lesson-id="clase22" data-video-url="TU_URL_AQUI" data-video-title="Clase 22: Phrasal Verbs en Acción">
+                                        <i class="fas fa-play-circle me-2"></i><span class="button-text">Ver Clase</span>
+                                    </button>
+                                    <div class="form-check text-start mt-3 lesson-viewed-toggle">
+                                        <input class="form-check-input" type="checkbox" value="" id="clase22-check" data-lesson-id="clase22">
+                                        <label class="form-check-label" for="clase22-check">Marcar como visto</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col">
+                            <div class="card h-100 lesson-card" id="card-clase23">
+                                <div class="card-body text-center d-flex flex-column">
+                                    <h5 class="card-title">Clase 23</h5>
+                                    <p class="card-text">Prácticas de debate y argumentación para una fluidez...</p>
+                                    <button class="btn btn-primary btn-lg mt-auto card-button" data-lesson-id="clase23" data-video-url="TU_URL_AQUI" data-video-title="Clase 23: Debate y Argumentación en Inglés">
+                                        <i class="fas fa-play-circle me-2"></i><span class="button-text">Ver Clase</span>
+                                    </button>
+                                    <div class="form-check text-start mt-3 lesson-viewed-toggle">
+                                        <input class="form-check-input" type="checkbox" value="" id="clase23-check" data-lesson-id="clase23">
+                                        <label class="form-check-label" for="clase23-check">Marcar como visto</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col">
+                            <div class="card h-100 lesson-card" id="card-clase24">
+                                <div class="card-body text-center d-flex flex-column">
+                                    <h5 class="card-title">Clase 24</h5>
+                                    <p class="card-text">Comprensión de discursos y presentaciones en inglés.</p>
+                                    <button class="btn btn-primary btn-lg mt-auto card-button" data-lesson-id="clase24" data-video-url="TU_URL_AQUI" data-video-title="Clase 24: Entendiendo Discursos y Presentaciones">
+                                        <i class="fas fa-play-circle me-2"></i><span class="button-text">Ver Clase</span>
+                                    </button>
+                                    <div class="form-check text-start mt-3 lesson-viewed-toggle">
+                                        <input class="form-check-input" type="checkbox" value="" id="clase24-check" data-lesson-id="clase24">
+                                        <label class="form-check-label" for="clase24-check">Marcar como visto</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col">
+                            <div class="card h-100 lesson-card" id="card-clase25">
+                                <div class="card-body text-center d-flex flex-column">
+                                    <h5 class="card-title">Clase 25</h5>
+                                    <p class="card-text">Técnicas de lectura veloz y skimming para optimizar...</p>
+                                    <button class="btn btn-primary btn-lg mt-auto card-button" data-lesson-id="clase25" data-video-url="TU_URL_AQUI" data-video-title="Clase 25: Lectura Veloz y Skimming">
+                                        <i class="fas fa-play-circle me-2"></i><span class="button-text">Ver Clase</span>
+                                    </button>
+                                    <div class="form-check text-start mt-3 lesson-viewed-toggle">
+                                        <input class="form-check-input" type="checkbox" value="" id="clase25-check" data-lesson-id="clase25">
+                                        <label class="form-check-label" for="clase25-check">Marcar como visto</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col">
+                            <div class="card h-100 lesson-card" id="card-clase26">
+                                <div class="card-body text-center d-flex flex-column">
+                                    <h5 class="card-title">Clase 26</h5>
+                                    <p class="card-text">Vocabulario académico y científico para estudios...</p>
+                                    <button class="btn btn-primary btn-lg mt-auto card-button" data-lesson-id="clase26" data-video-url="TU_URL_AQUI" data-video-title="Clase 26: Vocabulario Académico Esencial">
+                                        <i class="fas fa-play-circle me-2"></i><span class="button-text">Ver Clase</span>
+                                    </button>
+                                    <div class="form-check text-start mt-3 lesson-viewed-toggle">
+                                        <input class="form-check-input" type="checkbox" value="" id="clase26-check" data-lesson-id="clase26">
+                                        <label class="form-check-label" for="clase26-check">Marcar como visto</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col">
+                            <div class="card h-100 lesson-card" id="card-clase27">
+                                <div class="card-body text-center d-flex flex-column">
+                                    <h5 class="card-title">Clase 27</h5>
+                                    <p class="card-text">Práctica intensiva de la pronunciación de sonidos...</p>
+                                    <button class="btn btn-primary btn-lg mt-auto card-button" data-lesson-id="clase27" data-video-url="TU_URL_AQUI" data-video-title="Clase 27: Pronunciación de Sonidos Clave">
+                                        <i class="fas fa-play-circle me-2"></i><span class="button-text">Ver Clase</span>
+                                    </button>
+                                    <div class="form-check text-start mt-3 lesson-viewed-toggle">
+                                        <input class="form-check-input" type="checkbox" value="" id="clase27-check" data-lesson-id="clase27">
+                                        <label class="form-check-label" for="clase27-check">Marcar como visto</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="headingNoveno">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseNoveno" aria-expanded="false" aria-controls="collapseNoveno">
+                    <i class="fas fa-book-open me-2"></i> Noveno Grado
+                    <div class="progress-container ms-auto d-flex align-items-center">
+                        <span class="progress-text me-2">Progreso: 0 / 0</span>
+                        <div class="progress" style="width: 100px; height: 10px;">
+                            <div class="progress-bar bg-success" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="0"></div>
+                        </div>
+                        <span class="badge bg-light text-dark ms-2 lesson-count-badge">0 Clases</span>
+                    </div>
+                </button>
+            </h2>
+            <div id="collapseNoveno" class="accordion-collapse collapse" aria-labelledby="headingNoveno" data-bs-parent="#accordionGrados">
+                <div class="accordion-body">
+                    <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-3 row-cols-xl-4 g-4 g-md-5 lesson-grid">
+                        
+                        <div class="col">
+                            <div class="card h-100 lesson-card" id="card-clase28">
+                                <div class="card-body text-center d-flex flex-column">
+                                    <h5 class="card-title">Clase 28</h5>
+                                    <p class="card-text">Gramática avanzada: cláusulas relativas y voz pasiva.</p>
+                                    <button class="btn btn-primary btn-lg mt-auto card-button" data-lesson-id="clase28" data-video-url="TU_URL_AQUI" data-video-title="Clase 28: Gramática Avanzada: Cláusulas y Voz Pasiva">
+                                        <i class="fas fa-play-circle me-2"></i><span class="button-text">Ver Clase</span>
+                                    </button>
+                                    <div class="form-check text-start mt-3 lesson-viewed-toggle">
+                                        <input class="form-check-input" type="checkbox" value="" id="clase28-check" data-lesson-id="clase28">
+                                        <label class="form-check-label" for="clase28-check">Marcar como visto</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="card h-100 lesson-card" id="card-clase29">
+                                <div class="card-body text-center d-flex flex-column">
+                                    <h5 class="card-title">Clase 29</h5>
+                                    <p class="card-text">Escritura creativa: narración de historias...</p>
+                                    <button class="btn btn-primary btn-lg mt-auto card-button" data-lesson-id="clase29" data-video-url="TU_URL_AQUI" data-video-title="Clase 29: Desarrollo de Escritura Creativa">
+                                        <i class="fas fa-play-circle me-2"></i><span class="button-text">Ver Clase</span>
+                                    </button>
+                                    <div class="form-check text-start mt-3 lesson-viewed-toggle">
+                                        <input class="form-check-input" type="checkbox" value="" id="clase29-check" data-lesson-id="clase29">
+                                        <label class="form-check-label" for="clase29-check">Marcar como visto</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="card h-100 lesson-card" id="card-clase30">
+                                <div class="card-body text-center d-flex flex-column">
+                                    <h5 class="card-title">Clase 30</h5>
+                                    <p class="card-text">Uso de modismos y expresiones idiomáticas...</p>
+                                    <button class="btn btn-primary btn-lg mt-auto card-button" data-lesson-id="clase30" data-video-url="TU_URL_AQUI" data-video-title="Clase 30: Modismos y Expresiones Idiomáticas">
+                                        <i class="fas fa-play-circle me-2"></i><span class="button-text">Ver Clase</span>
+                                    </button>
+                                    <div class="form-check text-start mt-3 lesson-viewed-toggle">
+                                        <input class="form-check-input" type="checkbox" value="" id="clase30-check" data-lesson-id="clase30">
+                                        <label class="form-check-label" for="clase30-check">Marcar como visto</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="card h-100 lesson-card" id="card-clase31">
+                                <div class="card-body text-center d-flex flex-column">
+                                    <h5 class="card-title">Clase 31</h5>
+                                    <p class="card-text">Técnicas de presentación oral y discursos...</p>
+                                    <button class="btn btn-primary btn-lg mt-auto card-button" data-lesson-id="clase31" data-video-url="TU_URL_AQUI" data-video-title="Clase 31: Habilidades de Presentación Oral">
+                                        <i class="fas fa-play-circle me-2"></i><span class="button-text">Ver Clase</span>
+                                    </button>
+                                    <div class="form-check text-start mt-3 lesson-viewed-toggle">
+                                        <input class="form-check-input" type="checkbox" value="" id="clase31-check" data-lesson-id="clase31">
+                                        <label class="form-check-label" for="clase31-check">Marcar como visto</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="card h-100 lesson-card" id="card-clase32">
+                                <div class="card-body text-center d-flex flex-column">
+                                    <h5 class="card-title">Clase 32</h5>
+                                    <p class="card-text">Escucha activa y toma de notas en conferencias...</p>
+                                    <button class="btn btn-primary btn-lg mt-auto card-button" data-lesson-id="clase32" data-video-url="TU_URL_AQUI" data-video-title="Clase 32: Listening Estratégico y Toma de Notas">
+                                        <i class="fas fa-play-circle me-2"></i><span class="button-text">Ver Clase</span>
+                                    </button>
+                                    <div class="form-check text-start mt-3 lesson-viewed-toggle">
+                                        <input class="form-check-input" type="checkbox" value="" id="clase32-check" data-lesson-id="clase32">
+                                        <label class="form-check-label" for="clase32-check">Marcar como visto</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="card h-100 lesson-card" id="card-clase33">
+                                <div class="card-body text-center d-flex flex-column">
+                                    <h5 class="card-title">Clase 33</h5>
+                                    <p class="card-text">Análisis de literatura y textos poéticos en inglés.</p>
+                                    <button class="btn btn-primary btn-lg mt-auto card-button" data-lesson-id="clase33" data-video-url="TU_URL_AQUI" data-video-title="Clase 33: Explorando la Literatura Inglesa">
+                                        <i class="fas fa-play-circle me-2"></i><span class="button-text">Ver Clase</span>
+                                    </button>
+                                    <div class="form-check text-start mt-3 lesson-viewed-toggle">
+                                        <input class="form-check-input" type="checkbox" value="" id="clase33-check" data-lesson-id="clase33">
+                                        <label class="form-check-label" for="clase33-check">Marcar como visto</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="card h-100 lesson-card" id="card-clase34">
+                                <div class="card-body text-center d-flex flex-column">
+                                    <h5 class="card-title">Clase 34</h5>
+                                    <p class="card-text">Vocabulario avanzado para temas de actualidad...</p>
+                                    <button class="btn btn-primary btn-lg mt-auto card-button" data-lesson-id="clase34" data-video-url="https://res.cloudinary.com/do9orhb4k/video/upload/v1739634103/WhatsApp_Video_2025-02-15_at_8.34.38_AM_v0bpfq.mp4" data-video-title="Clase 34: Vocabulario de Actualidad y Cultura">
+                                        <i class="fas fa-play-circle me-2"></i><span class="button-text">Ver Clase</span>
+                                    </button>
+                                    <div class="form-check text-start mt-3 lesson-viewed-toggle">
+                                        <input class="form-check-input" type="checkbox" value="" id="clase34-check" data-lesson-id="clase34">
+                                        <label class="form-check-label" for="clase34-check">Marcar como visto</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="card h-100 lesson-card" id="card-clase35">
+                                <div class="card-body text-center d-flex flex-column">
+                                    <h5 class="card-title">Clase 35</h5>
+                                    <p class="card-text">Entonación y ritmo para una pronunciación...</p>
+                                    <button class="btn btn-primary btn-lg mt-auto card-button" data-lesson-id="clase35" data-video-url="https://res.cloudinary.com/do9orhb4k/video/upload/v1739634103/WhatsApp_Video_2025-02-15_at_8.34.38_AM_v0bpfq.mp4" data-video-title="Clase 35: Musicalidad de la Pronunciación">
+                                        <i class="fas fa-play-circle me-2"></i><span class="button-text">Ver Clase</span>
+                                    </button>
+                                    <div class="form-check text-start mt-3 lesson-viewed-toggle">
+                                        <input class="form-check-input" type="checkbox" value="" id="clase35-check" data-lesson-id="clase35">
+                                        <label class="form-check-label" for="clase35-check">Marcar como visto</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="card h-100 lesson-card" id="card-clase36">
+                                <div class="card-body text-center d-flex flex-column">
+                                    <h5 class="card-title">Clase 36</h5>
+                                    <p class="card-text">Errores comunes en gramática y cómo evitarlos...</p>
+                                    <button class="btn btn-primary btn-lg mt-auto card-button" data-lesson-id="clase36" data-video-url="TU_URL_AQUI" data-video-title="Clase 36: Evitando Errores Gramaticales Comunes">
+                                        <i class="fas fa-play-circle me-2"></i><span class="button-text">Ver Clase</span>
+                                    </button>
+                                    <div class="form-check text-start mt-3 lesson-viewed-toggle">
+                                        <input class="form-check-input" type="checkbox" value="" id="clase36-check" data-lesson-id="clase36">
+                                        <label class="form-check-label" for="clase36-check">Marcar como visto</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="headingDecimo">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseDecimo" aria-expanded="false" aria-controls="collapseDecimo">
+                    <i class="fas fa-book-open me-2"></i> Décimo Grado
+                    <div class="progress-container ms-auto d-flex align-items-center">
+                        <span class="progress-text me-2">Progreso: 0 / 0</span>
+                        <div class="progress" style="width: 100px; height: 10px;">
+                            <div class="progress-bar bg-success" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="0"></div>
+                        </div>
+                        <span class="badge bg-light text-dark ms-2 lesson-count-badge">0 Clases</span>
+                    </div>
+                </button>
+            </h2>
+            <div id="collapseDecimo" class="accordion-collapse collapse" aria-labelledby="headingDecimo" data-bs-parent="#accordionGrados">
+                <div class="accordion-body">
+                    <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-3 row-cols-xl-4 g-4 g-md-5 lesson-grid">
+                        
+                        <div class="col">
+                            <div class="card h-100 lesson-card" id="card-clase37">
+                                <div class="card-body text-center d-flex flex-column">
+                                    <h5 class="card-title">Clase 37</h5>
+                                    <p class="card-text">Redacción de correos electrónicos profesionales...</p>
+                                    <button class="btn btn-primary btn-lg mt-auto card-button" data-lesson-id="clase37" data-video-url="TU_URL_AQUI" data-video-title="Clase 37: Escritura de Correos Profesionales">
+                                        <i class="fas fa-play-circle me-2"></i><span class="button-text">Ver Clase</span>
+                                    </button>
+                                    <div class="form-check text-start mt-3 lesson-viewed-toggle">
+                                        <input class="form-check-input" type="checkbox" value="" id="clase37-check" data-lesson-id="clase37">
+                                        <label class="form-check-label" for="clase37-check">Marcar como visto</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="card h-100 lesson-card" id="card-clase38">
+                                <div class="card-body text-center d-flex flex-column">
+                                    <h5 class="card-title">Clase 38</h5>
+                                    <p class="card-text">Ampliando tu léxico: sinónimos, antónimos...</p>
+                                    <button class="btn btn-primary btn-lg mt-auto card-button" data-lesson-id="clase38" data-video-url="TU_URL_AQUI" data-video-title="Clase 38: Riqueza Léxica: Sinónimos y Antónimos">
+                                        <i class="fas fa-play-circle me-2"></i><span class="button-text">Ver Clase</span>
+                                    </button>
+                                    <div class="form-check text-start mt-3 lesson-viewed-toggle">
+                                        <input class="form-check-input" type="checkbox" value="" id="clase38-check" data-lesson-id="clase38">
+                                        <label class="form-check-label" for="clase38-check">Marcar como visto</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="card h-100 lesson-card" id="card-clase39">
+                                <div class="card-body text-center d-flex flex-column">
+                                    <h5 class="card-title">Clase 39</h5>
+                                    <p class="card-text">Simulaciones de conversaciones reales...</p>
+                                    <button class="btn btn-primary btn-lg mt-auto card-button" data-lesson-id="clase39" data-video-url="TU_URL_AQUI" data-video-title="Clase 39: Práctica Conversacional Intensiva">
+                                        <i class="fas fa-play-circle me-2"></i><span class="button-text">Ver Clase</span>
+                                    </button>
+                                    <div class="form-check text-start mt-3 lesson-viewed-toggle">
+                                        <input class="form-check-input" type="checkbox" value="" id="clase39-check" data-lesson-id="clase39">
+                                        <label class="form-check-label" for="clase39-check">Marcar como visto</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="card h-100 lesson-card" id="card-clase40">
+                                <div class="card-body text-center d-flex flex-column">
+                                    <h5 class="card-title">Clase 40</h5>
+                                    <p class="card-text">Comprensión de inglés en películas, series...</p>
+                                    <button class="btn btn-primary btn-lg mt-auto card-button" data-lesson-id="clase40" data-video-url="TU_URL_AQUI" data-video-title="Clase 40: Listening en Medios Audiovisuales">
+                                        <i class="fas fa-play-circle me-2"></i><span class="button-text">Ver Clase</span>
+                                    </button>
+                                    <div class="form-check text-start mt-3 lesson-viewed-toggle">
+                                        <input class="form-check-input" type="checkbox" value="" id="clase40-check" data-lesson-id="clase40">
+                                        <label class="form-check-label" for="clase40-check">Marcar como visto</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="card h-100 lesson-card" id="card-clase41">
+                                <div class="card-body text-center d-flex flex-column">
+                                    <h5 class="card-title">Clase 41</h5>
+                                    <p class="card-text">Estrategias para inferir significado en lecturas...</p>
+                                    <button class="btn btn-primary btn-lg mt-auto card-button" data-lesson-id="clase41" data-video-url="TU_URL_AQUI" data-video-title="Clase 41: Inferencia y Comprensión de Lectura">
+                                        <i class="fas fa-play-circle me-2"></i><span class="button-text">Ver Clase</span>
+                                    </button>
+                                    <div class="form-check text-start mt-3 lesson-viewed-toggle">
+                                        <input class="form-check-input" type="checkbox" value="" id="clase41-check" data-lesson-id="clase41">
+                                        <label class="form-check-label" for="clase41-check">Marcar como visto</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="card h-100 lesson-card" id="card-clase42">
+                                <div class="card-body text-center d-flex flex-column">
+                                    <h5 class="card-title">Clase 42</h5>
+                                    <p class="card-text">Vocabulario técnico y especializado según áreas...</p>
+                                    <button class="btn btn-primary btn-lg mt-auto card-button" data-lesson-id="clase42" data-video-url="TU_URL_AQUI" data-video-title="Clase 42: Vocabulario Técnico y Especializado">
+                                        <i class="fas fa-play-circle me-2"></i><span class="button-text">Ver Clase</span>
+                                    </button>
+                                    <div class="form-check text-start mt-3 lesson-viewed-toggle">
+                                        <input class="form-check-input" type="checkbox" value="" id="clase42-check" data-lesson-id="clase42">
+                                        <label class="form-check-label" for="clase42-check">Marcar como visto</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="card h-100 lesson-card" id="card-clase43">
+                                <div class="card-body text-center d-flex flex-column">
+                                    <h5 class="card-title">Clase 43</h5>
+                                    <p class="card-text">Corrección fonética personalizada y práctica...</p>
+                                    <button class="btn btn-primary btn-lg mt-auto card-button" data-lesson-id="clase43" data-video-url="TU_URL_AQUI" data-video-title="Clase 43: Taller de Corrección Fonética">
+                                        <i class="fas fa-play-circle me-2"></i><span class="button-text">Ver Clase</span>
+                                    </button>
+                                    <div class="form-check text-start mt-3 lesson-viewed-toggle">
+                                        <input class="form-check-input" type="checkbox" value="" id="clase43-check" data-lesson-id="clase43">
+                                        <label class="form-check-label" for="clase43-check">Marcar como visto</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="card h-100 lesson-card" id="card-clase44">
+                                <div class="card-body text-center d-flex flex-column">
+                                    <h5 class="card-title">Clase 44</h5>
+                                    <p class="card-text">Gramática avanzada: condicionales y estilo indirecto.</p>
+                                    <button class="btn btn-primary btn-lg mt-auto card-button" data-lesson-id="clase44" data-video-url="TU_URL_AQUI" data-video-title="Clase 44: Condicionales y Estilo Indirecto">
+                                        <i class="fas fa-play-circle me-2"></i><span class="button-text">Ver Clase</span>
+                                    </button>
+                                    <div class="form-check text-start mt-3 lesson-viewed-toggle">
+                                        <input class="form-check-input" type="checkbox" value="" id="clase44-check" data-lesson-id="clase44">
+                                        <label class="form-check-label" for="clase44-check">Marcar como visto</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="card h-100 lesson-card" id="card-clase45">
+                                <div class="card-body text-center d-flex flex-column">
+                                    <h5 class="card-title">Clase 45</h5>
+                                    <p class="card-text">Desarrollo de un estilo de escritura propio...</p>
+                                    <button class="btn btn-primary btn-lg mt-auto card-button" data-lesson-id="clase45" data-video-url="TU_URL_AQUI" data-video-title="Clase 45: Encontrando tu Voz en la Escritura">
+                                        <i class="fas fa-play-circle me-2"></i><span class="button-text">Ver Clase</span>
+                                    </button>
+                                    <div class="form-check text-start mt-3 lesson-viewed-toggle">
+                                        <input class="form-check-input" type="checkbox" value="" id="clase45-check" data-lesson-id="clase45">
+                                        <label class="form-check-label" for="clase45-check">Marcar como visto</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="headingOnce">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOnce" aria-expanded="false" aria-controls="collapseOnce">
+                    <i class="fas fa-book-open me-2"></i> Grado Once
+                    <div class="progress-container ms-auto d-flex align-items-center">
+                        <span class="progress-text me-2">Progreso: 0 / 0</span>
+                        <div class="progress" style="width: 100px; height: 10px;">
+                            <div class="progress-bar bg-success" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="0"></div>
+                        </div>
+                        <span class="badge bg-light text-dark ms-2 lesson-count-badge">0 Clases</span>
+                    </div>
+                </button>
+            </h2>
+            <div id="collapseOnce" class="accordion-collapse collapse" aria-labelledby="headingOnce" data-bs-parent="#accordionGrados">
+                <div class="accordion-body">
+                    <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-3 row-cols-xl-4 g-4 g-md-5 lesson-grid">
+                        
+                        <div class="col">
+                            <div class="card h-100 lesson-card" id="card-clase46">
+                                <div class="card-body text-center d-flex flex-column">
+                                    <h5 class="card-title">Clase 46</h5>
+                                    <p class="card-text">Repaso integral de vocabulario clave y expresiones...</p>
+                                    <button class="btn btn-primary btn-lg mt-auto card-button" data-lesson-id="clase46" data-video-url="TU_URL_AQUI" data-video-title="Clase 46: Consolidación de Vocabulario y Expresiones">
+                                        <i class="fas fa-play-circle me-2"></i><span class="button-text">Ver Clase</span>
+                                    </button>
+                                    <div class="form-check text-start mt-3 lesson-viewed-toggle">
+                                        <input class="form-check-input" type="checkbox" value="" id="clase46-check" data-lesson-id="clase46">
+                                        <label class="form-check-label" for="clase46-check">Marcar como visto</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="card h-100 lesson-card" id="card-clase47">
+                                <div class="card-body text-center d-flex flex-column">
+                                    <h5 class="card-title">Clase 47</h5>
+                                    <p class="card-text">Manteniendo conversaciones fluidas sobre temas...</p>
+                                    <button class="btn btn-primary btn-lg mt-auto card-button" data-lesson-id="clase47" data-video-url="TU_URL_AQUI" data-video-title="Clase 47: Conversaciones Avanzadas y Temas Complejos">
+                                        <i class="fas fa-play-circle me-2"></i><span class="button-text">Ver Clase</span>
+                                    </button>
+                                    <div class="form-check text-start mt-3 lesson-viewed-toggle">
+                                        <input class="form-check-input" type="checkbox" value="" id="clase47-check" data-lesson-id="clase47">
+                                        <label class="form-check-label" for="clase47-check">Marcar como visto</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="card h-100 lesson-card" id="card-clase48">
+                                <div class="card-body text-center d-flex flex-column">
+                                    <h5 class="card-title">Clase 48</h5>
+                                    <p class="card-text">Preparación para exámenes de certificación...</p>
+                                    <button class="btn btn-primary btn-lg mt-auto card-button" data-lesson-id="clase48" data-video-url="TU_URL_AQUI" data-video-title="Clase 48: Listening para Exámenes de Certificación">
+                                        <i class="fas fa-play-circle me-2"></i><span class="button-text">Ver Clase</span>
+                                    </button>
+                                    <div class="form-check text-start mt-3 lesson-viewed-toggle">
+                                        <input class="form-check-input" type="checkbox" value="" id="clase48-check" data-lesson-id="clase48">
+                                        <label class="form-check-label" for="clase48-check">Marcar como visto</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="card h-100 lesson-card" id="card-clase49">
+                                <div class="card-body text-center d-flex flex-column">
+                                    <h5 class="card-title">Clase 49</h5>
+                                    <p class="card-text">Lectura y comprensión de artículos de investigación...</p>
+                                    <button class="btn btn-primary btn-lg mt-auto card-button" data-lesson-id="clase49" data-video-url="TU_URL_AQUI" data-video-title="Clase 49: Lectura de Artículos y Noticias">
+                                        <i class="fas fa-play-circle me-2"></i><span class="button-text">Ver Clase</span>
+                                    </button>
+                                    <div class="form-check text-start mt-3 lesson-viewed-toggle">
+                                        <input class="form-check-input" type="checkbox" value="" id="clase49-check" data-lesson-id="clase49">
+                                        <label class="form-check-label" for="clase49-check">Marcar como visto</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="card h-100 lesson-card" id="card-clase50">
+                                <div class="card-body text-center d-flex flex-column">
+                                    <h5 class="card-title">Clase 50</h5>
+                                    <p class="card-text">Proyecto final: Aplicación integral del Efecto Miller.</p>
+                                    <button class="btn btn-primary btn-lg mt-auto card-button" data-lesson-id="clase50" data-video-url="TU_URL_AQUI" data-video-title="Clase 50: Proyecto Final Integrador">
+                                        <i class="fas fa-play-circle me-2"></i><span class="button-text">Ver Clase</span>
+                                    </button>
+                                    <div class="form-check text-start mt-3 lesson-viewed-toggle">
+                                        <input class="form-check-input" type="checkbox" value="" id="clase50-check" data-lesson-id="clase50">
+                                        <label class="form-check-label" for="clase50-check">Marcar como visto</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="card h-100 lesson-card" id="card-clase51">
+                                <div class="card-body text-center d-flex flex-column">
+                                    <h5 class="card-title">Clase 51</h5>
+                                    <p class="card-text">Pasos siguientes: Cómo seguir mejorando tu inglés...</p>
+                                    <button class="btn btn-primary btn-lg mt-auto card-button" data-lesson-id="clase51" data-video-url="TU_URL_AQUI" data-video-title="Clase 51: Manteniendo y Mejorando tu Inglés">
+                                        <i class="fas fa-play-circle me-2"></i><span class="button-text">Ver Clase</span>
+                                    </button>
+                                    <div class="form-check text-start mt-3 lesson-viewed-toggle">
+                                        <input class="form-check-input" type="checkbox" value="" id="clase51-check" data-lesson-id="clase51">
+                                        <label class="form-check-label" for="clase51-check">Marcar como visto</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div> 
+    <div class="text-center mt-5 navigation-buttons">
+        <a href="/english2" class="btn btn-success btn-lg section-nav-button">
+            <i class="fas fa-layer-group me-2"></i>Sección 2 Inglés
+        </a>
+    </div>
+
+    <div class="back-button-section">
+        <a href="/english" class="btn btn-custom-back">
+            <i class="fas fa-arrow-circle-left me-2"></i>Sección 1 Inglés Atrás
+        </a>
+    </div>
+</main>
+
+<style>
+    /* --- Variables Globales de Diseño --- */
+    :root {
+        --lesson-primary-color: #007bff;
+        --lesson-primary-hover: #0056b3;
+        --lesson-secondary-color: #28a745;
+        --lesson-secondary-hover: #1e7e34;
+        --lesson-page-bg: #f8f9fa;
+        --lesson-card-bg: #ffffff;
+        --lesson-card-shadow: 0 6px 18px rgba(0, 0, 0, 0.07);
+        --lesson-card-hover-shadow: 0 10px 25px rgba(0, 0, 0, 0.12);
+        --lesson-text-dark: #343a40;
+        --lesson-text-muted: #6c757d;
+        --lesson-radius-md: 12px;
+        --lesson-radius-sm: 0.35rem;
+        --lesson-font-primary: 'Poppins', sans-serif; 
+        --lesson-font-secondary: 'Roboto', sans-serif;
+    }
+
+    /* --- Estilos de Página y Encabezado --- */
+    .main-content-area {
+        font-family: var(--lesson-font-secondary, 'Arial', sans-serif);
+        background-color: var(--lesson-page-bg);
+    }
+    .page-header .page-title {
+        font-family: var(--lesson-font-primary, 'Arial', sans-serif);
+        color: var(--lesson-primary-color);
+        font-weight: 700;
+        margin-bottom: 0.75rem;
+        font-size: 2.8rem;
+    }
+    .page-header .page-subtitle {
+        font-size: 1.2rem;
+        color: var(--lesson-text-muted);
+        max-width: 750px;
+        margin-left: auto;
+        margin-right: auto;
+        font-weight: 400;
+        line-height: 1.7;
+    }
+
+    /* --- Estilos de Tarjetas (Restaurados) --- */
+    .lesson-card {
+        background-color: var(--lesson-card-bg);
+        border: none; 
+        border-radius: var(--lesson-radius-md);
+        box-shadow: var(--lesson-card-shadow);
+        /* ⭐️ MEJORA: Transición suave para los nuevos estados de "visto" */
+        transition: transform 0.35s cubic-bezier(0.25, 0.1, 0.25, 1), box-shadow 0.35s cubic-bezier(0.25, 0.1, 0.25, 1), background-color 0.3s ease, border-color 0.3s ease;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+    }
+    .lesson-card:hover {
+        transform: translateY(-10px) scale(1.03);
+        box-shadow: var(--lesson-card-hover-shadow);
+    }
+    .lesson-card .card-body {
+        padding: 1.75rem;
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+        text-align: center;
+    }
+    .lesson-card .card-title {
+        font-family: var(--lesson-font-primary, 'Arial', sans-serif);
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: var(--lesson-text-dark);
+        margin-bottom: 0.85rem;
+        transition: color 0.3s ease; /* ⭐️ MEJORA: Transición suave para el tachado */
+    }
+    .lesson-card .card-text {
+        color: var(--lesson-text-muted);
+        font-size: 0.95rem;
+        flex-grow: 1;
+        margin-bottom: 1.5rem;
+        line-height: 1.6;
+    }
+    .lesson-card .card-button {
+        font-family: var(--lesson-font-primary, 'Arial', sans-serif);
+        font-weight: 500;
+        font-size: 1rem; 
+        padding: 0.75rem 1.6rem;
+        border-radius: var(--lesson-radius-sm);
+        background-color: var(--lesson-primary-color);
+        border-color: var(--lesson-primary-color);
+        color: white;
+        transition: background-color 0.25s ease, border-color 0.25s ease, transform 0.15s ease, box-shadow 0.25s ease, opacity 0.3s ease;
+        align-self: center;
+        box-shadow: 0 2px 5px rgba(0,123,255,0.2);
+    }
+    .lesson-card .card-button:hover {
+        background-color: var(--lesson-primary-hover);
+        border-color: var(--lesson-primary-hover);
+        transform: translateY(-3px);
+        box-shadow: 0 4px 10px rgba(0,123,255,0.3);
+    }
+    .lesson-card .card-button:active {
+        transform: translateY(-1px);
+        box-shadow: 0 2px 5px rgba(0,123,255,0.2);
+    }
+
+    /* --- Botones de Navegación (Restaurados) --- */
+    .navigation-buttons, .back-button-section {
+        padding-top: 2rem;
+        padding-bottom: 1.5rem;
+    }
+    .section-nav-button, .btn-custom-back {
+        font-family: var(--lesson-font-primary, 'Arial', sans-serif);
+        font-weight: 500;
+        padding: 0.85rem 2rem;
+        border-radius: var(--lesson-radius-sm);
+        font-size: 1.05rem;
+    }
+    .section-nav-button {
+        background-color: var(--lesson-secondary-color);
+        border-color: var(--lesson-secondary-color);
+    }
+    .section-nav-button:hover {
+        background-color: var(--lesson-secondary-hover);
+        border-color: var(--lesson-secondary-hover);
+    }
+    .btn-custom-back {
+        background-color: var(--lesson-text-muted);
+        border-color: var(--lesson-text-muted);
+        color: white;
+    }
+    .btn-custom-back:hover {
+        background-color: #545b62;
+        border-color: #545b62;
+        color: white;
+    }
+    .btn .fas {
+        vertical-align: -0.05em;
+    }
+
+    /* ================================================== */
+    /* ⭐️ ESTILOS PARA EL ACORDEÓN ⭐️                    */
+    /* ================================================== */
+    .accordion-button {
+        font-family: var(--lesson-font-primary, 'Arial', sans-serif);
+        font-size: 1.5rem; /* Tamaño grande y profesional */
+        font-weight: 600;
+        color: #4A55A2; /* El color que especificaste para los H2 */
+        background-color: #ffffff; /* Fondo blanco limpio */
+    }
+    .accordion-button:not(.collapsed) {
+        color: #4A55A2;
+        background-color: #f8f9fa; /* Un gris muy sutil al abrir */
+        box-shadow: inset 0 -1px 0 rgba(0,0,0,.125);
+    }
+    .accordion-button:focus {
+        box-shadow: 0 0 0 0.25rem rgba(74, 85, 162, 0.25);
+        border-color: #4A55A2;
+    }
+    .accordion-item {
+        border-radius: var(--lesson-radius-md) !important; /* Forzar bordes redondeados */
+        border: 1px solid #dee2e6;
+        margin-bottom: 1rem;
+        overflow: hidden; /* Necesario para que el borde redondeado funcione */
+        box-shadow: var(--lesson-card-shadow); /* Sombra sutil */
+    }
+    .accordion-item:first-of-type, .accordion-item:last-of-type {
+        border-radius: var(--lesson-radius-md) !important; /* Forzar bordes redondeados */
+    }
+    
+    /* Cambiar el color del icono chevron (flecha) */
+    .accordion-button:not(.collapsed)::after {
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%234A55A2'%3e%3cpath fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/%3e%3c/svg%3e");
+        transform: rotate(-180deg);
+    }
+    .accordion-button::after {
+         background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%234A55A2'%3e%3cpath fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/%3e%3c/svg%3e");
+    }
+    
+    .accordion-body {
+        padding: 1.5rem;
+        background-color: #fdfdfd; /* Fondo ligeramente diferente al principal */
+    }
+    
+    /* ⭐️ MEJORA: Contenedor para Progreso y Conteo */
+    .progress-container {
+        font-size: 0.9rem;
+        font-weight: 500;
+        color: var(--lesson-text-muted);
+        /* Evita que el texto y la barra se rompan en líneas separadas en pantallas más pequeñas */
+        white-space: nowrap; 
+    }
+    .progress-container .badge {
+        font-size: 0.9rem;
+        font-weight: 500;
+        padding: 0.4em 0.65em;
+    }
+    .progress-container .progress {
+        background-color: #e9ecef; /* Fondo de la barra de progreso */
+        transition: width 0.4s ease; /* Transición suave para la barra */
+    }
+    .progress-container .progress-bar {
+        transition: width 0.4s ease; /* Transición suave para la barra */
+    }
+
+    /* ⭐️ Ocultar el texto "Progreso: 0 / 0" en pantallas muy pequeñas */
+    @media (max-width: 576px) {
+        .progress-container .progress-text {
+            display: none;
+        }
+    }
+
+
+    /* ================================================== */
+    /* ⭐️ ESTILOS PARA SEGUIMIENTO DE PROGRESO ⭐️         */
+    /* ================================================== */
+    
+    /* Estilo para la tarjeta 'vista' */
+    .lesson-card.is-viewed {
+        background-color: #f7fdf9; /* Un verde muy sutil */
+        border-color: var(--lesson-secondary-color);
+    }
+    .lesson-card.is-viewed .card-title {
+        color: var(--lesson-text-muted);
+        text-decoration: line-through;
+    }
+    .lesson-card.is-viewed .card-button {
+        background-color: var(--lesson-secondary-color); /* Botón verde */
+        border-color: var(--lesson-secondary-color);
+        opacity: 0.9;
+    }
+    .lesson-card.is-viewed .card-button .fas {
+        display: none; /* Oculta el icono de play */
+    }
+    .lesson-card.is-viewed .card-button::before {
+        /* Muestra un icono de check */
+        font-family: "Font Awesome 6 Free"; /* Asegúrate de que FontAwesome esté cargado en base.html */
+        content: '\f00c'; /* Icono de check */
+        font-weight: 900;
+        margin-right: 0.5rem;
+    }
+    .lesson-card.is-viewed .card-button .button-text {
+        text-decoration: line-through;
+    }
+
+    /* Estilo para el toggle 'visto' */
+    .lesson-viewed-toggle {
+        font-size: 0.85rem;
+        color: var(--lesson-text-muted);
+        cursor: pointer;
+        padding-left: 0.5rem; /* Alineación ligera */
+    }
+    .lesson-viewed-toggle .form-check-input {
+        cursor: pointer;
+        border-color: #adb5bd;
+    }
+    .lesson-viewed-toggle .form-check-input:checked {
+        background-color: var(--lesson-secondary-color);
+        border-color: var(--lesson-secondary-color);
+    }
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    
+    // Clave única para esta página en localStorage
+    const VIEWED_LESSONS_KEY = 'viewedLessons_english_v1';
+
+    // 1. Función para obtener las clases vistas
+    function getStoredViews() {
+        const stored = localStorage.getItem(VIEWED_LESSONS_KEY);
+        if (stored) {
+            try {
+                return new Set(JSON.parse(stored));
+            } catch (e) {
+                console.error("Error al parsear vistas guardadas:", e);
+                return new Set();
+            }
+        }
+        return new Set();
+    }
+
+    // 2. Función para guardar las clases vistas
+    function saveViews(viewedSet) {
+        localStorage.setItem(VIEWED_LESSONS_KEY, JSON.stringify(Array.from(viewedSet)));
+    }
+
+    // 3. FUNCIÓN CENTRALIZADA PARA ACTUALIZAR LA UI DE UNA SECCIÓN
+    //    Esta función hace todo: cuenta clases, actualiza insignias, barras de progreso y tarjetas.
+    function updateSectionUI(accordionItem) {
+        const viewedSet = getStoredViews();
+        // ⭐️ IMPORTANTE: Busca las tarjetas dentro del .accordion-body
+        const lessonCards = accordionItem.querySelectorAll('.accordion-body .lesson-card');
+        const totalCount = lessonCards.length;
+        
+        const body = accordionItem.querySelector('.accordion-body');
+        const header = accordionItem.querySelector('.accordion-header');
+        
+        // --- MEJORAS ---
+        const badge = header.querySelector('.lesson-count-badge');
+        const progressText = header.querySelector('.progress-text');
+        const progressBar = header.querySelector('.progress-bar');
+
+        // 3.1: Manejar Estado Vacío
+        if (totalCount === 0 && body) {
+            body.innerHTML = `
+                <div class="text-center p-4 text-muted">
+                    <i class="fas fa-hourglass-half fa-2x mb-3"></i>
+                    <h5 class="fw-bold">Próximamente</h5>
+                    <p class="mb-0">El contenido de este grado está en preparación.</p>
+                </div>`;
+        }
+
+        // 3.2: Actualizar Insignia de Conteo (Tu solicitud)
+        if (badge) {
+            badge.textContent = `${totalCount} Clase${totalCount !== 1 ? 's' : ''}`;
+        }
+
+        // 3.3: Calcular progreso y actualizar tarjetas
+        let viewedCount = 0;
+        lessonCards.forEach(card => {
+            // Usamos el ID de la tarjeta (ej: "card-clase1") para obtener "clase1"
+            const lessonId = card.id.replace('card-', ''); 
+            const checkbox = document.getElementById(`${lessonId}-check`);
+
+            if (viewedSet.has(lessonId)) {
+                viewedCount++;
+                card.classList.add('is-viewed');
+                if (checkbox) checkbox.checked = true;
+            } else {
+                card.classList.remove('is-viewed');
+                if (checkbox) checkbox.checked = false;
+            }
+        });
+
+        // 3.4: Actualizar Barra de Progreso
+        if (progressText && progressBar) {
+            const percentage = (totalCount > 0) ? (viewedCount / totalCount) * 100 : 0;
+            progressText.textContent = `Progreso: ${viewedCount} / ${totalCount}`;
+            progressBar.style.width = `${percentage}%`;
+            progressBar.setAttribute('aria-valuenow', viewedCount);
+            progressBar.setAttribute('aria-valuemax', totalCount);
+        }
+    }
+
+    // 4. Función llamada por el botón "Ver Clase"
+    function markAsViewed(lessonId) {
+        const viewedSet = getStoredViews();
+        viewedSet.add(lessonId);
+        saveViews(viewedSet);
+        
+        // Actualiza solo la UI de la sección afectada
+        const card = document.getElementById(`card-${lessonId}`);
+        if (card) {
+            updateSectionUI(card.closest('.accordion-item'));
+        }
+    }
+
+    // 5. Función llamada por el checkbox "Marcar como visto"
+    function toggleViewed(lessonId) {
+        const viewedSet = getStoredViews();
+        if (viewedSet.has(lessonId)) {
+            viewedSet.delete(lessonId);
+        } else {
+            viewedSet.add(lessonId);
+        }
+        saveViews(viewedSet);
+
+        // Actualiza solo la UI de la sección afectada
+        const card = document.getElementById(`card-${lessonId}`);
+        if (card) {
+            updateSectionUI(card.closest('.accordion-item'));
+        }
+    }
+
+    // --- INICIALIZACIÓN ---
+    
+    // 6. Cargar estado, contar clases y actualizar progreso de TODAS las secciones al cargar la página
+    document.querySelectorAll('.accordion-item').forEach(item => {
+        updateSectionUI(item);
+    });
+
+    // 7. Asignar listeners a todos los botones "Ver Clase"
+    document.querySelectorAll('.card-button').forEach(button => {
+        button.addEventListener('click', function(e) {
+            e.preventDefault(); // Buena práctica
+            
+            // ⭐️ MEJORA: Obtener datos de data-attributes
+            const lessonId = this.dataset.lessonId;
+            const videoUrl = this.dataset.videoUrl;
+            const videoTitle = this.dataset.videoTitle;
+            
+            if (typeof openVideoModal === 'function') {
+                openVideoModal(videoUrl, videoTitle);
+            }
+            
+            markAsViewed(lessonId);
+        });
+    });
+
+    // 8. Asignar listeners a todos los checkboxes
+    document.querySelectorAll('.lesson-viewed-toggle .form-check-input').forEach(checkbox => {
+        checkbox.addEventListener('click', function() {
+            // ⭐️ MEJORA: Obtener ID de data-attribute
+            toggleViewed(this.dataset.lessonId);
+        });
+    });
+
+});
+</script>
+
+{% endblock %}

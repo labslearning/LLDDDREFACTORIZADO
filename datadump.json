@@ -1,0 +1,158 @@
+[
+{
+  "model": "auth.user",
+  "pk": 1,
+  "fields": {
+    "password": "pbkdf2_sha256$1000000$e7RRwUOADkyg5C3MdLRiC0$zUQQgzut//Wg2f1xbcdj+8rokyG5nRqE1xKNRzgx4pE=",
+    "last_login": "2025-09-22T23:57:08.363Z",
+    "is_superuser": true,
+    "username": "admin",
+    "first_name": "",
+    "last_name": "",
+    "email": "admin@gmail.com",
+    "is_staff": true,
+    "is_active": true,
+    "date_joined": "2025-09-22T23:56:47.753Z",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "auth.user",
+  "pk": 62,
+  "fields": {
+    "password": "pbkdf2_sha256$1000000$PM7780JUYf2Ubct02WQ49J$F+ljiBk2byjD3AIRXEdp5wDno2DPKfV9qyCEpAPOZlU=",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "alum_6_1",
+    "first_name": "Sofía",
+    "last_name": "López",
+    "email": "alum_6_1@colegio.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2025-09-23T00:24:41.272Z",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "auth.user",
+  "pk": 63,
+  "fields": {
+    "password": "pbkdf2_sha256$1000000$o4ihMESK6FZlEFbAYbHM6r$OqPdPVZuZW4maywiyq2jDnrEhXxiiIEa46+wT5XoiAU=",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "prof_6_matemáticas",
+    "first_name": "Profesor",
+    "last_name": "Matemáticas",
+    "email": "prof_6_matemáticas@colegio.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2025-09-23T00:24:55.509Z",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "auth.user",
+  "pk": 64,
+  "fields": {
+    "password": "pbkdf2_sha256$1000000$mkyR3AALZuF4QoJTAbHX5s$JIhLgFmtEEBgQdSoTGeLUisWC0ouJktQvebB5ibICUI=",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "alum_6_2",
+    "first_name": "Andrés",
+    "last_name": "Rodríguez",
+    "email": "alum_6_2@colegio.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2025-09-23T00:29:18.534Z",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "auth.user",
+  "pk": 65,
+  "fields": {
+    "password": "pbkdf2_sha256$1000000$g24GHyCAmKmuPUxxhuN4A5$Rtu640WaAorMuJL/ZzdGao8wQLdRgSwcIu+M34I6L0w=",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "prof_6_lengua_castellana",
+    "first_name": "",
+    "last_name": "",
+    "email": "prof_6_lengua_castellana@colegio.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2025-09-23T00:32:39.868Z",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "auth.user",
+  "pk": 112,
+  "fields": {
+    "password": "pbkdf2_sha256$1000000$yZaHTf3mNwebdUmC3fwwZI$U9p61JVfN+lHMWQ5DKKKQcuI0zAwNlmvE8eeICnyEYM=",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "sistema",
+    "first_name": "",
+    "last_name": "",
+    "email": "sistema@tuproyecto.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2025-09-23T20:22:32.710Z",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "sessions.session",
+  "pk": "3b0q9p2lnh9r71lmorwuzeytcz1sk8mh",
+  "fields": {
+    "session_data": ".eJxVjDsOwyAQRO9CHaFl8Y-U6X0GtMtCcBKB5E8V5e6xJReJNNW8N_NWnrY1-22Js59EXVUP6vJbMoVnLAeRB5V71aGWdZ5YH4o-6aLHKvF1O92_g0xL3tfIA4gDNEjBGTAtJ-skCbHBLiWgpkWQQBZdsuD2SCPYu4GRu4aS-nwBAJg37A:1v19W3:DaoqdJnXQ2w_NBzhaI9ScY_y5Egdhm2hdJ2qI4vlIa0",
+    "expire_date": "2025-10-07T20:21:35.870Z"
+  }
+},
+{
+  "model": "sessions.session",
+  "pk": "71ncx7m9oh7smtrzsevl4lich9i8iwk9",
+  "fields": {
+    "session_data": ".eJxVjEEOgjAQRe_StWmYttSOS_ecgUxnBosaSCisjHdXEha6_e-9_zI9bWvpt6pLP4q5GABvTr9rJn7otCO503SbLc_TuozZ7oo9aLXdLPq8Hu7fQaFavnVKA4fMDEPrAwZu9KyDIkJEp7HVKKIYHIJ6ACYQj4mSMrrsGiIx7w8_aTjX:1v1Slg:gxx_fkzdVS11x5ObFCJwtHCDwsGzh_J-pzLn4uEMFMU",
+    "expire_date": "2025-10-08T16:55:00.045Z"
+  }
+},
+{
+  "model": "sessions.session",
+  "pk": "icloh8h1icji6y701mcucdqa9utazq7q",
+  "fields": {
+    "session_data": ".eJxVjMEOwiAQBf-FsyFQoBSP3vsNZGEXqRpISnsy_rs06UGvM_Pem3nYt-z3RqtfkF2ZZJdfFiA-qRwCH1DulcdatnUJ_Ej4aRufK9LrdrZ_Bxla7mtyTmpFBqUdhymEQSAqGa2IE4akhdaj6sxqB1Y4SGiMAJKdQhJkNPt8Ac91N2M:1v0qP6:S3kkEGxAvxhDwEQfEXBWpMq8dKP3Vj8wSdJYZs_8jiM",
+    "expire_date": "2025-10-06T23:57:08.372Z"
+  }
+},
+{
+  "model": "sessions.session",
+  "pk": "j8eg3ku807bzky83s584199f8mmex687",
+  "fields": {
+    "session_data": ".eJxVjMEOwiAQBf-FsyFQoBSP3vsNZGEXqRpISnsy_rs06UGvM_Pem3nYt-z3RqtfkF2ZZJdfFiA-qRwCH1DulcdatnUJ_Ej4aRufK9LrdrZ_Bxla7mtyTmpFBqUdhymEQSAqGa2IE4akhdaj6sxqB1Y4SGiMAJKdQhJkNPt8Ac91N2M:1v0qP6:S3kkEGxAvxhDwEQfEXBWpMq8dKP3Vj8wSdJYZs_8jiM",
+    "expire_date": "2025-10-06T23:57:08.159Z"
+  }
+},
+{
+  "model": "sessions.session",
+  "pk": "x0ke21zbbf5vs7iz3y2v62nh58sa4cbj",
+  "fields": {
+    "session_data": ".eJxVjMsOwiAQRf-FtSGUUhhcuvcbmhmYkaqBpI-V8d-1SRe6veec-1IjbmsZt4XnccrqrDyo0-9ImB5cd5LvWG9Np1bXeSK9K_qgi762zM_L4f4dFFzKtx4GZLaQhIL0EULfeWfJMDmDA-cIYMGx84FQYvadMSAxWekdSpcE1fsDEz44fQ:1v1NT7:TVyBLLBzajkKikMDu3Qo6ZtFUeTl7vczvA-4cIS1c8Y",
+    "expire_date": "2025-10-08T11:15:29.520Z"
+  }
+},
+{
+  "model": "tasks.perfil",
+  "pk": 1,
+  "fields": {
+    "rol": "ADMINISTRADOR",
+    "es_director": false
+  }
+}
+]

@@ -1,0 +1,310 @@
+{% extends 'base.html' %}
+{% block content %}
+<style>
+    /* Sistema de diseño educativo */
+    :root {
+        --edu-forum-primary: #4361ee;
+        --edu-forum-secondary: #3f37c9;
+        --edu-forum-accent: #4cc9f0;
+        --edu-forum-light: #f8f9fa;
+        --edu-forum-dark: #212529;
+        --edu-forum-text: #2b2d42;
+        --edu-forum-text-light: #6c757d;
+        --edu-forum-border: #e9ecef;
+        --edu-forum-success: #38b000;
+        --edu-forum-radius: 12px;
+        --edu-forum-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+        --edu-forum-transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    }
+
+    .forum-container {
+        max-width: 1200px;
+        margin: 2rem auto;
+        padding: 2rem;
+        font-family: 'Open Sans', sans-serif;
+    }
+
+    .forum-title {
+        color: var(--edu-forum-dark);
+        margin-bottom: 2.5rem;
+        font-weight: 700;
+        text-align: center;
+        font-size: 2.5rem;
+        position: relative;
+        padding-bottom: 1rem;
+        font-family: 'Poppins', sans-serif;
+    }
+
+    .forum-title::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 100px;
+        height: 4px;
+        background: linear-gradient(90deg, var(--edu-forum-primary), var(--edu-forum-accent));
+        border-radius: 2px;
+    }
+
+    .ask-question-btn {
+        text-align: center;
+        margin-bottom: 3rem;
+    }
+
+    .ask-question-btn .btn {
+        padding: 1rem 2.5rem;
+        font-size: 1.1rem;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+        border-radius: var(--edu-forum-radius);
+        background: linear-gradient(135deg, var(--edu-forum-primary), var(--edu-forum-secondary));
+        border: none;
+        box-shadow: var(--edu-forum-shadow);
+        transition: var(--edu-forum-transition);
+        display: inline-flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .ask-question-btn .btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 12px 20px rgba(67, 97, 238, 0.2);
+    }
+
+    .forum-list {
+        list-style: none;
+        padding: 0;
+        display: grid;
+        gap: 1.5rem;
+    }
+
+    .forum-item {
+        background-color: white;
+        border-radius: var(--edu-forum-radius);
+        box-shadow: var(--edu-forum-shadow);
+        padding: 2rem;
+        transition: var(--edu-forum-transition);
+        border-left: 5px solid var(--edu-forum-primary);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .forum-item:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 12px 28px rgba(0, 0, 0, 0.12);
+    }
+
+    .forum-item::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(135deg, rgba(67, 97, 238, 0.03), rgba(76, 201, 240, 0.03));
+        z-index: 0;
+    }
+
+    .forum-item-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 1.5rem;
+        position: relative;
+        z-index: 1;
+    }
+
+    .forum-item h5 {
+        color: var(--edu-forum-dark);
+        margin-bottom: 0;
+        font-weight: 700;
+        font-size: 1.4rem;
+        font-family: 'Poppins', sans-serif;
+        flex: 1;
+    }
+
+    .forum-item h5 a {
+        color: inherit;
+        text-decoration: none;
+        transition: color 0.2s ease;
+    }
+
+    .forum-item h5 a:hover {
+        color: var(--edu-forum-primary);
+    }
+
+    .badge {
+        background: linear-gradient(135deg, var(--edu-forum-accent), var(--edu-forum-primary));
+        color: white;
+        padding: 0.5rem 1.25rem;
+        border-radius: 2rem;
+        font-size: 0.9rem;
+        font-weight: 600;
+        box-shadow: 0 4px 8px rgba(76, 201, 240, 0.2);
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .badge i {
+        font-size: 0.9rem;
+    }
+
+    .forum-item-content {
+        margin-bottom: 1.5rem;
+        color: var(--edu-forum-text);
+        line-height: 1.7;
+        position: relative;
+        z-index: 1;
+    }
+
+    .forum-item-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        position: relative;
+        z-index: 1;
+    }
+
+    .forum-item-meta {
+        color: var(--edu-forum-text-light);
+        font-size: 0.95rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .forum-item-meta i {
+        font-size: 1rem;
+        color: var(--edu-forum-primary);
+    }
+
+    .forum-item-btn {
+        background: linear-gradient(135deg, var(--edu-forum-primary), var(--edu-forum-secondary));
+        color: white;
+        border: none;
+        padding: 0.75rem 1.75rem;
+        border-radius: var(--edu-forum-radius);
+        font-weight: 600;
+        transition: var(--edu-forum-transition);
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        box-shadow: 0 4px 12px rgba(67, 97, 238, 0.15);
+    }
+
+    .forum-item-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(67, 97, 238, 0.25);
+        color: white;
+    }
+
+    .empty-forum {
+        text-align: center;
+        padding: 3rem;
+        background-color: white;
+        border-radius: var(--edu-forum-radius);
+        box-shadow: var(--edu-forum-shadow);
+    }
+
+    .empty-forum i {
+        font-size: 3rem;
+        color: var(--edu-forum-primary);
+        margin-bottom: 1.5rem;
+    }
+
+    .empty-forum h3 {
+        color: var(--edu-forum-dark);
+        margin-bottom: 1rem;
+        font-family: 'Poppins', sans-serif;
+    }
+
+    .empty-forum p {
+        color: var(--edu-forum-text-light);
+        margin-bottom: 2rem;
+        max-width: 600px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    @media (max-width: 768px) {
+        .forum-container {
+            padding: 1.5rem;
+        }
+        
+        .forum-title {
+            font-size: 2rem;
+        }
+        
+        .forum-item-header {
+            flex-direction: column;
+            gap: 1rem;
+        }
+        
+        .forum-item-footer {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 1.5rem;
+        }
+        
+        .forum-item-btn {
+            width: 100%;
+            justify-content: center;
+        }
+    }
+</style>
+
+<div class="forum-container">
+    <h1 class="forum-title">
+        <i class="fas fa-comments"></i> Foro Educativo
+    </h1>
+    
+    <div class="ask-question-btn">
+        <a href="{% url 'ask_question' %}" class="btn btn-primary">
+            <i class="fas fa-plus-circle"></i> Hacer una pregunta
+        </a>
+    </div>
+    
+    <ul class="forum-list">
+        {% if questions %}
+            {% for question in questions %}
+                <li class="forum-item">
+                    <div class="forum-item-header">
+                        <h5>
+                            <a href="{% url 'question_detail' question.id %}">{{ question.title }}</a>
+                        </h5>
+                        <span class="badge">
+                            <i class="fas fa-reply"></i> {{ question.answers.count }} respuestas
+                        </span>
+                    </div>
+                    
+                    <div class="forum-item-content">
+                        <p>{{ question.content }}</p>
+                    </div>
+                    
+                    <div class="forum-item-footer">
+                        <div class="forum-item-meta">
+                            <i class="fas fa-user"></i>
+                            <span>Publicado por {{ question.user.username }} el {{ question.created_at }}</span>
+                        </div>
+                        
+                        <a href="{% url 'question_detail' question.id %}" class="forum-item-btn">
+                            <i class="fas fa-eye"></i> Ver discusión
+                        </a>
+                    </div>
+                </li>
+            {% endfor %}
+        {% else %}
+            <div class="empty-forum">
+                <i class="fas fa-comment-slash"></i>
+                <h3>No hay preguntas aún</h3>
+                <p>Se el primero en iniciar una discusión y comparte tus conocimientos con la comunidad educativa.</p>
+                <a href="{% url 'ask_question' %}" class="forum-item-btn">
+                    <i class="fas fa-plus-circle"></i> Haz tu primera pregunta
+                </a>
+            </div>
+        {% endif %}
+    </ul>
+</div>
+{% endblock %}

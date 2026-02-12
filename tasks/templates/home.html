@@ -1,0 +1,1011 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<style>
+    /* =========================================================
+       1. VARIABLES DEL SISTEMA (PALETA ORIGINAL + MODOS)
+       ========================================================= */
+    :root {
+        /* Paleta de Colores Corporativa */
+        --ll-primary: #3A50A2;
+        --ll-primary-light: #5D77C4;
+        --ll-primary-dark: #2A3A7A;
+        --ll-secondary: #F0A04B;
+        --ll-secondary-light: #F7C781;
+        --ll-bg-main: #F8F9FC;
+        --ll-bg-card: #FFFFFF;
+        --ll-text-dark: #212529;
+        --ll-text-medium: #495057;
+        --ll-text-light: #6C757D;
+        --ll-border-color: #DEE2E6;
+        --ll-success: #198754;
+        --ll-warning: #FFC107;
+        --ll-danger: #DC3545;
+        --ll-info: #17A2B8;
+        --ll-light: #f8f9fa;
+        --ll-shadow-glow: 0 0 30px rgba(93, 119, 196, 0.2);
+
+        /* Tipografía Avanzada */
+        --ll-font-sans: 'Inter', system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+
+        /* Sistema de Espaciado y Estructura */
+        --ll-spacing-unit: 1rem;
+        --ll-container-width: 1200px;
+
+        /* Sombras de Alta Definición */
+        --ll-shadow-sm: 0 2px 8px rgba(58, 80, 162, 0.05);
+        --ll-shadow-md: 0 8px 24px rgba(58, 80, 162, 0.08);
+        --ll-shadow-lg: 0 20px 50px rgba(58, 80, 162, 0.12);
+
+        /* Radios y Transiciones */
+        --ll-radius-sm: 0.5rem;
+        --ll-radius-md: 0.75rem;
+        --ll-radius-lg: 1.5rem;
+        --ll-radius-xl: 2.5rem;
+        --ll-transition-fast: all 0.2s ease;
+        --ll-transition-smooth: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+    }
+
+    /* Modo oscuro */
+    [data-theme="dark"] {
+        --ll-bg-main: #121212;
+        --ll-bg-card: #1E1E1E;
+        --ll-text-dark: #E0E0E0;
+        --ll-text-medium: #B0B0B0;
+        --ll-text-light: #808080;
+        --ll-border-color: #444;
+        --ll-shadow-lg: 0 20px 50px rgba(0, 0, 0, 0.3);
+    }
+
+    /* =========================================================
+       2. RESET Y ESTILOS GLOBALES
+       ========================================================= */
+    body {
+        background-color: var(--ll-bg-main);
+        font-family: var(--ll-font-sans);
+        color: var(--ll-text-dark);
+        line-height: 1.6;
+        overflow-x: hidden;
+        transition: background-color 0.5s ease, color 0.5s ease;
+    }
+
+    /* Fondo tecnológico sutil */
+    body::before {
+        content: '';
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-image:
+            radial-gradient(circle at 15% 50%, rgba(58, 80, 162, 0.03) 0%, transparent 25%),
+            radial-gradient(circle at 85% 30%, rgba(240, 160, 75, 0.03) 0%, transparent 25%);
+        z-index: -1;
+        pointer-events: none;
+    }
+
+    h1, h2, h3, h4 {
+        letter-spacing: -0.02em;
+    }
+
+    /* =========================================================
+       3. COMPONENTES DE UI AVANZADOS
+       ========================================================= */
+    .ll-main-wrapper {
+        max-width: var(--ll-container-width);
+        margin: 0 auto;
+        padding: 0 1.5rem;
+    }
+
+    /* Tarjeta Hero Principal con efecto 3D */
+    .ll-hero-card {
+        background-color: var(--ll-bg-card);
+        border-radius: var(--ll-radius-lg);
+        box-shadow: var(--ll-shadow-lg);
+        position: relative;
+        overflow: hidden;
+        padding: 5rem 2rem;
+        margin-top: 3rem;
+        margin-bottom: 4rem;
+        border: 1px solid rgba(255,255,255,0.1);
+        backdrop-filter: blur(10px);
+        transform-style: preserve-3d;
+        transition: transform 0.6s ease, box-shadow 0.6s ease;
+    }
+
+    .ll-hero-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 25px 60px rgba(58, 80, 162, 0.2);
+    }
+
+    .ll-hero-content {
+        position: relative;
+        z-index: 2;
+        max-width: 850px;
+        margin: 0 auto;
+    }
+
+    /* Logotipo Central con efecto 3D */
+    .ll-logo {
+        width: 160px;
+        height: 160px;
+        border-radius: 50%;
+        margin-bottom: 2.5rem;
+        box-shadow: var(--ll-shadow-md);
+        border: 4px solid var(--ll-bg-card);
+        background: white;
+        object-fit: contain;
+        padding: 5px;
+        transition: var(--ll-transition-smooth);
+        transform-style: preserve-3d;
+    }
+
+    .ll-logo:hover {
+        transform: scale(1.05) rotateY(180deg);
+        box-shadow: var(--ll-shadow-glow);
+        border-color: var(--ll-primary);
+    }
+
+    /* Títulos de Alto Impacto con efecto de texto 3D */
+    .ll-hero-title {
+        font-size: 3.5rem;
+        font-weight: 800;
+        background: linear-gradient(135deg, var(--ll-primary-dark) 0%, var(--ll-primary) 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        margin-bottom: 1.25rem;
+        line-height: 1.1;
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        transition: text-shadow 0.3s ease;
+    }
+
+    .ll-hero-title:hover {
+        text-shadow: 4px 4px 8px rgba(58, 80, 162, 0.3);
+    }
+
+    /* Subtítulo con efecto de revelado */
+    .ll-hero-subtitle {
+        font-size: 1.35rem;
+        color: var(--ll-text-medium);
+        font-weight: 400;
+        margin-bottom: 2.5rem;
+        max-width: 750px;
+        margin-left: auto;
+        margin-right: auto;
+        line-height: 1.6;
+        opacity: 0;
+        transform: translateY(20px);
+        animation: fadeUp 1s ease-out 0.3s forwards;
+    }
+
+    /* Botón de Acción Principal (CTA) con efecto de partícula */
+    .ll-btn-welcome {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 600;
+        font-size: 1.15rem;
+        padding: 1.2rem 3rem;
+        border-radius: 50px;
+        background: linear-gradient(135deg, var(--ll-primary), var(--ll-primary-dark));
+        color: white !important;
+        border: none;
+        box-shadow: 0 10px 25px rgba(58, 80, 162, 0.25);
+        transition: var(--ll-transition-smooth);
+        text-decoration: none;
+        position: relative;
+        overflow: hidden;
+        cursor: pointer;
+    }
+
+    .ll-btn-welcome::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(to right, transparent, rgba(255,255,255,0.2), transparent);
+        transform: translateX(-100%);
+        transition: 0.5s;
+    }
+
+    .ll-btn-welcome:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 15px 35px rgba(58, 80, 162, 0.35);
+    }
+
+    .ll-btn-welcome:hover::after {
+        transform: translateX(100%);
+    }
+
+    /* =========================================================
+       4. SECCIÓN DE BENEFICIOS CLAVE
+       ========================================================= */
+    .ll-benefits-section {
+        padding: 4rem 0;
+        text-align: center;
+    }
+
+    .ll-benefits-title {
+        font-size: 2rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+        color: var(--ll-text-dark);
+    }
+
+    .ll-benefits-subtitle {
+        font-size: 1.1rem;
+        color: var(--ll-text-medium);
+        margin-bottom: 3rem;
+        max-width: 700px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .ll-benefits-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 2rem;
+    }
+
+    .ll-benefit-card {
+        background: var(--ll-bg-card);
+        border-radius: var(--ll-radius-lg);
+        padding: 2rem;
+        box-shadow: var(--ll-shadow-sm);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        text-align: left;
+        border-left: 4px solid var(--ll-primary);
+        height: 100%;
+    }
+
+    .ll-benefit-card:hover {
+        transform: translateY(-8px);
+        box-shadow: var(--ll-shadow-lg);
+    }
+
+    .ll-benefit-icon {
+        width: 50px;
+        height: 50px;
+        background: rgba(58, 80, 162, 0.1);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 1.5rem;
+        color: var(--ll-primary);
+        font-size: 1.3rem;
+    }
+
+    .ll-benefit-title {
+        font-size: 1.2rem;
+        font-weight: 600;
+        margin-bottom: 1rem;
+        color: var(--ll-text-dark);
+        display: flex;
+        align-items: center;
+    }
+
+    .ll-benefit-title::before {
+        margin-right: 0.5rem;
+        font-size: 1.2em;
+    }
+
+    .ll-benefit-text {
+        color: var(--ll-text-medium);
+        line-height: 1.6;
+    }
+
+    /* Iconos específicos para cada beneficio */
+    .ll-benefit-card[data-benefit="1"] .ll-benefit-title::before { content: "🧠"; }
+    .ll-benefit-card[data-benefit="2"] .ll-benefit-title::before { content: "🛡️"; }
+    .ll-benefit-card[data-benefit="3"] .ll-benefit-title::before { content: "🔮"; }
+    .ll-benefit-card[data-benefit="4"] .ll-benefit-title::before { content: "📱"; }
+    .ll-benefit-card[data-benefit="5"] .ll-benefit-title::before { content: "🤝"; }
+
+    /* Colores de borde según beneficio */
+    .ll-benefit-card[data-benefit="1"] { border-left-color: var(--ll-primary); }
+    .ll-benefit-card[data-benefit="2"] { border-left-color: var(--ll-success); }
+    .ll-benefit-card[data-benefit="3"] { border-left-color: var(--ll-info); }
+    .ll-benefit-card[data-benefit="4"] { border-left-color: var(--ll-secondary); }
+    .ll-benefit-card[data-benefit="5"] { border-left-color: var(--ll-warning); }
+
+    /* =========================================================
+       5. SECCIÓN DE VIDEOS (ORGANIZADA Y PROFESIONAL)
+       ========================================================= */
+    .ll-video-section {
+        padding: 4rem 0;
+        text-align: center;
+    }
+
+    .ll-video-header {
+        margin-bottom: 2rem;
+    }
+
+    .ll-video-title {
+        font-size: 2rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+        color: var(--ll-text-dark);
+    }
+
+    .ll-video-subtitle {
+        font-size: 1.1rem;
+        color: var(--ll-text-medium);
+        max-width: 700px;
+        margin: 0 auto 3rem;
+    }
+
+    .ll-video-categories {
+        display: flex;
+        justify-content: center;
+        gap: 1rem;
+        margin-bottom: 2rem;
+        flex-wrap: wrap;
+    }
+
+    .ll-video-category {
+        padding: 0.6rem 1.2rem;
+        border-radius: 25px;
+        background: var(--ll-bg-main);
+        color: var(--ll-text-medium);
+        border: 1px solid var(--ll-border-color);
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .ll-video-category.active {
+        background: var(--ll-primary);
+        color: white;
+        border-color: var(--ll-primary);
+    }
+
+    .ll-video-category:hover {
+        background: var(--ll-primary-light);
+        color: white;
+    }
+
+    .ll-video-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+        gap: 2rem;
+    }
+
+    .ll-video-card {
+        background: var(--ll-bg-card);
+        border-radius: var(--ll-radius-lg);
+        overflow: hidden;
+        box-shadow: var(--ll-shadow-md);
+        transition: var(--ll-transition-smooth);
+        position: relative;
+        height: 100%;
+    }
+
+    .ll-video-card:hover {
+        transform: translateY(-8px);
+        box-shadow: var(--ll-shadow-lg);
+    }
+
+    .ll-video-thumbnail {
+        width: 100%;
+        height: 180px;
+        object-fit: cover;
+        position: relative;
+    }
+
+    .ll-video-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-end;
+        align-items: flex-start;
+        color: white;
+        padding: 1.5rem;
+    }
+
+    .ll-video-card-title {
+        font-size: 1.1rem;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+    }
+
+    .ll-video-card-desc {
+        font-size: 0.85rem;
+        margin-bottom: 1rem;
+        opacity: 0.9;
+    }
+
+    .ll-video-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--ll-primary);
+        color: white;
+        padding: 0.6rem 1.2rem;
+        border-radius: 25px;
+        text-decoration: none;
+        font-weight: 600;
+        transition: var(--ll-transition-fast);
+        border: none;
+        cursor: pointer;
+    }
+
+    .ll-video-btn:hover {
+        background: var(--ll-primary-dark);
+        transform: translateY(-2px);
+    }
+
+    .ll-video-btn i {
+        margin-right: 8px;
+    }
+
+    /* =========================================================
+       6. SECCIÓN DE ALERTAS PREDICTIVAS (DATOS REALES)
+       ========================================================= */
+    .ll-alerts-section {
+        padding: 4rem 0;
+        text-align: center;
+    }
+
+    .ll-alerts-title {
+        font-size: 2rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+        color: var(--ll-text-dark);
+    }
+
+    .ll-alerts-subtitle {
+        font-size: 1.1rem;
+        color: var(--ll-text-medium);
+        margin-bottom: 3rem;
+        max-width: 700px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .ll-alerts-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 2rem;
+    }
+
+    .ll-alert-card {
+        background: var(--ll-bg-card);
+        border-radius: var(--ll-radius-lg);
+        padding: 2rem;
+        box-shadow: var(--ll-shadow-sm);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        text-align: left;
+        border-left: 4px solid var(--ll-warning);
+    }
+
+    .ll-alert-card:hover {
+        transform: translateY(-8px);
+        box-shadow: var(--ll-shadow-lg);
+    }
+
+    .ll-alert-icon {
+        width: 50px;
+        height: 50px;
+        background: rgba(255, 193, 7, 0.1);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 1.5rem;
+        color: var(--ll-warning);
+        font-size: 1.3rem;
+    }
+
+    .ll-alert-title {
+        font-size: 1.2rem;
+        font-weight: 600;
+        margin-bottom: 1rem;
+        color: var(--ll-text-dark);
+    }
+
+    .ll-alert-text {
+        color: var(--ll-text-medium);
+        line-height: 1.6;
+        margin-bottom: 1rem;
+    }
+
+    .ll-alert-action {
+        color: var(--ll-primary);
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 0.9rem;
+    }
+
+    /* =========================================================
+       7. ANIMACIONES Y EFECTOS AVANZADOS
+       ========================================================= */
+    @keyframes fadeUp {
+        from { opacity: 0; transform: translateY(40px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes pulseSlow {
+        0% { transform: scale(1); opacity: 0.5; }
+        100% { transform: scale(1.1); opacity: 0.8; }
+    }
+
+    @keyframes floatElement {
+        0% { transform: translateY(0px); }
+        50% { transform: translateY(-10px); }
+        100% { transform: translateY(0px); }
+    }
+
+    .ll-animate-fade-up {
+        animation: fadeUp 1.2s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+        opacity: 0;
+    }
+
+    .ll-animate-float {
+        animation: floatElement 6s ease-in-out infinite;
+    }
+
+    /* Retrasos escalonados */
+    .delay-1 { animation-delay: 0.1s; }
+    .delay-2 { animation-delay: 0.3s; }
+    .delay-3 { animation-delay: 0.5s; }
+
+    /* =========================================================
+       8. MODAL VIDEO MEJORADO
+       ========================================================= */
+    .ll-video-modal {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(15, 23, 42, 0.95);
+        z-index: 10000;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+
+    .ll-video-modal.active {
+        display: flex;
+        opacity: 1;
+    }
+
+    .ll-video-wrapper {
+        position: relative;
+        width: 90%;
+        max-width: 1000px;
+        aspect-ratio: 16/9;
+        box-shadow: 0 0 50px rgba(0,0,0,0.5);
+        border-radius: 16px;
+        overflow: hidden;
+        background: black;
+    }
+
+    .ll-video-modal iframe {
+        width: 100%;
+        height: 100%;
+        border: none;
+    }
+
+    .ll-video-close {
+        position: absolute;
+        top: -50px;
+        right: 0;
+        font-size: 2rem;
+        color: white;
+        cursor: pointer;
+        opacity: 0.7;
+        transition: 0.2s;
+        background: none;
+        border: none;
+    }
+
+    .ll-video-close:hover {
+        opacity: 1;
+        transform: rotate(90deg);
+    }
+
+    /* =========================================================
+       9. FOOTER CON EFECTOS
+       ========================================================= */
+    .ll-footer {
+        text-align: center;
+        padding: 3rem 0;
+        color: var(--ll-text-light);
+        font-size: 0.9rem;
+        border-top: 1px solid var(--ll-border-color);
+        margin-top: 4rem;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .ll-footer::before {
+        content: '';
+        position: absolute;
+        top: -50px;
+        left: 0;
+        width: 100%;
+        height: 100px;
+        background: linear-gradient(to right, transparent, var(--ll-primary), transparent);
+        opacity: 0.1;
+    }
+
+    .ll-footer-brand {
+        color: var(--ll-primary);
+        font-weight: 700;
+        transition: color 0.3s ease;
+    }
+
+    .ll-footer:hover .ll-footer-brand {
+        color: var(--ll-secondary);
+    }
+
+    /* =========================================================
+       10. RESPONSIVE Y ACCESIBILIDAD
+       ========================================================= */
+    @media (max-width: 992px) {
+        .ll-benefits-grid, .ll-video-grid, .ll-alerts-grid {
+            grid-template-columns: 1fr;
+        }
+        .ll-video-categories {
+            justify-content: center;
+        }
+        .ll-hero-title {
+            font-size: 2.5rem;
+        }
+    }
+
+    /* Icono de nueva pestaña para accesibilidad */
+    .ll-new-tab-icon {
+        margin-left: 0.5rem;
+        font-size: 0.8em;
+        opacity: 0.7;
+    }
+
+    /* Efecto de hover para enlaces */
+    a {
+        transition: color 0.2s ease;
+    }
+
+    a:hover {
+        color: var(--ll-primary);
+    }
+</style>
+
+<main class="ll-main-wrapper">
+    <!-- Hero Section -->
+    <section class="ll-hero-card ll-animate-fade-up">
+        <div class="ll-hero-content text-center">
+            <img src="https://res.cloudinary.com/diarfrbzp/image/upload/v1745919577/logo_lab_qserfl.png"
+                 alt="Learning Labs Enterprise Logo"
+                 class="ll-logo ll-animate-float">
+
+            <h1 class="ll-hero-title">Learning Labs</h1>
+
+            <h2 class="ll-hero-subtitle">
+                La plataforma de gestión académica que sincroniza tu <strong>ADN Institucional</strong> con Inteligencia Artificial Predictiva.
+            </h2>
+
+            <a href="https://www.youtube.com/watch?v=8b0oYQxkhPo"
+               class="ll-btn-welcome"
+               target="_blank"
+               rel="noopener noreferrer">
+                <i class="fas fa-play-circle"></i> Conoce la Nueva Era Académica
+            </a>
+        </div>
+    </section>
+
+    <!-- Sección de Beneficios Clave -->
+    <section class="ll-benefits-section ll-animate-fade-up delay-1">
+        <h3 class="ll-benefits-title">Beneficios que Transforman la Educación</h3>
+        <p class="ll-benefits-subtitle">
+            Descubre cómo Learning Labs lleva la gestión académica a un nuevo nivel con tecnología predictiva y enfoque humano.
+        </p>
+        <div class="ll-benefits-grid">
+            <div class="ll-benefit-card" data-benefit="1">
+                <div class="ll-benefit-icon">
+                    <i class="fas fa-brain"></i>
+                </div>
+                <h4 class="ll-benefit-title">Personalización Socrática del Aprendizaje</h4>
+                <p class="ll-benefit-text">
+                    A diferencia de plataformas que solo entregan contenido, Learning Labs cuenta con un Mentor Institucional impulsado por IA. Actúa como un tutor socrático que guía al estudiante mediante preguntas para que construya su propio conocimiento, democratizando el acceso a tutorías privadas de alta calidad, disponibles 24/7.
+                </p>
+            </div>
+            <div class="ll-benefit-card" data-benefit="2">
+                <div class="ll-benefit-icon">
+                    <i class="fas fa-shield-alt"></i>
+                </div>
+                <h4 class="ll-benefit-title">Entorno Digital Blindado</h4>
+                <p class="ll-benefit-text">
+                    Abordamos el problema más grave de la digitalización escolar: la seguridad. Al integrar una Red Social Educativa propia con algoritmos de detección de patrones, no solo conectamos, sino que protegemos. Prevenimos activamente el ciberacoso, el grooming y detectamos señales de alerta temprana en la salud mental.
+                </p>
+            </div>
+            <div class="ll-benefit-card" data-benefit="3">
+                <div class="ll-benefit-icon">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+                <h4 class="ll-benefit-title">Gestión Educativa Predictiva</h4>
+                <p class="ll-benefit-text">
+                    Mientras otros sistemas solo reportan lo que ya pasó, Learning Labs utiliza los datos para predecir. Al conectar las notas y procesos diarios con el PEI, alertamos a coordinadores y docentes sobre riesgos de deserción o dificultades académicas antes de que sea tarde, sugiriendo estrategias pedagógicas automáticas.
+                </p>
+            </div>
+            <div class="ll-benefit-card" data-benefit="4">
+                <div class="ll-benefit-icon">
+                    <i class="fas fa-mobile-alt"></i>
+                </div>
+                <h4 class="ll-benefit-title">Accesibilidad Universal sin Fricción</h4>
+                <p class="ll-benefit-text">
+                    La tecnología PWA elimina barreras. No obligamos a tener teléfonos de última gama. Learning Labs funciona igual de fluido en un PC que en un celular gama baja, garantizando que ningún estudiante se quede atrás por limitaciones de hardware.
+                </p>
+            </div>
+            <div class="ll-benefit-card" data-benefit="5">
+                <div class="ll-benefit-icon">
+                    <i class="fas fa-users"></i>
+                </div>
+                <h4 class="ll-benefit-title">Ecosistema Comunitario Real</h4>
+                <p class="ll-benefit-text">
+                    Rompemos el paradigma de "la plataforma es para ver notas". Al integrar perfiles para acudientes y bienestar, junto con el feed social, transformamos la plataforma en el centro de la vida escolar, donde padres y docentes son participantes activos.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Sección de Videos Organizada -->
+    <section class="ll-video-section ll-animate-fade-up delay-2">
+        <div class="ll-video-header">
+            <h3 class="ll-video-title">Conoce Learning Labs en Acción</h3>
+            <p class="ll-video-subtitle">
+                Explora cómo cada perfil transforma la educación con tecnología de vanguardia y casos reales de éxito.
+            </p>
+        </div>
+        <div class="ll-video-categories">
+            <button class="ll-video-category active" data-category="todos">Todos</button>
+            <button class="ll-video-category" data-category="docentes">Docentes</button>
+            <button class="ll-video-category" data-category="estudiantes">Estudiantes</button>
+            <button class="ll-video-category" data-category="coordinadores">Coordinadores</button>
+            <button class="ll-video-category" data-category="acudientes">Acudientes</button>
+            <button class="ll-video-category" data-category="administradores">Administradores</button>
+        </div>
+        <div class="ll-video-grid" id="videoGrid">
+            <div class="ll-video-card" data-category="todos docentes">
+                <div class="ll-video-thumbnail">
+                    <img src="https://img.youtube.com/vi/8b0oYQxkhPo/maxresdefault.jpg" alt="Bienvenidos a Learning Labs" style="width: 100%; height: 100%; object-fit: cover;">
+                    <div class="ll-video-overlay">
+                        <h4 class="ll-video-card-title">Bienvenidos a Learning Labs</h4>
+                        <p class="ll-video-card-desc">Descubre la plataforma que está revolucionando la gestión académica.</p>
+                        <a href="https://www.youtube.com/watch?v=8b0oYQxkhPo"
+                           class="ll-video-btn"
+                           target="_blank"
+                           rel="noopener noreferrer">
+                            <i class="fas fa-play"></i> Ver video
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="ll-video-card" data-category="todos docentes">
+                <div class="ll-video-thumbnail">
+                    <img src="https://img.youtube.com/vi/uAv4N36bYLs/maxresdefault.jpg" alt="Perfil Docente para la Educación del Futuro" style="width: 100%; height: 100%; object-fit: cover;">
+                    <div class="ll-video-overlay">
+                        <h4 class="ll-video-card-title">Perfil Docente para la Educación del Futuro</h4>
+                        <p class="ll-video-card-desc">Herramientas de IA para docentes: rúbricas inteligentes, feedback automatizado y más.</p>
+                        <a href="https://youtu.be/uAv4N36bYLs"
+                           class="ll-video-btn"
+                           target="_blank"
+                           rel="noopener noreferrer">
+                            <i class="fas fa-play"></i> Ver video
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="ll-video-card" data-category="todos estudiantes">
+                <div class="ll-video-thumbnail">
+                    <img src="https://img.youtube.com/vi/gIGNwgN1urA/maxresdefault.jpg" alt="Perfil Estudiante para la Educación del Futuro" style="width: 100%; height: 100%; object-fit: cover;">
+                    <div class="ll-video-overlay">
+                        <h4 class="ll-video-card-title">Perfil Estudiante para la Educación del Futuro</h4>
+                        <p class="ll-video-card-desc">Tutor socrático + IA + red social académica: aprendizaje personalizado y colaborativo.</p>
+                        <a href="https://youtu.be/gIGNwgN1urA"
+                           class="ll-video-btn"
+                           target="_blank"
+                           rel="noopener noreferrer">
+                            <i class="fas fa-play"></i> Ver video
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="ll-video-card" data-category="todos coordinadores">
+                <div class="ll-video-thumbnail">
+                    <img src="https://img.youtube.com/vi/S9K_9UDCETY/maxresdefault.jpg" alt="Perfil Coordinadores para la Educación del Futuro" style="width: 100%; height: 100%; object-fit: cover;">
+                    <div class="ll-video-overlay">
+                        <h4 class="ll-video-card-title">Perfil Coordinadores para la Educación del Futuro</h4>
+                        <p class="ll-video-card-desc">Predicción de deserción, alertas tempranas y gestión de grupos con IA.</p>
+                        <a href="https://youtu.be/S9K_9UDCETY"
+                           class="ll-video-btn"
+                           target="_blank"
+                           rel="noopener noreferrer">
+                            <i class="fas fa-play"></i> Ver video
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="ll-video-card" data-category="todos acudientes">
+                <div class="ll-video-thumbnail">
+                    <img src="https://img.youtube.com/vi/6l5X3udzSEw/maxresdefault.jpg" alt="Perfil Acudiente para la Educación del Futuro" style="width: 100%; height: 100%; object-fit: cover;">
+                    <div class="ll-video-overlay">
+                        <h4 class="ll-video-card-title">Perfil Acudiente para la Educación del Futuro</h4>
+                        <p class="ll-video-card-desc">Seguimiento del progreso académico, comunicación directa y alertas personalizadas.</p>
+                        <a href="https://youtu.be/6l5X3udzSEw"
+                           class="ll-video-btn"
+                           target="_blank"
+                           rel="noopener noreferrer">
+                            <i class="fas fa-play"></i> Ver video
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="ll-video-card" data-category="todos administradores">
+                <div class="ll-video-thumbnail">
+                    <img src="https://img.youtube.com/vi/TZdh3BQiBvk/maxresdefault.jpg" alt="Perfil Administrador para la Educación del Futuro" style="width: 100%; height: 100%; object-fit: cover;">
+                    <div class="ll-video-overlay">
+                        <h4 class="ll-video-card-title">Perfil Administrador para la Educación del Futuro</h4>
+                        <p class="ll-video-card-desc">Gestión del PEI, automatización de procesos y tutoría institucional con IA.</p>
+                        <a href="https://youtu.be/TZdh3BQiBvk"
+                           class="ll-video-btn"
+                           target="_blank"
+                           rel="noopener noreferrer">
+                            <i class="fas fa-play"></i> Ver video
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Sección de Alertas Predictivas (Datos Reales) -->
+    <section class="ll-alerts-section ll-animate-fade-up delay-3">
+        <h3 class="ll-alerts-title">Alertas Predictivas en Acción</h3>
+        <p class="ll-alerts-subtitle">
+            Ejemplos reales de cómo Learning Labs ayuda a instituciones a prevenir la deserción y mejorar el rendimiento académico.
+        </p>
+        <div class="ll-alerts-grid">
+            <div class="ll-alert-card">
+                <div class="ll-alert-icon">
+                    <i class="fas fa-exclamation-triangle"></i>
+                </div>
+                <h4 class="ll-alert-title">Riesgo de Deserción Detectado</h4>
+                <p class="ll-alert-text">
+                    El estudiante Juan Pérez muestra un patrón de bajo engagement en las últimas 3 semanas. Se recomienda intervención personalizada.
+                </p>
+                <a href="#" class="ll-alert-action">Ver detalles</a>
+            </div>
+            <div class="ll-alert-card">
+                <div class="ll-alert-icon">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+                <h4 class="ll-alert-title">Mejora en Rendimiento</h4>
+                <p class="ll-alert-text">
+                    El grupo 10A ha mejorado su promedio en un 15% tras la implementación de rúbricas de evaluación automatizadas.
+                </p>
+                <a href="#" class="ll-alert-action">Ver informe</a>
+            </div>
+            <div class="ll-alert-card">
+                <div class="ll-alert-icon">
+                    <i class="fas fa-users"></i>
+                </div>
+                <h4 class="ll-alert-title">Alta Participación en Foros</h4>
+                <p class="ll-alert-text">
+                    El 85% de los estudiantes del curso de Matemáticas Avanzadas participan activamente en los foros de discusión.
+                </p>
+                <a href="#" class="ll-alert-action">Ver estadísticas</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="ll-footer">
+        <p>
+            &copy; 2026 <span class="ll-footer-brand">Learning Labs</span>. Una solución de Analytics Hydra. <br>
+            Transformando la educación a través de la inteligencia de datos.
+        </p>
+    </footer>
+</main>
+
+<!-- Modal de Video -->
+<div id="ytModal" class="ll-video-modal">
+    <div class="ll-video-wrapper">
+        <button class="ll-video-close" onclick="closeYtModal()"><i class="fas fa-times"></i></button>
+        <iframe id="ytFrame" src="" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+    </div>
+</div>
+
+<!-- Scripts -->
+<script>
+    // =========================================================
+    // FILTRO DE VIDEOS POR CATEGORÍA
+    // =========================================================
+    document.addEventListener('DOMContentLoaded', () => {
+        const categories = document.querySelectorAll('.ll-video-category');
+        const videos = document.querySelectorAll('.ll-video-card');
+
+        categories.forEach(category => {
+            category.addEventListener('click', () => {
+                categories.forEach(c => c.classList.remove('active'));
+                category.classList.add('active');
+                const filter = category.getAttribute('data-category');
+
+                videos.forEach(video => {
+                    if (filter === 'todos' || video.getAttribute('data-category').includes(filter)) {
+                        video.style.display = 'block';
+                    } else {
+                        video.style.display = 'none';
+                    }
+                });
+            });
+        });
+    });
+
+    // =========================================================
+    // GESTIÓN DEL MODAL DE VIDEO
+    // =========================================================
+    function openYtModal(url) {
+        const modal = document.getElementById('ytModal');
+        const frame = document.getElementById('ytFrame');
+
+        let embedUrl = url;
+        if (url.includes("watch?v=")) {
+            embedUrl = url.replace("watch?v=", "embed/");
+        }
+        frame.src = embedUrl + "?autoplay=1&rel=0";
+
+        modal.classList.add('active');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeYtModal() {
+        const modal = document.getElementById('ytModal');
+        const frame = document.getElementById('ytFrame');
+
+        frame.src = "";
+        modal.classList.remove('active');
+        document.body.style.overflow = '';
+    }
+
+    document.getElementById('ytModal').addEventListener('click', function(e) {
+        if (e.target === this) {
+            closeYtModal();
+        }
+    });
+
+    // =========================================================
+    // ANIMACIONES AL SCROLL
+    // =========================================================
+    document.addEventListener('DOMContentLoaded', () => {
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: "0px 0px -50px 0px"
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.animationPlayState = 'running';
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.ll-animate-fade-up, .ll-video-card, .ll-alert-card, .ll-benefit-card').forEach(el => {
+            el.style.opacity = '0';
+            el.style.animation = 'fadeUp 0.8s ease-out forwards';
+            el.style.animationPlayState = 'paused';
+            observer.observe(el);
+        });
+    });
+</script>
+{% endblock %}

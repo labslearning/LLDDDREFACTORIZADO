@@ -1,0 +1,156 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container-fluid px-4 py-4 bg-light-subtle">
+    
+    <div class="d-flex justify-content-between align-items-end mb-5 animate__animated animate__fadeIn">
+        <div>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb mb-1 text-uppercase ls-1">
+                    <li class="breadcrumb-item small"><a href="{% url 'admin_dashboard' %}" class="text-decoration-none text-muted">Core</a></li>
+                    <li class="breadcrumb-item small active fw-bold text-primary">Matrícula Manual</li>
+                </ol>
+            </nav>
+            <h1 class="fw-black text-dark h2 mb-1">
+                <i class="fas fa-user-plus text-primary me-2"></i>Registro Individual de Alumno
+            </h1>
+            <p class="text-muted mb-0">Alta manual de perfiles académicos y vinculación jerárquica de acudientes.</p>
+        </div>
+        <div class="d-none d-md-flex">
+            <span class="badge bg-white text-dark border px-3 py-2 rounded-pill shadow-sm">
+                <i class="fas fa-shield-check text-success me-1"></i> Entorno de Administración Seguro
+            </span>
+        </div>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-xl-10">
+            <form method="POST" action="{% url 'academics:asignar_curso_estudiante' %}" class="needs-validation" novalidate>
+                {% csrf_token %}
+
+                <div class="row g-4">
+                    
+                    <div class="col-lg-7">
+                        <div class="card border-0 shadow-sm rounded-4 p-4 mb-4">
+                            <h5 class="fw-bold mb-4 text-dark border-start border-primary border-4 ps-3">Identidad del Estudiante</h5>
+                            
+                            <div class="mb-4">
+                                <label for="anio_escolar" class="form-label small fw-bold text-muted text-uppercase ls-1">Año Escolar</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light border-2 border-end-0"><i class="fas fa-calendar-alt opacity-50"></i></span>
+                                    <input type="text" class="form-control border-2 border-start-0" id="anio_escolar" name="anio_escolar" placeholder="2025-2026" required>
+                                </div>
+                            </div>
+
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label for="username" class="form-label small fw-bold text-muted text-uppercase">Username (ID Sistema)</label>
+                                    <input type="text" class="form-control border-2" id="username" name="username" placeholder="Ej: jandres2026" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="email" class="form-label small fw-bold text-muted text-uppercase">Email Académico</label>
+                                    <input type="email" class="form-control border-2" id="email" name="email" placeholder="estudiante@colegio.edu.co" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="first_name" class="form-label small fw-bold text-muted text-uppercase">Nombres</label>
+                                    <input type="text" class="form-control border-2" id="first_name" name="first_name" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="last_name" class="form-label small fw-bold text-muted text-uppercase">Apellidos</label>
+                                    <input type="text" class="form-control border-2" id="last_name" name="last_name" required>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card border-0 shadow-sm rounded-4 p-4">
+                            <h5 class="fw-bold mb-4 text-dark border-start border-info border-4 ps-3">Asignación de Curso</h5>
+                            <div class="mb-0">
+                                <label for="curso_id" class="form-label small fw-bold text-muted text-uppercase">Curso de Destino</label>
+                                <select class="form-select border-2 bg-light" id="curso_id" name="curso_id" required>
+                                    <option value="" disabled selected>-- Seleccione un curso activo --</option>
+                                    {% for c in cursos %}
+                                        <option value="{{ c.id }}">
+                                            {{ c.get_grado_display }} {{ c.seccion }} — [Cupos: {{ c.capacidad_maxima }}]
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                                <div class="form-text mt-2"><i class="fas fa-info-circle me-1"></i> El estudiante se matriculará automáticamente al guardar.</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-5">
+                        <div class="card border-0 shadow-sm rounded-4 p-4 mb-4 bg-white">
+                            <h5 class="fw-bold mb-4 text-dark border-start border-success border-4 ps-3">Datos del Acudiente</h5>
+                            
+                            <div class="mb-3">
+                                <label for="acudiente_first_name" class="form-label small fw-bold text-muted text-uppercase">Nombres Acudiente</label>
+                                <input type="text" class="form-control border-2" id="acudiente_first_name" name="acudiente_first_name" required>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="acudiente_last_name" class="form-label small fw-bold text-muted text-uppercase">Apellidos Acudiente</label>
+                                <input type="text" class="form-control border-2" id="acudiente_last_name" name="acudiente_last_name" required>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="acudiente_email" class="form-label small fw-bold text-muted text-uppercase">Email (Login Acudiente)</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-white border-2 border-end-0"><i class="fas fa-user-shield opacity-50"></i></span>
+                                    <input type="email" class="form-control border-2 border-start-0" id="acudiente_email" name="acudiente_email" required>
+                                </div>
+                                <div class="form-text small text-primary bg-soft-primary p-2 rounded mt-2">
+                                    <i class="fas fa-sync me-1"></i> Si el correo existe, el sistema vinculará la cuenta actual.
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card border-0 shadow-lg rounded-4 p-4 bg-primary text-white overflow-hidden position-relative">
+                            <div class="position-relative z-index-2">
+                                <button type="submit" class="btn btn-white w-100 fw-black py-3 rounded-3 shadow-sm hover-translate-y">
+                                    <i class="fas fa-save me-2 text-primary"></i>PROCESAR MATRÍCULA
+                                </button>
+                                <a href="{% url 'admin_dashboard' %}" class="btn btn-link w-100 text-white mt-3 text-decoration-none small fw-bold opacity-75">
+                                    CANCELAR OPERACIÓN
+                                </a>
+                            </div>
+                            <i class="fas fa-user-graduate position-absolute bottom-0 end-0 opacity-10" style="font-size: 8rem; transform: translate(20%, 20%);"></i>
+                        </div>
+                    </div>
+
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+    .fw-black { font-weight: 900; }
+    .ls-1 { letter-spacing: 1px; }
+    .bg-soft-primary { background-color: #eef2ff !important; }
+    .hover-translate-y { transition: transform 0.2s ease; }
+    .hover-translate-y:hover { transform: translateY(-3px); }
+    .form-control:focus, .form-select:focus {
+        border-color: #4F46E5;
+        box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1);
+    }
+</style>
+
+<script>
+    // Validación visual de Bootstrap
+    (function () {
+      'use strict'
+      var forms = document.querySelectorAll('.needs-validation')
+      Array.prototype.slice.call(forms).forEach(function (form) {
+        form.addEventListener('submit', function (event) {
+          if (!form.checkValidity()) {
+            event.preventDefault()
+            event.stopPropagation()
+          }
+          form.classList.add('was-validated')
+        }, false)
+      })
+    })()
+</script>
+{% endblock %}

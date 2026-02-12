@@ -1,0 +1,861 @@
+{% extends "base.html" %}
+{% load note_filters %}
+{% load custom_filters %}
+{% load static %}
+
+{% block content %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+<div class="container py-5">
+    
+    <div class="card p-4 p-md-5 border-0 shadow-lg animate animated fadeInUp mb-5" style="background-color: var(--color-bg-light); border-radius: 20px;">
+        <div class="text-center mb-4">
+            <i class="fas fa-user-graduate fa-4x fa-md-5x mb-3 text-primary-alt animated animate zoomIn"></i>
+            <h1 class="display-5 display-md-4 fw-bold" style="color: var(--color-text-dark);">
+                ¡Bienvenido a tu panel, {{ estudiante.get_full_name|default:estudiante.username }}!
+            </h1>
+            <p class="lead mt-2 fs-6 fs-md-4" style="color: var(--color-text-muted);">
+                Usuario: <span class="fw-bold">{{ estudiante.username }}</span>. Rol: <span class="badge rounded-pill bg-primary-alt">{{ perfil.rol }}</span>.
+            </p>
+
+            <div class="d-grid gap-3 d-md-flex justify-content-md-center mt-4 mb-3">
+                <button onclick="activarIA('est_mejoras')" 
+                   class="btn btn-lg btn-primary-alt rounded-pill px-4 py-3 shadow-sm border-0 animate animated pulse infinite w-100 w-md-auto" 
+                   style="background-image: var(--gradient-primary); color: white;">
+                    <i class="fas fa-robot me-2"></i>¿Cómo puedo mejorar?
+                </button>
+                
+                <button onclick="abrirModalPareto()" 
+                   class="btn btn-lg btn-outline-primary rounded-pill px-4 py-3 shadow-sm border-2 w-100 w-md-auto">
+                    <i class="fas fa-brain me-2"></i>Tutor Socrático (80/20)
+                </button>
+
+                 <button onclick="activarIA('est_nivelacion')" 
+                    class="btn btn-lg btn-danger rounded-pill px-4 py-3 shadow-sm border-0 w-100 w-md-auto text-white">
+                     <i class="fas fa-ambulance me-2"></i>Plan de Rescate
+                 </button>
+            </div>
+            
+            <small class="text-muted d-block mt-2 px-3">
+                <i class="fas fa-info-circle me-1"></i> Nuestra IA analizará tu boletín y el Manual de Convivencia en tiempo real.
+            </small>
+        </div>
+
+        {% if curso %}
+        <div class="alert text-center rounded-pill mb-5 border-primary-alt" role="alert" style="background-color: var(--color-alert-info-bg); color: var(--color-alert-info-text);">
+            <i class="fas fa-school me-2"></i> Estás asignado al curso: <span class="fw-bold">{{ curso.nombre }}</span>
+        </div>
+        {% else %}
+        <div class="alert text-center rounded-pill mb-5 border-warning-alt" role="alert" style="background-color: var(--color-alert-warning-bg); color: var(--color-alert-warning-text);">
+            <i class="fas fa-exclamation-triangle me-2"></i> Aún no estás asignado a un curso. Por favor, contacta a tu administrador.
+        </div>
+        {% endif %}
+    </div>
+
+    {% if curso %}
+    
+    <div class="row mb-5 animate animated fadeInUp">
+        <div class="col-12 mb-4">
+            <h3 class="fw-bold text-dark text-center"><i class="fas fa-chart-pie me-2"></i>Resumen Ejecutivo</h3>
+        </div>
+        
+        <div class="col-md-3 mb-4">
+            <div class="stat-card p-4 text-center d-flex flex-column justify-content-center align-items-center">
+                <h6 class="text-muted text-uppercase small mb-2">Promedio General</h6>
+                <h1 class="display-3 fw-bold mb-0 {% if stats.promedio_general < 3.5 %}text-danger{% else %}text-success{% endif %}">
+                    {{ stats.promedio_general }}
+                </h1>
+                <small class="text-muted">Escala 1.0 - 5.0</small>
+            </div>
+        </div>
+
+        <div class="col-md-3 mb-4">
+            <div class="stat-card p-4 text-center d-flex flex-column justify-content-center align-items-center">
+                <h6 class="text-muted text-uppercase small mb-2">Asistencia Total</h6>
+                <div class="position-relative d-flex justify-content-center align-items-center" style="width: 100px; height: 100px;">
+                    <svg viewBox="0 0 36 36" class="circular-chart" style="width: 100%; height: 100%;">
+                        <path class="circle-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                        <path class="circle" stroke-dasharray="{{ stats.asistencia_pct }}, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" stroke="{% if stats.asistencia_pct < 85 %}#e74c3c{% else %}#2ecc71{% endif %}" />
+                    </svg>
+                    <div class="position-absolute fw-bold fs-4">{{ stats.asistencia_pct }}%</div>
+                </div>
+                <div class="mt-2">
+                    <small class="text-muted d-block">Fallas: <strong>{{ stats.total_fallas }}</strong></small>
+                    {% if stats.total_fallas > 0 %}
+                    <button class="btn btn-sm btn-link text-decoration-none p-0 mt-1" data-bs-toggle="modal" data-bs-target="#modalAsistencia">
+                        <i class="fas fa-list-ul me-1"></i> Ver detalle
+                    </button>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 mb-4">
+            <div class="stat-card p-4">
+                <h6 class="text-muted fw-bold mb-3 text-center">Estado de Materias</h6>
+                <div class="row align-items-center h-100">
+                    <div class="col-6 d-flex justify-content-center">
+                        <div class="chart-container" style="height: 160px; width: 160px;">
+                            <canvas id="chartStatusNew"></canvas>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <ul class="list-unstyled mb-0 small">
+                            <li class="mb-2"><i class="fas fa-circle text-success me-2"></i> Ganando: <strong>{{ stats.ganadas }}</strong></li>
+                            <li><i class="fas fa-circle text-danger me-2"></i> Perdiendo: <strong>{{ stats.perdidas }}</strong></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 mb-4">
+            <div class="stat-card p-4">
+                <h6 class="text-muted fw-bold mb-3">Desempeño Acumulado por Materia</h6>
+                <div class="chart-container" style="height: 250px;">
+                    <canvas id="chartMateriasNew"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mb-5 animate animated fadeInUp">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm rounded-4">
+                <div class="card-header bg-white border-0 py-3 px-4">
+                    <h5 class="fw-bold mb-0 text-dark"><i class="fas fa-chalkboard-teacher me-2 text-primary"></i>Mis Profesores</h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive" style="max-height: 300px;">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="bg-light sticky-top">
+                                <tr>
+                                    <th class="ps-4" style="width: 70px;">Foto</th>
+                                    <th>Docente</th>
+                                    <th>Asignatura</th>
+                                    <th class="text-end pe-4">Contacto</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for profe in docentes %}
+                                <tr>
+                                    <td class="ps-4">
+                                        <div class="bg-primary text-white rounded-circle d-flex justify-content-center align-items-center fw-bold shadow-sm" style="width: 45px; height: 45px; font-size: 1.2rem;">
+                                            {% if profe.foto_url %}
+                                                <img src="{{ profe.foto_url }}" class="rounded-circle" width="45" height="45" style="object-fit: cover;">
+                                            {% else %}
+                                                {{ profe.nombre|slice:":1" }}
+                                            {% endif %}
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="fw-bold text-dark">{{ profe.nombre }}</div>
+                                    </td>
+                                    <td class="text-muted">{{ profe.materia_principal }}</td>
+                                    <td class="text-end pe-4">
+                                        <a href="{% url 'enviar_mensaje' %}?destinatario={{ profe.id }}&asunto=Consulta Estudiante: {{ estudiante.get_full_name }}" class="btn btn-sm btn-outline-primary rounded-pill px-3">
+                                            <i class="fas fa-envelope me-1"></i> Mensaje
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr><td colspan="4" class="text-center py-4 text-muted">No tienes docentes asignados todavía.</td></tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <hr class="my-5" style="border-color: var(--color-hr);">
+    {% endif %}
+
+    <h3 class="text-center fw-bold text-dark mb-5 animate animated fadeInUp">Progreso Académico Detallado</h3>
+
+    {% if materias_con_notas %}
+    <div class="card p-4 border-0 shadow-lg mb-5 animate animated fadeInUp" style="background-color: var(--color-card-bg-light);">
+        <h4 class="fw-bold text-center mb-4" style="color: var(--color-primary-alt);">Rendimiento Ponderado por Periodo</h4>
+        
+        <div style="min-height: 250px; max-height: 350px; margin: 0 auto; width: 100%;">
+            <canvas id="progresoAcademicoChart"></canvas>
+        </div>
+        
+        <div id="globalChartData" style="display: none;"
+             data-periodos='[{% for p in periodos_disponibles %}"{{ p.nombre }}",{% endfor %}]'
+             data-promedios='[
+                {% for materia, periodos_notas in materias_con_notas.items %}
+                    {
+                        "materia": "{{ materia.nombre }}",
+                        "datos": [
+                            {% for periodo in periodos_disponibles %}
+                                {% with nota_promedio_obj=periodos_notas|get_item:periodo.id|find_note_by_number:5 %}
+                                    {{ nota_promedio_obj.valor|default:'null' }}{% if not forloop.last %},{% endif %}
+                                {% endwith %}
+                            {% endfor %}
+                        ]
+                    }{% if not forloop.last %},{% endif %}
+                {% endfor %}
+            ]'>
+        </div>
+        <p class="text-center small text-muted mt-3">La línea de rendimiento se dibuja con el **Promedio Ponderado Final** de cada periodo.</p>
+    </div>
+
+    <div class="row g-4">
+        {% for materia, periodos_notas in materias_con_notas.items %}
+        <div class="col-md-6 col-lg-4 d-flex">
+            <div class="card flex-fill h-100 shadow-hover border-0 rounded-4 animate animated fadeInUp">
+                <div class="card-header p-3 border-0 rounded-top-4 collapse-toggle-header" style="background-image: var(--gradient-primary); color: white; cursor: pointer;"
+                     data-bs-toggle="collapse" data-bs-target="#collapse-{{ materia.id }}" aria-expanded="false" aria-controls="collapse-{{ materia.id }}">
+                    <h5 class="mb-0 fw-bold d-flex justify-content-between align-items-center">
+                        {{ materia.nombre }}
+                        <i class="fas fa-chevron-down rotate-on-collapse"></i>
+                    </h5>
+                </div>
+                <div class="collapse" id="collapse-{{ materia.id }}">
+                    <div class="card-body">
+                        {% for periodo in periodos_disponibles %}
+                        {% with notas_list=materias_con_notas|get_item:materia|get_item:periodo.id %}
+                        <div class="card border-0 mb-4 shadow-sm">
+                            <div class="card-header bg-light border-0">
+                                <h6 class="fw-semibold text-muted mb-0">{{ periodo.nombre }}</h6>
+                            </div>
+                            <div class="card-body">
+                                <canvas id="chart-{{ materia.id }}-{{ periodo.id }}"></canvas>
+                                
+                                <div class="chart-data" data-materia-id="{{ materia.id }}" data-periodo-id="{{ periodo.id }}" style="display:none;">
+                                    <span class="chart-labels">
+                                        {% for nota in notas_list.values|dictsort:"numero_nota" %}"{{ nota.descripcion|cut:'(%)'|cut:'Promedio ponderado' }}", {% endfor %}
+                                    </span>
+                                    <span class="chart-data-values">
+                                        {% for nota in notas_list.values|dictsort:"numero_nota" %}{{ nota.valor }}, {% endfor %}
+                                    </span>
+                                </div>
+                                
+                                {% with nota_promedio=notas_list|find_note_by_number:5 %}
+                                {% if nota_promedio %}
+                                <div class="d-flex justify-content-between align-items-center mt-3 mb-4">
+                                    <span class="fw-semibold text-muted">Promedio Final:</span>
+                                    <span class="badge rounded-pill p-2 fs-6 {% if nota_promedio.valor >= 3.0 %}bg-success-alt{% else %}bg-danger-alt{% endif %}">{{ nota_promedio.valor }}</span>
+                                </div>
+                                {% endif %}
+                                {% endwith %}
+                            </div>
+                        </div>
+                        {% endwith %}
+                        {% endfor %}
+
+                        <div class="mt-4">
+                            {% with comentarios_list=comentarios_docente|get_item:materia.id %}
+                            {% if comentarios_list %}
+                            <h6 class="fw-bold" style="color: var(--color-text-dark);"><i class="fas fa-comment-dots me-2"></i>Comentarios del Docente</h6>
+                            {% for comentario_obj in comentarios_list %}
+                            <blockquote class="blockquote mb-0 mt-2 p-3 rounded-3" style="background-color: var(--color-card-bg-light);">
+                                <p class="mb-0 small" style="color: var(--color-text-muted);">{{ comentario_obj.comentario }}</p>
+                                <footer class="blockquote-footer mt-2" style="font-size: 0.8em; color: var(--color-text-muted-alt);">
+                                    <cite title="{{ comentario_obj.docente.get_full_name|default:comentario_obj.docente.username }}">{{ comentario_obj.docente.get_full_name|default:comentario_obj.docente.username }}</cite>
+                                </footer>
+                            </blockquote>
+                            {% endfor %}
+                            {% endif %}
+                            {% endwith %}
+                        </div>
+
+                        <div class="mt-4">
+                            {% with actividades_list=actividades_semanales|get_item:materia.id %}
+                            {% if actividades_list %}
+                            <h6 class="fw-bold" style="color: var(--color-text-dark);"><i class="fas fa-clipboard-list me-2"></i>Actividades de la Semana</h6>
+                            {% for actividad in actividades_list %}
+                            <div class="p-3 rounded-3 border mb-2" style="background-color: var(--color-card-bg-light);">
+                                <h6 class="fw-semibold">{{ actividad.titulo }}</h6>
+                                <p class="small mb-2" style="color: var(--color-text-muted);">{{ actividad.descripcion }}</p>
+                                <p class="small text-muted mb-0"><i class="fas fa-calendar-alt me-1"></i>Fechas: {{ actividad.fecha_inicio|date:"d M Y" }} - {{ actividad.fecha_fin|date:"d M Y" }}</p>
+                            </div>
+                            {% endfor %}
+                            {% endif %}
+                            {% endwith %}
+                        </div>
+
+                        <div class="mt-4">
+                            {% with logros_materia=logros_por_materia_por_periodo|get_item:materia %}
+                                {% if logros_materia %}
+                                <h6 class="fw-bold" style="color: var(--color-text-dark);"><i class="fas fa-award me-2"></i>Logros del Período</h6>
+                                    {% for periodo_id, logros_list in logros_materia.items %}
+                                    <div class="p-3 rounded-3 border mb-2" style="border-color: var(--color-primary) !important; background-color: var(--color-card-bg-light);">
+                                        <p class="mb-1 fw-bold" style="color: var(--color-text-dark);">{{ logros_list.0.periodo.nombre }}:</p>
+                                        <ul class="list-unstyled mb-0">
+                                        {% for logro in logros_list %}
+                                            <li class="small" style="color: var(--color-text-muted);"><i class="fas fa-check-circle me-1" style="color: var(--color-success);"></i> {{ logro.descripcion }}</li>
+                                        {% endfor %}
+                                        </ul>
+                                    </div>
+                                    {% endfor %}
+                                {% endif %}
+                            {% endwith %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="alert text-center border-info-alt" role="alert" style="background-color: var(--color-alert-info-bg); color: var(--color-alert-info-text);">
+        Aún no tienes notas registradas. ¡Ánimo, el aprendizaje continúa!
+    </div>
+    {% endif %}
+
+    {% if curso %}
+    <hr class="my-5" style="border-color: var(--color-hr);">
+    <div class="row">
+        <div class="col-12">
+            <div class="card p-4 border-0 shadow-lg animate animated fadeInUp" style="background-color: var(--color-bg-light);">
+                <h3 class="text-center fw-bold text-dark mb-4"><i class="fas fa-handshake me-2"></i>Nota de Convivencia</h3>
+                
+                {% if convivencia_notas or materias_con_notas %}
+                <div class="table-responsive">
+                    <table class="table table-bordered table-hover">
+                        <thead class="thead-dark">
+                            <tr class="bg-primary text-white text-center">
+                                <th>Período</th>
+                                <th>Nota</th>
+                                <th>Comentario / Detalle</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for materia, periodos_notas in materias_con_notas.items %}
+                                {% if "convivencia" in materia.nombre|lower %}
+                                    {% for periodo in periodos_disponibles %}
+                                        {% with nota_promedio_obj=periodos_notas|get_item:periodo.id|find_note_by_number:5 %}
+                                        <tr>
+                                            <td class="fw-bold">{{ periodo.nombre }} <br><small class="text-muted fw-normal">(Asignatura)</small></td>
+                                            <td class="text-center align-middle">
+                                                <span class="badge rounded-pill p-2 fs-6 {% if nota_promedio_obj.valor >= 3.0 %}bg-success-alt{% else %}bg-danger-alt{% endif %}">
+                                                    {{ nota_promedio_obj.valor|default:"-" }}
+                                                </span>
+                                            </td>
+                                            <td class="align-middle">
+                                                {% with comentarios_list=comentarios_docente|get_item:materia.id %}
+                                                    {% for c in comentarios_list %}
+                                                        {% if c.periodo.id == periodo.id %}
+                                                            <i class="fas fa-comment-alt text-primary me-1"></i> {{ c.comentario }}<br>
+                                                        {% endif %}
+                                                    {% endfor %}
+                                                {% endwith %}
+                                            </td>
+                                        </tr>
+                                        {% endwith %}
+                                    {% endfor %}
+                                {% endif %}
+                            {% endfor %}
+
+                            {% for periodo in curso.periodos.all %}
+                                {% with nota_data=convivencia_notas|get_item:periodo.id %}
+                                    {% if nota_data.valor %} <tr>
+                                        <td>{{ periodo.nombre }} <br><small class="text-muted">(Observador)</small></td>
+                                        <td class="text-center align-middle">
+                                            <span class="badge rounded-pill p-2 fs-6 {% if nota_data.valor >= 3.0 %}bg-success-alt{% else %}bg-danger-alt{% endif %}">
+                                                {{ nota_data.valor|floatformat:2|default:"-" }}
+                                            </span>
+                                        </td>
+                                        <td class="align-middle">{{ nota_data.comentario|default:"-" }}</td>
+                                    </tr>
+                                    {% endif %}
+                                {% endwith %}
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="alert alert-info text-center" role="alert" style="background-color: var(--color-alert-info-bg); color: var(--color-alert-info-text);">
+                    <i class="fas fa-info-circle me-2"></i> Aún no hay notas de convivencia registradas para tu curso.
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<div class="modal fade" id="modalIA" tabindex="-1" data-bs-backdrop="static">
+    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content border-0 shadow-lg" style="border-radius: 20px;">
+            <div class="modal-header border-0 bg-primary text-white" style="border-radius: 20px 20px 0 0;">
+                <h5 class="modal-title fw-bold"><i class="fas fa-robot me-2"></i>Asistente Institucional</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            
+            <div class="modal-body p-4 bg-light" id="modalBodyIA" style="min-height: 200px; overflow-y: auto; max-height: 60vh;">
+                </div>
+
+            <div class="modal-footer bg-white border-top-0">
+                <div class="input-group">
+                    <input type="text" id="chatInputUser" class="form-control rounded-pill" placeholder="Escribe tu respuesta o pregunta aquí...">
+                    <button class="btn btn-primary rounded-pill ms-2" onclick="enviarRespuestaChat()">
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalParetoInput" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg rounded-4">
+            <div class="modal-body p-4 text-center">
+                <i class="fas fa-brain fa-3x text-primary mb-3"></i>
+                <h4 class="fw-bold mb-3">¿Qué quieres aprender hoy?</h4>
+                <p class="text-muted small">El método Pareto te enseñará el 20% clave para entender el 80%.</p>
+                
+                <input type="text" id="inputParetoTema" class="form-control form-control-lg mb-3 text-center" placeholder="Ej: Revolución Francesa, Álgebra, Células...">
+                
+                <div class="d-grid">
+                    <button onclick="ejecutarPareto()" class="btn btn-primary btn-lg rounded-pill">
+                        <i class="fas fa-magic me-2"></i> Enseñame
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalAsistencia" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-light">
+                <h5 class="modal-title"><i class="fas fa-calendar-times text-danger me-2"></i>Mis Fallas</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body p-0">
+                {% if stats.detalle_fallas %}
+                <table class="table table-striped mb-0">
+                    <thead class="table-danger">
+                        <tr>
+                            <th class="ps-4">Fecha</th>
+                            <th>Materia</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for falla in stats.detalle_fallas %}
+                        <tr>
+                            <td class="ps-4">{{ falla.fecha|date:"d M, Y" }}</td>
+                            <td class="fw-bold">{{ falla.materia.nombre }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}
+                <div class="p-4 text-center text-muted">
+                    No tienes fallas registradas. ¡Sigue así!
+                </div>
+                {% endif %}
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+/* CSS FUSIONADO (ORIGINAL + NUEVO) */
+:root {
+    --color-primary: #3498db;
+    --color-primary-alt: #2c3e50;
+    --color-secondary-alt: #bdc3c7;
+    --color-success: #2ecc71;
+    --color-danger: #e74c3c;
+    --color-text-dark: #34495e;
+    --color-text-muted: #7f8c8d;
+    --color-text-muted-alt: #95a5a6;
+    --color-bg-light: #f5f5f5;
+    --color-card-bg-light: #ecf0f1;
+    --color-hr: #bdc3c7;
+    --color-alert-info-bg: #d6e9f5;
+    --color-alert-info-text: #3472a1;
+    --color-alert-warning-bg: #fdf2e9;
+    --color-alert-warning-text: #d35400;
+    --gradient-primary: linear-gradient(to right, #3498db, #2980b9);
+}
+
+.bg-primary-alt { background-color: var(--color-primary-alt) !important; }
+.text-primary-alt { color: var(--color-primary-alt) !important; }
+.border-primary-alt { border-color: var(--color-primary-alt) !important; }
+.bg-success-alt { background-color: var(--color-success) !important; }
+.bg-danger-alt { background-color: var(--color-danger) !important; }
+.bg-gradient-primary { background: linear-gradient(90deg, #3b82f6 0%, #8b5cf6 100%); }
+
+.w-md-auto { width: auto !important; } 
+
+@media (max-width: 768px) {
+    .w-md-auto { width: 100% !important; }
+}
+
+.shadow-hover { transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out; }
+.shadow-hover:hover { transform: translateY(-5px); box-shadow: 0 1rem 3rem rgba(0, 0, 0, .175) !important; }
+.animate.animated { animation-duration: 0.8s; }
+.collapse { transition: height 0.3s ease-in-out; }
+.rotate-on-collapse { transition: transform 0.3s ease-in-out; }
+.collapse-toggle-header[aria-expanded="true"] .rotate-on-collapse { transform: rotate(180deg); }
+
+/* ESTILOS PARA ANALÍTICA */
+.stat-card {
+    background: #fff;
+    border-radius: 1rem;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+    height: 100%;
+    transition: transform 0.2s;
+    border: 1px solid rgba(0,0,0,0.05);
+}
+.stat-card:hover { transform: translateY(-3px); box-shadow: 0 6px 12px rgba(0,0,0,0.08); }
+.chart-container { position: relative; width: 100%; }
+
+/* Gráfico circular CSS para asistencia */
+.circular-chart { display: block; margin: 0 auto; max-width: 100%; max-height: 250px; }
+.circle-bg { fill: none; stroke: #eee; stroke-width: 3.8; }
+.circle { fill: none; stroke-width: 2.8; stroke-linecap: round; animation: progress 1s ease-out forwards; }
+@keyframes progress { 0% { stroke-dasharray: 0 100; } }
+</style>
+
+<script>
+// ==========================================
+// CONFIGURACIÓN DE GRÁFICOS (CHART.JS)
+// ==========================================
+const CHART_COLORS = {
+    primary: '#3498db',
+    danger: '#e74c3c',
+    success: '#2ecc71',
+    muted: '#7f8c8d',
+    primary_rgb: '52, 152, 219',
+    danger_rgb: '231, 76, 60',
+    success_rgb: '46, 204, 113',
+    muted_rgb: '127, 140, 141'
+};
+
+function getChartColor(index) {
+    const customColors = [
+        CHART_COLORS.primary, CHART_COLORS.success, '#f1c40f', '#9b59b6', '#1abc9c', '#e67e22', CHART_COLORS.danger, '#c0392b'
+    ];
+    return customColors[index % customColors.length];
+}
+
+document.addEventListener('DOMContentLoaded', function () {
+    const notaAprobacion = 3.0;
+
+    // --- GRÁFICA DE DONA (Estado) ---
+    const chartStatusCanvas = document.getElementById('chartStatusNew');
+    if (chartStatusCanvas) {
+        new Chart(chartStatusCanvas.getContext('2d'), {
+            type: 'doughnut',
+            data: {
+                labels: ['Ganando', 'Perdiendo'],
+                datasets: [{
+                    data: {{ stats.distribucion_data|safe|default:"[0,0]" }},
+                    backgroundColor: [CHART_COLORS.success, CHART_COLORS.danger],
+                    borderWidth: 2,
+                    borderColor: '#ffffff'
+                }]
+            },
+            options: { responsive: true, cutout: '70%', plugins: { legend: { display: false } } }
+        });
+    }
+
+    // --- GRÁFICA DE BARRAS (Promedio por Materia) ---
+    const chartMateriasCanvas = document.getElementById('chartMateriasNew');
+    if (chartMateriasCanvas) {
+        const rawData = {{ stats.materias_data|safe|default:"[]" }};
+        if(rawData.length > 0) {
+            const bgColors = rawData.map(val => val < 3.5 ? CHART_COLORS.danger : CHART_COLORS.success);
+            new Chart(chartMateriasCanvas.getContext('2d'), {
+                type: 'bar',
+                data: {
+                    labels: {{ stats.materias_labels|safe|default:"[]" }},
+                    datasets: [{
+                        label: 'Promedio',
+                        data: rawData,
+                        backgroundColor: bgColors,
+                        borderRadius: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: { y: { min: 0, max: 5 } },
+                    plugins: { legend: { display: false } }
+                }
+            });
+        }
+    }
+
+    // --- GRÁFICA DE LÍNEA (Progreso Global) ---
+    const globalDataContainer = document.getElementById('globalChartData');
+    if (globalDataContainer) {
+        try {
+            const periodosLabels = JSON.parse(globalDataContainer.dataset.periodos.replace(/None/g, 'null'));
+            const promediosData = JSON.parse(globalDataContainer.dataset.promedios.replace(/None/g, 'null'));
+
+            const datasets = promediosData.map((data, index) => {
+                const color = getChartColor(index);
+                return {
+                    label: data.materia,
+                    data: data.datos,
+                    borderColor: color,
+                    backgroundColor: color + '33', 
+                    borderWidth: 3, 
+                    fill: false, 
+                    tension: 0.4, 
+                    pointRadius: 6, 
+                    pointHoverRadius: 8,
+                    pointBackgroundColor: color,
+                    pointBorderColor: '#fff'
+                };
+            });
+
+            const ctxGlobal = document.getElementById('progresoAcademicoChart').getContext('2d');
+            new Chart(ctxGlobal, {
+                type: 'line',
+                data: { labels: periodosLabels, datasets: datasets },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false, 
+                    interaction: { mode: 'index', intersect: false },
+                    scales: {
+                        y: {
+                            beginAtZero: true, min: 0, max: 5,
+                            title: { display: true, text: 'Promedio', color: CHART_COLORS.primary },
+                            grid: { color: 'rgba(0, 0, 0, 0.05)' }, 
+                            suggestedMin: 0, suggestedMax: 5.5,
+                            afterBuildTicks: function(scale) {
+                                scale.ticks.push({ value: notaAprobacion, label: 'Aprobación (3.0)', major: true });
+                            }
+                        },
+                        x: { title: { display: true, text: 'Periodo', color: CHART_COLORS.primary }, grid: { display: false } }
+                    },
+                    plugins: {
+                        legend: { position: 'top', labels: { usePointStyle: true, padding: 15 } },
+                        tooltip: {
+                            backgroundColor: 'rgba(44, 62, 80, 0.9)', 
+                            titleFont: { weight: 'bold' },
+                            callbacks: {
+                                label: function(context) {
+                                    if (context.parsed.y === null) return context.dataset.label + ': No Registrado';
+                                    return context.dataset.label + ': ' + context.parsed.y.toFixed(2);
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        } catch (e) { console.error("Error al inicializar el gráfico global:", e); }
+    }
+
+    // --- LÓGICA DE ACORDEÓN (Gráficas Individuales) ---
+    const handleCollapseShow = function(e) {
+        const collapseElement = e.target;
+        const chartDataContainers = collapseElement.querySelectorAll('.chart-data');
+        
+        if (chartDataContainers.length > 0) {
+            chartDataContainers.forEach(container => {
+                if (container.dataset.chartInitialized) return;
+
+                const materiaId = container.dataset.materiaId;
+                const periodoId = container.dataset.periodoId;
+                
+                const labelsText = container.querySelector('.chart-labels').textContent.replace(/ /g, '').split(',').filter(l => l.trim() !== '');
+                const dataValues = container.querySelector('.chart-data-values').textContent.split(',')
+                    .map(v => v.trim() === 'None' || v.trim() === 'null' || v.trim() === '' ? null : parseFloat(v))
+                    .filter(v => v !== null && !isNaN(v));
+
+                if (dataValues.length === 0) return;
+
+                const ctx = document.getElementById(`chart-${materiaId}-${periodoId}`).getContext('2d');
+                
+                const backgroundColors = dataValues.map(value => {
+                    if (value === null || isNaN(value)) return 'rgba(189, 195, 199, 0.5)'; 
+                    return value >= notaAprobacion ? CHART_COLORS.primary : CHART_COLORS.danger;
+                });
+
+                new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: labelsText,
+                        datasets: [{
+                            label: 'Calificación',
+                            data: dataValues,
+                            backgroundColor: backgroundColors,
+                            hoverBackgroundColor: backgroundColors.map(c => c + 'CC'), 
+                            borderRadius: 6, borderWidth: 0 
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        scales: {
+                            y: {
+                                beginAtZero: true, max: 5,
+                                title: { display: true, text: 'Calificación', color: CHART_COLORS.primary },
+                                grid: { color: 'rgba(0, 0, 0, 0.05)' },
+                                afterBuildTicks: function(scale) {
+                                    scale.ticks.push({ value: notaAprobacion, label: 'Aprobación (3.0)', major: true });
+                                }
+                            },
+                            x: { grid: { display: false } }
+                        },
+                        plugins: { legend: { display: false } }
+                    }
+                });
+                container.dataset.chartInitialized = 'true';
+            });
+        }
+    };
+
+    document.querySelectorAll('.collapse').forEach(el => el.addEventListener('shown.bs.collapse', handleCollapseShow));
+    document.querySelectorAll('[data-bs-toggle="collapse"]').forEach(toggle => {
+        toggle.addEventListener('click', function() {
+            const icon = this.querySelector('.fas');
+            if (icon) {
+                icon.classList.toggle('fa-chevron-down');
+                icon.classList.toggle('fa-chevron-up');
+            }
+        });
+    });
+});
+
+// ==========================================
+// FUNCIONES DE CONTROL DE IA (CHAT CONTINUO)
+// ==========================================
+
+// Memoria simple del lado del cliente
+let historialChat = [];
+
+async function llamarIA(action, query, params={}) {
+    const modal = new bootstrap.Modal(document.getElementById('modalIA'));
+    const body = document.getElementById('modalBodyIA');
+    
+    // Si se activa con botón, limpiamos el chat
+    if(action) {
+        body.innerHTML = `
+            <div class="text-center py-5" id="loadingInitial">
+                <div class="spinner-border text-primary mb-3" role="status" style="width: 3rem; height: 3rem;"></div>
+                <h5 class="fw-bold text-dark">Analizando datos...</h5>
+            </div>
+        `;
+        historialChat = [];
+    }
+    
+    modal.show();
+
+    try {
+        const payload = { 
+            action_type: action, 
+            query: query, 
+            params: params,
+            historial: historialChat // Enviamos memoria al backend
+        };
+
+        const res = await fetch("{% url 'api_ai_agent' %}", {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-CSRFToken': '{{ csrf_token }}' },
+            body: JSON.stringify(payload)
+        });
+        
+        const data = await res.json();
+        
+        // Quitar loader inicial
+        const loading = document.getElementById('loadingInitial');
+        if(loading) loading.remove();
+
+        if (data.success) {
+            // Guardar contexto
+            if(query) historialChat.push({ role: "user", content: query });
+            historialChat.push({ role: "assistant", content: data.content });
+
+            // Mostrar respuesta
+            body.innerHTML += `
+                <div class="d-flex justify-content-start mb-3 animate__animated animate__fadeIn">
+                    <div class="bg-white border p-3 rounded-3 shadow-sm" style="max-width: 90%;">
+                        <i class="fas fa-robot text-primary me-2"></i>
+                        <div class="markdown-body text-dark" style="font-size: 1.05rem;">
+                            ${marked.parse(data.content)}
+                        </div>
+                    </div>
+                </div>
+            `;
+            body.scrollTop = body.scrollHeight;
+        } else {
+            body.innerHTML += `<div class="alert alert-danger">Error: ${data.content}</div>`;
+        }
+        
+    } catch(e) {
+        console.error(e);
+        body.innerHTML += `<div class="alert alert-danger">Error de conexión.</div>`;
+    }
+}
+
+// Función para enviar respuestas manuales (input)
+async function enviarRespuestaChat() {
+    const input = document.getElementById('chatInputUser');
+    const mensaje = input.value.trim();
+    if (!mensaje) return;
+
+    const body = document.getElementById('modalBodyIA');
+    
+    // UI Optimista
+    body.innerHTML += `
+        <div class="d-flex justify-content-end mb-3 animate__animated animate__fadeIn">
+            <div class="bg-primary text-white p-3 rounded-3 shadow-sm" style="max-width: 80%;">
+                ${mensaje}
+            </div>
+        </div>
+        <div class="text-center my-2" id="loadingChat">
+            <div class="spinner-border spinner-border-sm text-muted"></div>
+        </div>
+    `;
+    body.scrollTop = body.scrollHeight;
+    input.value = '';
+
+    // Llamada al backend (sin action_type, solo query)
+    try {
+        const res = await fetch("{% url 'api_ai_agent' %}", {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-CSRFToken': '{{ csrf_token }}' },
+            body: JSON.stringify({ query: mensaje, historial: historialChat })
+        });
+        
+        const data = await res.json();
+        document.getElementById('loadingChat').remove();
+
+        if (data.success) {
+            historialChat.push({ role: "user", content: mensaje });
+            historialChat.push({ role: "assistant", content: data.content });
+
+            body.innerHTML += `
+                <div class="d-flex justify-content-start mb-3 animate__animated animate__fadeIn">
+                    <div class="bg-white border p-3 rounded-3 shadow-sm" style="max-width: 90%;">
+                        <i class="fas fa-robot text-primary me-2"></i>
+                        <div class="markdown-body text-dark" style="font-size: 1.05rem;">
+                            ${marked.parse(data.content)}
+                        </div>
+                    </div>
+                </div>
+            `;
+            body.scrollTop = body.scrollHeight;
+        }
+    } catch(e) {
+        if(document.getElementById('loadingChat')) document.getElementById('loadingChat').remove();
+    }
+}
+
+// Wrappers
+function activarIA(accion) { llamarIA(accion, ""); }
+function abrirModalPareto() { new bootstrap.Modal(document.getElementById('modalParetoInput')).show(); }
+function ejecutarPareto() {
+    const tema = document.getElementById('inputParetoTema').value;
+    if(!tema) return alert("Escribe un tema.");
+    bootstrap.Modal.getInstance(document.getElementById('modalParetoInput')).hide();
+    llamarIA('est_pareto', tema);
+}
+</script>
+{% endblock %}

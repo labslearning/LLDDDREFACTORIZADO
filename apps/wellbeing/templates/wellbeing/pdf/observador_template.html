@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Observador - {{ estudiante.get_full_name }}</title>
+    <style>
+        /* --- Importar Fuente Profesional 'Roboto' --- */
+        @font-face {
+          font-family: 'Roboto';
+          font-style: normal;
+          font-weight: 300;
+          src: url(https://fonts.gstatic.com/s/roboto/v30/KFOlCnqEu92Fr1MmSU5fBBc9.ttf) format('truetype');
+        }
+        @font-face {
+          font-family: 'Roboto';
+          font-style: normal;
+          font-weight: 500;
+          src: url(https://fonts.gstatic.com/s/roboto/v30/KFOlCnqEu92Fr1MmEU9fBBc9.ttf) format('truetype');
+        }
+        @font-face {
+          font-family: 'Roboto';
+          font-style: normal;
+          font-weight: 700;
+          src: url(https://fonts.gstatic.com/s/roboto/v30/KFOlCnqEu92Fr1MmWUlfBBc9.ttf) format('truetype');
+        }
+
+        @page {
+            size: A4;
+            margin: 1.5cm;
+            @bottom-center {
+                content: "Página " counter(page) " de " counter(pages);
+                font-family: 'Roboto', sans-serif;
+                font-size: 8pt;
+                color: #666;
+            }
+        }
+
+        body {
+            font-family: 'Roboto', 'Arial', sans-serif;
+            font-size: 10pt;
+            color: #212121;
+            line-height: 1.5;
+            font-weight: 300;
+        }
+
+        /* --- ENCABEZADO INSTITUCIONAL --- */
+        header {
+            display: table;
+            width: 100%;
+            border-bottom: 2px solid #003366;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+        .header-left {
+            display: table-cell;
+            width: 90px;
+            vertical-align: middle;
+        }
+        .logo {
+            max-width: 80px;
+            max-height: 80px;
+            object-fit: contain;
+        }
+        .header-right {
+            display: table-cell;
+            text-align: right;
+            vertical-align: top;
+        }
+        .inst-name {
+            font-size: 17pt;
+            font-weight: 700;
+            color: #003366;
+            text-transform: uppercase;
+            margin: 0;
+        }
+        .inst-info {
+            font-size: 8.5pt;
+            color: #424242;
+            margin: 2px 0;
+        }
+
+        /* Título del Documento */
+        .doc-title {
+            text-align: center;
+            background-color: #f5f8fa;
+            padding: 8px;
+            margin: 15px 0;
+            border: 1px solid #003366;
+            font-weight: 500;
+            font-size: 13pt;
+            color: #003366;
+            text-transform: uppercase;
+            border-radius: 4px;
+        }
+
+        /* Datos del Estudiante */
+        .student-info {
+            width: 100%;
+            margin-bottom: 25px;
+            border-collapse: collapse;
+            background-color: #ffffff;
+        }
+        .student-info td {
+            padding: 6px 10px;
+            border-bottom: 1px solid #f0f0f0;
+            font-size: 10pt;
+        }
+        .student-info strong {
+            color: #003366;
+            font-weight: 500;
+            width: 110px;
+            display: inline-block;
+        }
+
+        /* Tarjeta de Observación */
+        .obs-card {
+            border: 1px solid #cccccc;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            page-break-inside: avoid;
+            background-color: #fff;
+            overflow: hidden;
+        }
+
+        .obs-meta {
+            background-color: #f5f8fa;
+            padding: 8px 12px;
+            font-size: 9pt;
+            border-bottom: 1px solid #eeeeee;
+            color: #333;
+            font-weight: 500;
+        }
+        .obs-meta span {
+            color: #003366;
+        }
+
+        .obs-body {
+            padding: 15px;
+        }
+
+        .obs-label {
+            color: #003366;
+            font-weight: 700;
+            font-size: 8pt;
+            display: block;
+            margin-top: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .obs-text {
+            margin-bottom: 12px;
+            text-align: justify;
+            font-size: 10pt;
+            color: #212121;
+        }
+
+        .obs-commitments {
+            margin-top: 12px;
+            background-color: #fafafa;
+            padding: 12px;
+            border-radius: 6px;
+            border-left: 4px solid #003366;
+        }
+
+        /* Firma dentro de la tarjeta */
+        .firma-container {
+            margin-top: 5px;
+            text-align: right;
+            padding: 10px 15px;
+            background-color: #fdfdfd;
+            border-top: 1px solid #f0f0f0;
+        }
+        .firma-nombre {
+            font-size: 10.5pt;
+            font-weight: 700;
+            color: #003366;
+            display: block;
+        }
+        .firma-cargo {
+            font-size: 8.5pt;
+            color: #616161;
+            font-style: italic;
+        }
+        
+        .no-records {
+            text-align: center;
+            color: #9e9e9e;
+            margin-top: 80px;
+            font-style: italic;
+            font-size: 11pt;
+        }
+
+        /* Marca de Agua */
+        .watermark {
+            position: fixed;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%) rotate(-45deg);
+            opacity: 0.05;
+            z-index: -1000;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="watermark">
+        <img src="https://res.cloudinary.com/dukiyxfvn/image/upload/v1768668244/WhatsApp_Image_2026-01-11_at_4.25.52_PM_p8aicp.jpg" width="400">
+    </div>
+
+    <header>
+        <div class="header-left">
+            <img src="https://res.cloudinary.com/dukiyxfvn/image/upload/v1768668244/WhatsApp_Image_2026-01-11_at_4.25.52_PM_p8aicp.jpg" class="logo" alt="Logo">
+        </div>
+        <div class="header-right">
+            <h1 class="inst-name">LEARNING LABS</h1>
+            <p class="inst-info">"Somos la evolución de la educación"</p>
+            <p class="inst-info">
+                <strong>NIT:</strong> 900.555.5555 | <strong>Resolución:</strong> 78965412
+            </p>
+            <p class="inst-info">Cra 14 a 5 a 14, Chia - Cundinamarca | Tel: 3132533008</p>
+        </div>
+    </header>
+
+    <div class="doc-title">Observador Integral del Estudiante</div>
+
+    <table class="student-info">
+        <tr>
+            <td><strong>ESTUDIANTE:</strong> {{ estudiante.get_full_name|upper }}</td>
+            <td>
+                <strong>DOCUMENTO:</strong> 
+                {% if estudiante.perfil.numero_documento %}
+                    {{ estudiante.perfil.numero_documento }}
+                {% else %}
+                    {{ estudiante.username }}
+                {% endif %}
+            </td>
+        </tr>
+        <tr>
+            <td><strong>CURSO:</strong> {{ curso.nombre|default:"Sin curso asignado" }}</td>
+            <td><strong>FECHA REPORTE:</strong> {{ fecha_impresion|date:"d/m/Y" }}</td>
+        </tr>
+    </table>
+
+    {% for obs in observaciones %}
+    <div class="obs-card">
+        <div class="obs-meta">
+            REGISTRO DE FECHA: <span>{{ obs.fecha_creacion|date:"d/m/Y" }}</span> | 
+            PERIODO: <span>{{ obs.periodo.nombre }}</span> | 
+            TIPO: <span>{{ obs.get_tipo_display|upper }}</span>
+        </div>
+        
+        <div class="obs-body">
+            <span class="obs-label">Descripción de la Situación:</span>
+            <div class="obs-text">{{ obs.descripcion|linebreaksbr }}</div>
+
+            {% if obs.compromisos_estudiante or obs.compromisos_familia %}
+            <div class="obs-commitments">
+                {% if obs.compromisos_estudiante %}
+                    <span class="obs-label">Compromiso del Estudiante:</span>
+                    <div class="obs-text">{{ obs.compromisos_estudiante|linebreaksbr }}</div>
+                {% endif %}
+                
+                {% if obs.compromisos_familia %}
+                    <span class="obs-label">Compromiso de la Familia / Acudiente:</span>
+                    <div class="obs-text">{{ obs.compromisos_familia|linebreaksbr }}</div>
+                {% endif %}
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="firma-container">
+            <span class="firma-nombre">{{ obs.autor.get_full_name }}</span>
+            <span class="firma-cargo">{{ obs.autor.perfil.get_rol_display }}</span>
+        </div>
+    </div>
+    {% empty %}
+        <div class="no-records">
+            <p>No se encuentran registros de observaciones en el historial académico y convivencial de este estudiante hasta la fecha.</p>
+        </div>
+    {% endfor %}
+
+</body>
+</html>

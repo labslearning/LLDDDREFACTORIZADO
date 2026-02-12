@@ -1,0 +1,217 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container-fluid py-4" style="background-color: #f4f6f9; min-height: 90vh;">
+    <div class="row justify-content-center">
+        <div class="col-lg-10 col-xl-8">
+            
+            <div class="card border-0 shadow-sm mb-3 bg-white rounded-4 overflow-hidden">
+                <div class="card-body p-4 d-flex align-items-center">
+                    <div class="position-relative me-4">
+                        <div class="bg-gradient-primary text-white rounded-circle d-flex align-items-center justify-content-center shadow-lg" 
+                             style="width: 70px; height: 70px; background: linear-gradient(135deg, #0d6efd, #0043a8);">
+                            <i class="fas fa-graduation-cap fa-2x"></i>
+                        </div>
+                        <span class="position-absolute bottom-0 start-100 translate-middle p-2 bg-success border border-light rounded-circle">
+                            <span class="visually-hidden">Online</span>
+                        </span>
+                    </div>
+                    <div>
+                        <h4 class="fw-bold text-dark mb-1">Mentoría Pedagógica Institucional</h4>
+                        <div class="d-flex align-items-center text-muted small">
+                            <i class="fas fa-shield-alt me-1 text-primary"></i>
+                            <span>Conectado al PEI y tu Historial Académico</span>
+                            <span class="mx-2">•</span>
+                            <span>Modelo Socrático Constructivista</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card border-0 shadow-lg rounded-4 overflow-hidden" style="height: 65vh;">
+                <div class="card-body p-0 d-flex flex-column h-100 bg-white">
+                    
+                    <div id="chat-box" class="flex-grow-1 p-4 overflow-auto custom-scrollbar">
+                        
+                        <div class="d-flex justify-content-start mb-4 animate__animated animate__fadeIn">
+                            <div class="flex-shrink-0 me-3">
+                                <div class="bg-light text-primary rounded-circle d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                                    <i class="fas fa-robot"></i>
+                                </div>
+                            </div>
+                            <div class="bg-light p-4 rounded-3 shadow-sm border-start border-4 border-primary" style="max-width: 85%;">
+                                <h6 class="fw-bold text-primary mb-2">¡Hola, {{ request.user.first_name }}! 👋</h6>
+                                <p class="mb-0 text-secondary">
+                                    Soy tu tutor personal. He revisado tus notas y observaciones. 
+                                    ¿En qué tema te gustaría profundizar hoy? Puedo ayudarte a preparar un examen, 
+                                    entender un concepto difícil o mejorar tu promedio.
+                                </p>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div id="typing-indicator" class="px-4 py-2 text-muted small fst-italic" style="display: none;">
+                        <i class="fas fa-circle-notch fa-spin me-2 text-primary"></i> El mentor está analizando tus datos...
+                    </div>
+
+                    <div class="p-3 bg-light border-top">
+                        <form id="chat-form" class="position-relative">
+                            <div class="input-group">
+                                <input type="text" id="user-input" 
+                                       class="form-control form-control-lg border-0 shadow-sm rounded-pill py-3 px-4" 
+                                       placeholder="Escribe tu pregunta aquí (ej: No entiendo la aceleración...)" 
+                                       autocomplete="off" required
+                                       style="background: white; padding-right: 60px;">
+                                
+                                <button type="submit" class="btn btn-primary rounded-circle position-absolute end-0 top-50 translate-middle-y me-2 shadow-sm" 
+                                        style="width: 45px; height: 45px; z-index: 5;">
+                                    <i class="fas fa-paper-plane"></i>
+                                </button>
+                            </div>
+                            <div class="text-center mt-2">
+                                <small class="text-muted" style="font-size: 0.75rem;">
+                                    <i class="fas fa-lock me-1"></i> Tus preguntas son privadas y pedagógicas.
+                                </small>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+<style>
+    /* Scrollbar elegante */
+    .custom-scrollbar::-webkit-scrollbar { width: 8px; }
+    .custom-scrollbar::-webkit-scrollbar-track { background: #f1f1f1; }
+    .custom-scrollbar::-webkit-scrollbar-thumb { background: #c1c1c1; border-radius: 4px; }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #a8a8a8; }
+
+    /* Burbujas de Chat */
+    .bubble-user {
+        background: linear-gradient(135deg, #0d6efd, #0b5ed7);
+        color: white;
+        border-radius: 20px 20px 0 20px;
+        box-shadow: 0 4px 10px rgba(13, 110, 253, 0.2);
+    }
+    
+    .bubble-ai {
+        background-color: #f8f9fa;
+        color: #2c3e50;
+        border-radius: 20px 20px 20px 0;
+        border: 1px solid #e9ecef;
+    }
+
+    /* Markdown Styles (Para que el texto académico se vea bien) */
+    .markdown-body h1, .markdown-body h2, .markdown-body h3 {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: #0d6efd;
+        margin-top: 1rem;
+    }
+    .markdown-body ul { padding-left: 1.2rem; margin-bottom: 0.5rem; }
+    .markdown-body p { margin-bottom: 0.8rem; line-height: 1.6; }
+    .markdown-body strong { color: #212529; font-weight: 600; }
+    .markdown-body blockquote {
+        border-left: 4px solid #0d6efd;
+        background: #eef4ff;
+        padding: 0.5rem 1rem;
+        border-radius: 4px;
+        font-style: italic;
+    }
+</style>
+
+<script>
+    const chatBox = document.getElementById('chat-box');
+    const chatForm = document.getElementById('chat-form');
+    const userInput = document.getElementById('user-input');
+    const typingIndicator = document.getElementById('typing-indicator');
+
+    function appendMessage(role, text) {
+        const wrapper = document.createElement('div');
+        wrapper.className = `d-flex justify-content-${role === 'user' ? 'end' : 'start'} mb-4 animate__animated animate__fadeInUp`;
+        
+        let content = '';
+
+        if (role === 'user') {
+            // DISEÑO USUARIO
+            content = `
+                <div class="bubble-user p-3 px-4" style="max-width: 75%;">
+                    <p class="mb-0">${text}</p>
+                </div>
+            `;
+        } else {
+            // DISEÑO MENTOR IA
+            // Convertimos Markdown a HTML
+            const htmlText = marked.parse(text);
+            content = `
+                <div class="flex-shrink-0 me-3">
+                    <div class="bg-white border text-primary rounded-circle d-flex align-items-center justify-content-center shadow-sm" style="width: 35px; height: 35px;">
+                        <i class="fas fa-graduation-cap"></i>
+                    </div>
+                </div>
+                <div class="bubble-ai p-4 shadow-sm" style="max-width: 85%;">
+                    <div class="markdown-body text-dark">
+                        ${htmlText}
+                    </div>
+                    <div class="mt-2 text-end">
+                        <small class="text-muted" style="font-size: 0.7rem;">Asistente Institucional • ${new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</small>
+                    </div>
+                </div>
+            `;
+        }
+
+        wrapper.innerHTML = content;
+        chatBox.appendChild(wrapper);
+        chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    chatForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const text = userInput.value.trim();
+        if (!text) return;
+
+        // 1. Poner mensaje usuario
+        appendMessage('user', text);
+        userInput.value = '';
+        userInput.focus();
+
+        // 2. Mostrar indicador de carga
+        typingIndicator.style.display = 'block';
+        chatBox.scrollTop = chatBox.scrollHeight;
+
+        try {
+            // 3. Petición AJAX al Motor (La misma ruta que arreglamos antes)
+            const url = `{% url 'ai_engine' %}?action=chat_socratico&user_query=${encodeURIComponent(text)}&format=json`;
+            
+            const response = await fetch(url, {
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Accept': 'application/json'
+                }
+            });
+
+            const data = await response.json();
+            
+            // 4. Ocultar indicador y mostrar respuesta
+            typingIndicator.style.display = 'none';
+
+            if (data.success) {
+                appendMessage('ai', data.content);
+            } else {
+                appendMessage('ai', `**Error del sistema:** ${data.content}`);
+            }
+
+        } catch (error) {
+            typingIndicator.style.display = 'none';
+            appendMessage('ai', `**Error de conexión:** No pude contactar con el servidor. Intenta de nuevo.`);
+            console.error(error);
+        }
+    });
+</script>
+{% endblock %}

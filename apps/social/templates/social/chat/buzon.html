@@ -1,0 +1,551 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load humanize %} 
+
+{% block content %}
+<style>
+    :root {
+        --inbox-bg: #f4f7fa;
+        --inbox-item-hover: #f8f9fa;
+        --inbox-unread-bg: #ffffff;
+        --inbox-read-bg: #fcfcfc;
+        --inbox-primary: var(--edu-primary); /* Usando variable global si existe, o fallback */
+        --inbox-text-secondary: #6c757d;
+        --inbox-border-color: #f0f0f0;
+    }
+
+    /* Contenedor principal */
+    .inbox-container {
+        max-width: 1100px;
+        margin: 0 auto;
+    }
+
+    /* Avatar Generado con Gradiente */
+    .chat-avatar {
+        width: 48px;
+        height: 48px;
+        background: linear-gradient(135deg, var(--inbox-primary, #4361ee), #667eea);
+        color: white;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 1.25rem;
+        text-transform: uppercase;
+        flex-shrink: 0;
+        box-shadow: 0 4px 6px -1px rgba(67, 97, 238, 0.2);
+        border: 2px solid white; /* Borde blanco para resaltar sobre fondos */
+    }
+    
+    /* Avatar diferente para enviados */
+    .chat-avatar.sent-avatar {
+        background: linear-gradient(135deg, #10b981, #34d399); /* Verde Esmeralda */
+        box-shadow: 0 4px 6px -1px rgba(16, 185, 129, 0.2);
+    }
+    
+    /* Nuevo estilo para Avatar Masivo */
+    .chat-avatar.masivo-icon { 
+        background: linear-gradient(135deg, #f59e0b, #facc15); /* Naranja/Amarillo para Masivo */
+        box-shadow: 0 4px 6px -1px rgba(245, 158, 11, 0.2); 
+    }
+
+    /* Item de Mensaje */
+    .message-item {
+        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        border-left: 4px solid transparent; /* Borde izquierdo para estado */
+        padding: 1.25rem 1.5rem;
+        border-bottom: 1px solid var(--inbox-border-color);
+        text-decoration: none; /* Asegurar que no subraye todo */
+        background-color: white; /* Fondo base */
+        display: block; /* Para que ocupe todo el ancho */
+    }
+    
+    .message-item:last-child {
+        border-bottom: none;
+        border-bottom-left-radius: 1rem; /* Redondear esquinas inferiores */
+        border-bottom-right-radius: 1rem;
+    }
+    
+     .message-item:first-child {
+        border-top-left-radius: 0; /* Resetear si es necesario por el header */
+        border-top-right-radius: 0;
+    }
+
+
+    .message-item:hover {
+        background-color: var(--inbox-item-hover);
+        transform: translateY(-2px); /* Efecto de elevación sutil */
+        z-index: 1;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05); /* Sombra al pasar el mouse */
+        border-left-color: rgba(var(--inbox-primary-rgb), 0.3); /* Color sutil en hover si no es unread */
+    }
+
+    /* Estados Leído / No Leído (Solo aplica a recibidos realmente) */
+    .message-item.unread {
+        background-color: var(--inbox-unread-bg);
+        border-left-color: var(--inbox-primary, #4361ee); /* Indicador visual fuerte */
+        background-image: linear-gradient(to right, rgba(67, 97, 238, 0.02), transparent); /* Sutil gradiente */
+    }
+    
+    .message-item.unread .msg-subject {
+        font-weight: 700;
+        color: #1a1a1a;
+    }
+    
+    .message-item.unread .msg-preview {
+        color: #2d3748; /* Texto más oscuro para no leídos */
+        font-weight: 500;
+    }
+
+
+    .message-item.read {
+        background-color: var(--inbox-read-bg);
+        opacity: 0.98; /* Ligera transparencia */
+    }
+    
+    .message-item.read .msg-subject {
+        font-weight: 500;
+        color: #4a4a4a;
+    }
+    
+    .message-item.read .chat-avatar {
+         filter: grayscale(20%); /* Desaturar un poco el avatar en leídos */
+         opacity: 0.9;
+    }
+
+
+    /* Badges de Roles - Estilos Refinados */
+    .role-badge {
+        font-size: 0.65rem;
+        padding: 4px 10px;
+        border-radius: 20px;
+        font-weight: 700;
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
+        margin-left: 8px;
+        vertical-align: middle;
+        border: 1px solid transparent;
+        display: inline-block;
+    }
+    /* Colores específicos para cada rol */
+    .role-PSICOLOGO { background-color: #f3e8ff; color: #7e22ce; border-color: #d8b4fe; } /* Violeta */
+    .role-COORD_CONVIVENCIA { background-color: #fff7ed; color: #c2410c; border-color: #fdba74; } /* Naranja */
+    .role-COORD_ACADEMICO { background-color: #ecfccb; color: #4d7c0f; border-color: #bef264; } /* Lima */
+    .role-DOCENTE { background-color: #dcfce7; color: #15803d; border-color: #86efac; } /* Verde */
+    .role-ADMINISTRADOR { background-color: #fee2e2; color: #b91c1c; border-color: #fca5a5; } /* Rojo */
+    .role-ESTUDIANTE { background-color: #e0f2fe; color: #0369a1; border-color: #7dd3fc; } /* Azul Cielo */
+    .role-ACUDIENTE { background-color: #f3f4f6; color: #4b5563; border-color: #d1d5db; } /* Gris */
+
+
+    /* Buscador Estilizado */
+    .search-input-group {
+        position: relative;
+        width: 100%;
+    }
+    .search-input-group i {
+        position: absolute;
+        left: 18px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #94a3b8;
+        font-size: 1rem;
+        transition: color 0.2s;
+    }
+    .search-input {
+        padding-left: 45px;
+        padding-right: 20px;
+        height: 48px;
+        border-radius: 50px;
+        border: 2px solid #e2e8f0;
+        background-color: white;
+        transition: all 0.3s ease;
+        font-size: 0.95rem;
+        width: 100%;
+    }
+    .search-input:focus {
+        box-shadow: 0 4px 12px rgba(67, 97, 238, 0.08);
+        border-color: var(--inbox-primary, #4361ee);
+        outline: none;
+    }
+    .search-input:focus + i {
+        color: var(--inbox-primary, #4361ee); /* Icono cambia de color al enfocar */
+    }
+
+
+    /* Filtros (Tabs) - Diseño Moderno */
+    .inbox-filters {
+        gap: 10px; /* Espacio entre tabs */
+    }
+    .inbox-filters .nav-link {
+        color: var(--inbox-text-secondary) !important;
+        font-weight: 600;
+        border: none; /* Sin bordes default */
+        padding: 10px 20px;
+        border-radius: 30px; /* Tabs totalmente redondeados */
+        cursor: pointer;
+        transition: all 0.2s ease;
+        background-color: #f8f9fa; /* Fondo gris muy claro por defecto */
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        font-size: 0.95rem;
+    }
+    
+    .inbox-filters .nav-link:hover {
+        background-color: #e9ecef;
+        color: #212529 !important;
+        transform: translateY(-1px);
+    }
+
+    /* Estado Activo de Tabs */
+    .inbox-filters .nav-link.active {
+        background-color: var(--inbox-primary, #4361ee) !important;
+        color: white !important;
+        box-shadow: 0 4px 10px rgba(67, 97, 238, 0.3); /* Sombra coloreada */
+    }
+    
+    /* Iconos en tabs activos */
+    .inbox-filters .nav-link.active i {
+        color: white !important;
+    }
+    
+    /* Ajuste para el badge dentro del tab activo */
+    .inbox-filters .nav-link .badge {
+        background-color: #ef4444; /* Rojo brillante */
+        color: white;
+        font-size: 0.75rem;
+        padding: 0.35em 0.65em;
+    }
+    .inbox-filters .nav-link.active .badge {
+        background-color: white !important;
+        color: var(--inbox-primary, #4361ee) !important; /* Texto del color primario */
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    
+    /* Botón de Filtro "Solo no leídos" */
+    .filter-unread-btn {
+        border: 2px solid #e2e8f0 !important;
+        background: transparent !important;
+    }
+    .filter-unread-btn.active {
+        background-color: #334155 !important; /* Gris oscuro/Azul noche */
+        border-color: #334155 !important;
+        color: white !important;
+        box-shadow: 0 4px 10px rgba(51, 65, 85, 0.3);
+    }
+
+    /* Textos y Detalles */
+    .msg-preview {
+        color: #64748b;
+        font-size: 0.9rem;
+        line-height: 1.4;
+        display: -webkit-box;
+        -webkit-line-clamp: 1; /* Limitar a 1 línea */
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    
+    .msg-meta-info {
+        font-size: 0.8rem;
+        color: #94a3b8;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        white-space: nowrap;
+    }
+    
+    /* Botón Redactar Flotante en Móvil (Opcional, estilo FAB) */
+    @media (max-width: 768px) {
+        .btn-compose-responsive {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 100;
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            padding: 0;
+        }
+        .btn-compose-responsive span { display: none; }
+        .btn-compose-responsive i { font-size: 1.5rem; margin: 0; }
+    }
+</style>
+
+<div class="container py-5 animate__animated animate__fadeIn inbox-container">
+    
+    <div class="row align-items-center mb-4 gy-3">
+        <div class="col-md-4">
+            <h2 class="fw-bold mb-1 text-dark d-flex align-items-center">
+                {% if tipo_bandeja == 'enviados' %}
+                    <div class="bg-success bg-opacity-10 p-2 rounded-3 me-3 d-inline-flex align-items-center justify-content-center" style="width: 48px; height: 48px;">
+                        <i class="fas fa-paper-plane text-success"></i>
+                    </div>
+                    Enviados
+                {% else %}
+                     <div class="bg-primary bg-opacity-10 p-2 rounded-3 me-3 d-inline-flex align-items-center justify-content-center" style="width: 48px; height: 48px;">
+                        <i class="fas fa-inbox text-primary"></i>
+                    </div>
+                    Buzón
+                {% endif %}
+            </h2>
+            <p class="text-muted small mb-0 ms-1 ps-5">{{ titulo_bandeja }}</p>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="search-input-group">
+                <input type="text" id="messageSearch" class="form-control search-input" placeholder="Buscar por nombre, asunto...">
+                <i class="fas fa-search"></i>
+            </div>
+        </div>
+        
+        <div class="col-md-4 text-md-end">
+            <a href="{% url 'enviar_mensaje' %}" class="btn btn-primary shadow-sm px-4 py-2 rounded-pill fw-bold btn-compose-responsive transition-hover">
+                <i class="fas fa-plus me-2"></i> <span>Redactar Mensaje</span>
+            </a>
+        </div>
+    </div>
+
+    <div class="card border-0 shadow-lg overflow-hidden rounded-4 bg-white" style="min-height: 500px;">
+        
+        <div class="card-header bg-white border-bottom px-4 py-3">
+            <ul class="nav inbox-filters align-items-center">
+                <li class="nav-item">
+                    <a class="nav-link {% if tipo_bandeja == 'recibidos' %}active{% endif %}" href="?tipo=recibidos">
+                        <i class="fas fa-inbox me-2"></i> Recibidos
+                        {% if mensajes_no_leidos_count > 0 %}
+                        <span class="badge rounded-pill ms-2 animate__animated animate__pulse animate__infinite">{{ mensajes_no_leidos_count }}</span>
+                        {% endif %}
+                    </a>
+                </li>
+                
+                <li class="nav-item">
+                    <a class="nav-link {% if tipo_bandeja == 'enviados' %}active{% endif %}" href="?tipo=enviados">
+                        <i class="fas fa-paper-plane me-2"></i> Enviados
+                    </a>
+                </li>
+
+                {% if tipo_bandeja == 'recibidos' %}
+                <li class="nav-item ms-auto">
+                    <a class="nav-link filter-unread-btn" onclick="toggleUnreadFilter(this)">
+                        <i class="far fa-eye me-2"></i> Solo no leídos
+                    </a>
+                </li>
+                {% endif %}
+            </ul>
+        </div>
+
+        <div class="list-group list-group-flush" id="messageList">
+            {% for msg in mensajes %}
+                
+                {% if tipo_bandeja == 'enviados' %}
+                    {% if msg.destinatarios_count > 1 %}
+                        <a href="{% url 'leer_mensaje' msg.referencia_id %}" 
+                           class="message-item d-flex align-items-center gap-3 read" 
+                           data-user="Envío Masivo" 
+                           data-subject="{{ msg.asunto }}" 
+                           data-status="read">
+                           
+                           <div class="chat-avatar masivo-icon"><i class="fas fa-users"></i></div> 
+                           
+                           <div class="flex-grow-1 min-width-0">
+                               <div class="d-flex justify-content-between align-items-center">
+                                   <div class="fw-bold text-warning">
+                                       <i class="fas fa-broadcast-tower me-1"></i> 
+                                       Para {{ msg.destinatarios_count }} destinatario(s)
+                                   </div>
+                                   <div class="msg-meta-info">
+                                       {{ msg.fecha_envio|naturaltime }}
+                                       <i class="fas fa-check-double text-success"></i>
+                                   </div>
+                               </div>
+                               <div class="msg-subject text-dark">{{ msg.asunto }}</div>
+                               <div class="msg-preview">{{ msg.cuerpo|truncatechars:70 }}</div>
+                           </div>
+                        </a>
+                    {% else %}
+                        {% with usuario_visual=msg.ultimo_destinatario_obj estado_clase="read" %}
+                            <a href="{% url 'leer_mensaje' msg.referencia_id %}" 
+                               class="message-item d-flex align-items-center gap-3 {{ estado_clase }}" 
+                               data-user="{{ usuario_visual.get_full_name|default:'[Usuario]' }}" 
+                               data-subject="{{ msg.asunto }}" 
+                               data-status="{{ estado_clase }}">
+                               
+                                <div class="chat-avatar sent-avatar">
+                                     {% if usuario_visual.perfil.foto_perfil %}
+                                        <img src="{{ usuario_visual.perfil.foto_perfil.url }}" class="w-100 h-100 rounded-2" style="object-fit: cover;">
+                                     {% else %}
+                                        {{ usuario_visual.first_name|slice:":1"|default:usuario_visual.username|slice:":1"|upper }}
+                                     {% endif %}
+                                </div>
+                                
+                                <div class="flex-grow-1 min-width-0">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div class="fw-bold">
+                                            Para: {{ usuario_visual.get_full_name|default:usuario_visual.username }}
+                                            <span class="role-badge role-{{ usuario_visual.perfil.rol }}">{{ usuario_visual.perfil.get_rol_display }}</span>
+                                        </div>
+                                        <div class="msg-meta-info">
+                                            {{ msg.fecha_envio|naturaltime }}
+                                            <i class="fas fa-check-double text-success"></i>
+                                        </div>
+                                    </div>
+                                    <div class="msg-subject text-dark">{{ msg.asunto }}</div>
+                                    <div class="msg-preview">{{ msg.cuerpo|truncatechars:70 }}</div>
+                                </div>
+                            </a>
+                        {% endwith %}
+                    {% endif %}
+                
+                {% else %}
+                    {% with usuario_visual=msg.remitente estado_clase=msg.leido|yesno:"read,unread" %}
+                        <a href="{% url 'leer_mensaje' msg.id %}" 
+                           class="message-item d-flex align-items-center gap-3 {{ estado_clase }}" 
+                           data-user="{{ usuario_visual.get_full_name|default:'[Usuario]' }}" 
+                           data-subject="{{ msg.asunto }}" 
+                           data-status="{{ estado_clase }}">
+                           
+                           <div class="chat-avatar">
+                                {% if usuario_visual.perfil.foto_perfil %}
+                                    <img src="{{ usuario_visual.perfil.foto_perfil.url }}" class="w-100 h-100 rounded-2" style="object-fit: cover;">
+                                {% else %}
+                                    {{ usuario_visual.first_name|slice:":1"|default:usuario_visual.username|slice:":1"|upper }}
+                                {% endif %}
+                           </div>
+                           
+                           <div class="flex-grow-1 min-width-0">
+                               <div class="d-flex justify-content-between align-items-center">
+                                   <div class="fw-bold">
+                                       De: {{ usuario_visual.get_full_name|default:usuario_visual.username }}
+                                       <span class="role-badge role-{{ usuario_visual.perfil.rol }}">{{ usuario_visual.perfil.get_rol_display }}</span>
+                                   </div>
+                                   <div class="msg-meta-info">
+                                       {{ msg.fecha_envio|naturaltime }}
+                                       {% if estado_clase == 'unread' %}<i class="fas fa-circle" style="font-size: 8px; color: var(--inbox-primary);"></i>{% endif %}
+                                   </div>
+                               </div>
+                               <div class="msg-subject text-dark">{{ msg.asunto }}</div>
+                               <div class="msg-preview">{{ msg.cuerpo|truncatechars:70 }}</div>
+                           </div>
+                        </a>
+                    {% endwith %}
+
+                {% endif %}
+
+            {% empty %}
+                <div class="text-center py-5 my-5">
+                    <div class="mb-4 animate__animated animate__bounceIn">
+                        <div class="bg-light rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 140px; height: 140px; background-color: #f8f9fa;">
+                            {% if tipo_bandeja == 'enviados' %}
+                                <i class="fas fa-paper-plane fa-5x text-success opacity-25"></i>
+                            {% else %}
+                                <i class="fas fa-inbox fa-5x text-primary opacity-25"></i>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <h4 class="fw-bold text-dark mb-2">
+                        {% if tipo_bandeja == 'enviados' %}
+                            Aún no has enviado mensajes
+                        {% else %}
+                            ¡Estás al día!
+                        {% endif %}
+                    </h4>
+                    <p class="text-muted mb-4" style="max-width: 400px; margin: 0 auto;">
+                        {% if tipo_bandeja == 'enviados' %}
+                            Tus comunicaciones enviadas a profesores, estudiantes o acudientes aparecerán aquí.
+                        {% else %}
+                            No tienes mensajes nuevos en tu bandeja de entrada. Revisa más tarde.
+                        {% endif %}
+                    </p>
+                    {% if tipo_bandeja == 'enviados' %}
+                        <a href="{% url 'enviar_mensaje' %}" class="btn btn-outline-success rounded-pill px-4">Comenzar a escribir</a>
+                    {% endif %}
+                </div>
+            {% endfor %}
+            
+            <div id="noSearchResults" class="text-center py-5 d-none">
+                <div class="mb-3">
+                     <i class="fas fa-search fa-3x text-secondary opacity-50"></i>
+                </div>
+                <h5 class="text-secondary">No se encontraron mensajes</h5>
+                <p class="text-muted small">Intenta buscar con otros términos o nombres.</p>
+                <button class="btn btn-link text-decoration-none" onclick="clearSearch()">Limpiar búsqueda</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const searchInput = document.getElementById('messageSearch');
+    const messageItems = document.querySelectorAll('.message-item');
+    const noResultsMsg = document.getElementById('noSearchResults');
+    let showingOnlyUnread = false;
+
+    // Búsqueda en tiempo real
+    searchInput.addEventListener('keyup', function(e) {
+        applyFilters();
+    });
+    
+    // Función para limpiar búsqueda (Botón en empty state)
+    function clearSearch() {
+        searchInput.value = '';
+        applyFilters();
+        searchInput.focus();
+    }
+
+    // Toggle filtro no leídos con feedback visual
+    function toggleUnreadFilter(btn) {
+        showingOnlyUnread = !showingOnlyUnread;
+        
+        btn.style.transform = "scale(0.95)";
+        setTimeout(() => btn.style.transform = "scale(1)", 150);
+
+        if (showingOnlyUnread) {
+            btn.classList.add('active');
+            btn.innerHTML = '<i class="fas fa-filter me-2"></i> Mostrando no leídos';
+        } else {
+            btn.classList.remove('active');
+            btn.innerHTML = '<i class="far fa-eye me-2"></i> Solo no leídos';
+        }
+        applyFilters();
+    }
+
+    // Lógica de filtrado combinada (Búsqueda + Estado)
+    function applyFilters() {
+        const searchTerm = searchInput.value.toLowerCase().trim();
+        let visibleCount = 0;
+
+        messageItems.forEach(item => {
+            const user = item.getAttribute('data-user') ? item.getAttribute('data-user').toLowerCase() : '';
+            const subject = item.getAttribute('data-subject') ? item.getAttribute('data-subject').toLowerCase() : '';
+            const status = item.getAttribute('data-status'); // 'read' o 'unread'
+            
+            const matchesSearch = user.includes(searchTerm) || subject.includes(searchTerm);
+            const matchesUnread = !showingOnlyUnread || (showingOnlyUnread && status === 'unread');
+
+            if (matchesSearch && matchesUnread) {
+                item.classList.remove('d-none');
+                item.classList.add('animate__animated', 'animate__fadeIn'); 
+                visibleCount++;
+            } else {
+                item.classList.add('d-none');
+                item.classList.remove('animate__animated', 'animate__fadeIn');
+            }
+        });
+
+        if (visibleCount === 0 && messageItems.length > 0) {
+            noResultsMsg.classList.remove('d-none');
+            noResultsMsg.classList.add('animate__animated', 'animate__fadeInUp');
+        } else {
+            noResultsMsg.classList.add('d-none');
+            noResultsMsg.classList.remove('animate__animated', 'animate__fadeInUp');
+        }
+    }
+</script>
+
+{% endblock %}

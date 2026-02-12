@@ -1,0 +1,287 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<style>
+    /* Estilos Específicos para Dashboard Industrial */
+    .avatar-xs { width: 32px; height: 32px; font-size: 0.8rem; }
+    .fw-medium { font-weight: 500; }
+    .font-mono { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace; letter-spacing: -0.5px; }
+    .table-card { box-shadow: 0 0.75rem 1.5rem rgba(18,38,63,.03); border: 1px solid #edf2f9; }
+    .hover-actions { opacity: 0; transition: opacity 0.2s; }
+    tr:hover .hover-actions { opacity: 1; }
+    .status-dot { height: 8px; width: 8px; border-radius: 50%; display: inline-block; margin-right: 6px; }
+    .cursor-pointer { cursor: pointer; }
+    
+    /* Paleta Suave (Soft UI) */
+    .bg-soft-primary { background-color: rgba(59, 125, 221, 0.1); color: #3b7ddd; }
+    .bg-soft-success { background-color: rgba(28, 187, 140, 0.1); color: #1cbb8c; }
+    .bg-soft-danger { background-color: rgba(220, 53, 69, 0.1); color: #dc3545; }
+    .bg-soft-warning { background-color: rgba(252, 185, 44, 0.1); color: #fcb92c; }
+    .bg-soft-dark { background-color: rgba(30, 33, 37, 0.1); color: #495057; }
+    
+    /* Animación de Pulso para estados activos */
+    @keyframes pulse-ring {
+        0% { box-shadow: 0 0 0 0 rgba(59, 125, 221, 0.4); }
+        70% { box-shadow: 0 0 0 6px rgba(59, 125, 221, 0); }
+        100% { box-shadow: 0 0 0 0 rgba(59, 125, 221, 0); }
+    }
+    .pulse-active { animation: pulse-ring 2s infinite; border-radius: 50%; }
+</style>
+
+<div class="container-fluid p-4 bg-light min-vh-100">
+    
+    <div class="row align-items-center mb-4">
+        <div class="col-md-6">
+            <h1 class="h3 mb-1 text-gray-800 fw-bold">Auditoría de Datos</h1>
+            <p class="text-muted small mb-0">
+                <i class="fas fa-shield-alt me-1 text-success"></i> Sistema de Bitácora Inmutable v3.0
+            </p>
+        </div>
+        <div class="col-md-6">
+            <div class="d-flex flex-wrap align-items-center justify-content-end gap-2">
+                <div class="input-group input-group-sm shadow-sm" style="max-width: 250px;">
+                    <span class="input-group-text bg-white border-end-0 ps-3"><i class="fas fa-search text-muted"></i></span>
+                    <input type="text" class="form-control border-start-0 ps-0" placeholder="Buscar por Lote o Usuario...">
+                </div>
+                
+                <a href="{% url 'import_upload' %}" class="btn btn-primary btn-sm px-4 rounded-pill shadow-sm fw-medium hover-elevate">
+                    <i class="fas fa-plus me-1"></i> Nueva Carga
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="card table-card rounded-4 border-0 mb-4 bg-white">
+        <div class="card-header bg-white py-3 px-4 border-bottom d-flex justify-content-between align-items-center">
+            <h6 class="m-0 font-weight-bold text-primary">Transacciones Recientes</h6>
+            <div class="dropdown no-arrow">
+                <button class="btn btn-link btn-sm text-muted" type="button">
+                    <i class="fas fa-filter me-1"></i> Filtrar
+                </button>
+            </div>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0" style="min-width: 1000px;">
+                <thead class="bg-light text-uppercase text-muted small fw-bold" style="font-size: 0.75rem; letter-spacing: 0.5px;">
+                    <tr>
+                        <th class="ps-4 py-3" style="width: 20%;">Referencia / Timestamp</th>
+                        <th style="width: 15%;">Responsable</th>
+                        <th style="width: 25%;">Recurso (Archivo)</th>
+                        <th style="width: 20%;">Métricas de Ejecución</th>
+                        <th style="width: 10%;" class="text-center">Estado</th>
+                        <th style="width: 10%;" class="text-end pe-4">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody class="border-top-0">
+                    {% for lote in lotes %}
+                    <tr class="group-hover">
+                        <td class="ps-4 py-3">
+                            <div class="d-flex align-items-center mb-1">
+                                <span class="font-mono text-dark fw-bold small me-2" id="id-{{ lote.id }}">
+                                    #{{ lote.id }}
+                                </span>
+                                <button class="btn btn-link p-0 text-muted hover-actions" onclick="copyToClipboard('{{ lote.id }}')" title="Copiar ID">
+                                    <i class="far fa-copy small"></i>
+                                </button>
+                            </div>
+                            <div class="text-muted small" title="{{ lote.creado_en }}">
+                                <i class="far fa-clock me-1 text-gray-400"></i>
+                                {{ lote.creado_en|date:"d M, H:i" }}
+                            </div>
+                        </td>
+
+                        <td>
+                            <div class="d-flex align-items-center">
+                                <div class="avatar-xs bg-soft-primary rounded-circle d-flex align-items-center justify-content-center fw-bold me-2 border border-primary-subtle">
+                                    {{ lote.usuario.username|slice:":1"|upper }}
+                                </div>
+                                <div>
+                                    <div class="fw-medium text-dark small">{{ lote.usuario.username }}</div>
+                                    <div class="text-muted" style="font-size: 0.7rem;">Operador</div>
+                                </div>
+                            </div>
+                        </td>
+
+                        <td>
+                            <div class="d-flex align-items-start">
+                                <div class="me-2 mt-1">
+                                    {% if 'zip' in lote.nombre_archivo|lower %}
+                                        <i class="fas fa-file-archive text-warning fs-5"></i>
+                                    {% else %}
+                                        <i class="fas fa-file-excel text-success fs-5"></i>
+                                    {% endif %}
+                                </div>
+                                <div>
+                                    <div class="text-dark fw-medium small text-truncate" style="max-width: 200px;" title="{{ lote.nombre_archivo }}">
+                                        {{ lote.nombre_archivo }}
+                                    </div>
+                                    <div class="d-flex gap-2 mt-1">
+                                        <span class="badge bg-light text-secondary border fw-normal" style="font-size: 0.65rem;">
+                                            {{ lote.tipo_modelo|upper }}
+                                        </span>
+                                        <span class="text-muted small" style="font-size: 0.7rem;">
+                                            {{ lote.total_filas }} filas
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+
+                        <td>
+                            <div class="d-flex justify-content-between small mb-1 px-1">
+                                <span class="text-muted" style="font-size: 0.75rem;">Progreso:</span>
+                                <span class="fw-bold font-mono">{{ lote.filas_exitosas }} OK / {{ lote.total_filas }} Total</span>
+                            </div>
+                            <div class="progress rounded-pill" style="height: 6px; background-color: #e9ecef;">
+                                {% if lote.estado == 'ROLLED_BACK' %}
+                                    <div class="progress-bar bg-secondary" role="progressbar" style="width: 100%"></div>
+                                {% elif lote.estado == 'FAILED' %}
+                                    <div class="progress-bar bg-danger" role="progressbar" style="width: 100%"></div>
+                                {% else %}
+                                    <div class="progress-bar bg-success" role="progressbar" style="width: 100%"></div>
+                                {% endif %}
+                            </div>
+                        </td>
+
+                        <td class="text-center">
+                            {% if lote.estado == 'COMPLETED' %}
+                                <span class="badge bg-soft-success border border-success-subtle rounded-pill py-2 px-3">
+                                    <span class="status-dot bg-success"></span>Exitoso
+                                </span>
+                            {% elif lote.estado == 'ROLLED_BACK' %}
+                                <span class="badge bg-soft-dark border border-secondary-subtle rounded-pill py-2 px-3 text-decoration-line-through">
+                                    <span class="status-dot bg-dark"></span>Revertido
+                                </span>
+                            {% elif lote.estado == 'FAILED' %}
+                                <span class="badge bg-soft-danger border border-danger-subtle rounded-pill py-2 px-3">
+                                    <span class="status-dot bg-danger pulse-active"></span>Fallido
+                                </span>
+                            {% else %}
+                                <span class="badge bg-soft-warning border border-warning-subtle rounded-pill py-2 px-3">
+                                    <span class="status-dot bg-warning pulse-active"></span>{{ lote.estado }}
+                                </span>
+                            {% endif %}
+                        </td>
+
+                        <td class="text-end pe-4">
+                            {% if lote.estado == 'COMPLETED' %}
+                                <div class="btn-group">
+                                    <a href="{% url 'import_inspect' lote.id %}" class="btn btn-outline-primary btn-sm border-0 bg-soft-primary" title="Inspeccionar Datos">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    
+                                    <button type="button" class="btn btn-outline-danger btn-sm border-0 bg-soft-danger ms-1" 
+                                            data-bs-toggle="modal" data-bs-target="#rollbackModal{{ lote.id }}" title="Revertir Carga">
+                                        <i class="fas fa-trash-alt"></i>
+                                    </button>
+                                </div>
+
+                                <div class="modal fade" id="rollbackModal{{ lote.id }}" tabindex="-1" aria-hidden="true">
+                                    <div class="modal-dialog modal-dialog-centered">
+                                        <div class="modal-content border-0 shadow-lg rounded-4 text-start">
+                                            <div class="modal-header border-0 bg-danger-subtle text-danger">
+                                                <h5 class="modal-title fw-bold"><i class="fas fa-exclamation-triangle me-2"></i>Confirmar Rollback</h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                            </div>
+                                            <div class="modal-body p-4">
+                                                <p class="mb-0">
+                                                    Estás a punto de <strong>ELIMINAR</strong> todos los registros creados en el lote <strong>#{{ lote.id }}</strong>.
+                                                    <br><br>
+                                                    <ul class="text-muted small">
+                                                        <li>Archivo: {{ lote.nombre_archivo }}</li>
+                                                        <li>Registros afectados: <strong>{{ lote.filas_exitosas }}</strong></li>
+                                                    </ul>
+                                                    <span class="text-danger fw-bold">Esta acción es irreversible.</span>
+                                                </p>
+                                            </div>
+                                            <div class="modal-footer border-0 p-3 bg-light rounded-bottom-4">
+                                                <button type="button" class="btn btn-light fw-bold" data-bs-dismiss="modal">Cancelar</button>
+                                                <form action="{% url 'import_rollback' lote.id %}" method="POST" class="d-inline">
+                                                    {% csrf_token %}
+                                                    <button type="submit" class="btn btn-danger fw-bold px-4">
+                                                        <i class="fas fa-trash-alt me-2"></i> Sí, Revertir
+                                                    </button>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            {% else %}
+                                <span class="text-muted small opacity-50"><i class="fas fa-lock"></i></span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="text-center py-5">
+                            <div class="py-5">
+                                <div class="mb-3">
+                                    <div class="avatar-lg bg-light rounded-circle mx-auto d-flex align-items-center justify-content-center text-muted" style="width: 80px; height: 80px;">
+                                        <i class="fas fa-inbox fa-2x"></i>
+                                    </div>
+                                </div>
+                                <h5 class="text-dark">No hay registros de auditoría</h5>
+                                <p class="text-muted small">Realiza tu primera importación masiva para ver datos aquí.</p>
+                                <a href="{% url 'import_upload' %}" class="btn btn-primary btn-sm rounded-pill mt-2">Comenzar Ahora</a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        {% if lotes.has_other_pages %}
+        <div class="card-footer bg-white border-top py-3">
+            <nav aria-label="Page navigation">
+                <ul class="pagination justify-content-center mb-0 pagination-sm">
+                    {% if lotes.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link border-0 text-muted" href="?page={{ lotes.previous_page_number }}">
+                            <i class="fas fa-chevron-left me-1"></i> Anterior
+                        </a>
+                    </li>
+                    {% endif %}
+                    <li class="page-item disabled">
+                        <span class="page-link border-0 text-dark fw-bold">Página {{ lotes.number }}</span>
+                    </li>
+                    {% if lotes.has_next %}
+                    <li class="page-item">
+                        <a class="page-link border-0 text-muted" href="?page={{ lotes.next_page_number }}">
+                            Siguiente <i class="fas fa-chevron-right ms-1"></i>
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<div class="position-fixed bottom-0 end-0 p-3" style="z-index: 1100">
+  <div id="liveToast" class="toast align-items-center text-white bg-dark border-0" role="alert" aria-live="assertive" aria-atomic="true">
+    <div class="d-flex">
+      <div class="toast-body">
+        <i class="fas fa-check-circle me-2 text-success"></i> ID copiado al portapapeles
+      </div>
+      <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+    </div>
+  </div>
+</div>
+
+<script>
+// Utilidad UX: Copiar ID
+function copyToClipboard(text) {
+    navigator.clipboard.writeText(text).then(function() {
+        const toastEl = document.getElementById('liveToast');
+        const toast = new bootstrap.Toast(toastEl);
+        toast.show();
+    }, function(err) {
+        console.error('Async: Could not copy text: ', err);
+    });
+}
+</script>
+{% endblock %}

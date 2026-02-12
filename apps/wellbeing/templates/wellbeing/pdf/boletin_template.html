@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Boletín - {{ estudiante.get_full_name }}</title>
+    <style>
+        /* --- INICIO DE LA MEJORA: Importar Fuente Profesional 'Roboto' --- */
+        @font-face {
+          font-family: 'Roboto';
+          font-style: normal;
+          font-weight: 300; /* Light */
+          src: url(https://fonts.gstatic.com/s/roboto/v30/KFOlCnqEu92Fr1MmSU5fBBc9.ttf) format('truetype');
+        }
+        @font-face {
+          font-family: 'Roboto';
+          font-style: normal;
+          font-weight: 500; /* Medium */
+          src: url(https://fonts.gstatic.com/s/roboto/v30/KFOlCnqEu92Fr1MmEU9fBBc9.ttf) format('truetype');
+        }
+        @font-face {
+          font-family: 'Roboto';
+          font-style: normal;
+          font-weight: 700; /* Bold */
+          src: url(https://fonts.gstatic.com/s/roboto/v30/KFOlCnqEu92Fr1MmWUlfBBc9.ttf) format('truetype');
+        }
+        /* --- FIN DE LA MEJORA --- */
+
+        /* --- Configuración General de la Página --- */
+        @page {
+            margin: 1.5cm;
+            size: A4;
+        }
+
+        body {
+            /* --- MEJORA: Tipografía y color --- */
+            font-family: 'Roboto', 'Arial', sans-serif;
+            font-weight: 300; /* Usar la fuente Light por defecto */
+            font-size: 9.5pt;
+            color: #212121; /* Un gris oscuro en lugar de negro puro */
+            line-height: 1.5;
+        }
+
+        /* --- Encabezado (Logo e Info Institución) --- */
+        header {
+            display: table;
+            width: 100%;
+            /* --- MEJORA: Color de borde --- */
+            border-bottom: 2px solid #003366; 
+            padding-bottom: 10px;
+        }
+        .header-left {
+            display: table-cell;
+            width: 110px;
+            vertical-align: middle;
+        }
+        .logo {
+            max-width: 100px;
+            max-height: 100px;
+            object-fit: contain;
+        }
+        .header-right {
+            display: table-cell;
+            vertical-align: top;
+            text-align: right;
+            padding-left: 10px;
+        }
+        .header-right h1 {
+            /* --- MEJORA: Color, tamaño y grosor --- */
+            font-size: 18pt;
+            margin: 0 0 10px 0;
+            color: #003366;
+            font-weight: 700;
+        }
+        .header-right p {
+            /* --- MEJORA: Color y tamaño --- */
+            font-size: 9pt;
+            margin: 3px 0;
+            color: #424242;
+        }
+
+        /* --- Sección de Información del Estudiante --- */
+        .info {
+            margin-top: 20px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+        }
+        .info h2 {
+            /* --- MEJORA: Se elimina fondo, se cambia grosor --- */
+            font-size: 14pt;
+            text-align: center;
+            background-color: transparent;
+            padding: 8px 0;
+            margin: 0 0 15px 0;
+            border-radius: 0;
+            font-weight: 500; /* Medium */
+            color: #003366;
+            border-bottom: 1px solid #eee;
+        }
+        .info table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .info td {
+            padding: 5px 8px;
+            font-size: 10pt;
+        }
+        /* --- MEJORA: Alineación de etiquetas --- */
+        .info td strong {
+            font-weight: 500; /* Medium */
+            color: #003366;
+            width: 120px;
+            display: inline-block;
+        }
+
+        /* --- Títulos de Sección (Calificaciones, Convivencia) --- */
+        h3 {
+            /* --- MEJORA: Color, tamaño y grosor --- */
+            font-size: 13pt;
+            color: #003366;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 5px;
+            margin-top: 20px;
+            margin-bottom: 15px;
+            font-weight: 500;
+        }
+
+        /* --- Estilos de Tablas (Calificaciones y Convivencia) --- */
+        table.tabla-principal {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        .tabla-principal th,
+        .tabla-principal td {
+            /* --- MEJORA: Se eliminan bordes laterales, se aumenta padding --- */
+            border: none;
+            border-bottom: 1px solid #e0e0e0; /* Borde horizontal suave */
+            padding: 8px;
+            text-align: left;
+            font-size: 9pt;
+            vertical-align: middle;
+        }
+        .tabla-principal thead {
+            background-color: #f5f8fa; /* Fondo más sutil */
+        }
+        .tabla-principal th {
+            font-weight: 500; /* Medium */
+            text-align: center;
+            font-size: 9pt;
+            vertical-align: middle;
+            /* --- MEJORA: Borde inferior grueso para cabecera --- */
+            border-bottom: 2px solid #003366;
+        }
+        .tabla-principal tbody tr:nth-child(even) {
+            background-color: transparent; /* Se elimina el "cebreado" */
+        }
+        .tabla-principal td.nota {
+            text-align: center;
+            font-weight: 500; /* Medium */
+            font-size: 10pt;
+        }
+        .tabla-principal td.nota-final {
+            text-align: center;
+            font-weight: 700; /* Bold */
+            font-size: 10pt;
+            background-color: #f5f8fa; /* Fondo sutil */
+            color: #003366;
+        }
+        .tabla-principal td.nota-baja {
+            color: #d9534f;
+            font-weight: 700; /* Bold */
+        }
+
+        /* --- Escala de Desempeño --- */
+        .escala-desempeno {
+            margin-top: 15px;
+            page-break-inside: avoid;
+        }
+        .escala-desempeno table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 8pt;
+            text-align: center;
+        }
+        .escala-desempeno th, .escala-desempeno td {
+            border: 1px solid #e0e0e0; /* Borde más suave */
+            padding: 5px;
+        }
+        .escala-desempeno th {
+            background-color: #f5f8fa; /* Fondo sutil */
+            font-weight: 500;
+        }
+
+        /* --- ================================================== --- */
+        /* --- INICIO DE NUEVOS ESTILOS: INFORME UNIFICADO      --- */
+        /* --- ================================================== --- */
+
+        .materia-block {
+            border: 1px solid #cccccc; /* Borde principal más nítido */
+            border-radius: 8px;
+            margin-bottom: 20px;
+            page-break-inside: avoid;
+            overflow: hidden; /* Para contener los bordes redondeados */
+        }
+
+        .materia-header {
+            display: table;
+            width: 100%;
+            background-color: #f5f8fa;
+            padding: 10px 15px;
+            border-bottom: 1px solid #cccccc;
+        }
+        
+        /* AJUSTE SOLICITADO: CABECERA DE MATERIA PROFESIONAL */
+        .materia-header-titulo {
+            display: table-cell;
+            vertical-align: middle;
+            font-size: 11.5pt;
+            font-weight: 700;
+            color: #003366;
+            width: 40%; /* Proporción para el nombre de la materia */
+            text-transform: uppercase;
+        }
+        .materia-header-docente {
+            display: table-cell;
+            vertical-align: middle;
+            text-align: center; /* CENTRADO SOLICITADO */
+            font-size: 10pt;
+            color: #424242;
+            width: 60%;
+            font-weight: 500;
+        }
+        .materia-header-docente span {
+            font-weight: 300;
+            font-style: italic;
+            color: #757575;
+            margin-right: 5px;
+        }
+
+        .materia-detalle-tabla {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .materia-detalle-tabla th,
+        .materia-detalle-tabla td {
+            padding: 10px;
+            border-bottom: 1px solid #f0f0f0; /* Borde muy sutil entre filas */
+            vertical-align: top;
+            text-align: left;
+        }
+        /* --- Quitar el último borde inferior de la tabla --- */
+        .materia-detalle-tabla tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .materia-detalle-tabla thead th {
+            font-weight: 500; /* Medium */
+            background-color: #fafafa;
+            border-bottom: 1px solid #e0e0e0;
+            font-size: 9pt;
+            color: #333;
+        }
+
+        /* Definir anchos de columna */
+        .materia-detalle-tabla .col-periodo { width: 18%; }
+        .materia-detalle-tabla .col-nota { width: 10%; text-align: center; }
+        .materia-detalle-tabla .col-logros { width: 42%; }
+        .materia-detalle-tabla .col-comentarios { width: 30%; }
+
+        .materia-detalle-tabla .periodo-nombre {
+            font-weight: 500; /* Medium */
+        }
+        .materia-detalle-tabla .nota {
+            font-weight: 700; /* Bold */
+            font-size: 11pt;
+            text-align: center;
+        }
+        .materia-detalle-tabla .nota-baja {
+            color: #d9534f;
+        }
+
+        .materia-detalle-tabla .logros ul {
+            padding-left: 18px;
+            margin: 0;
+        }
+        .materia-detalle-tabla .logros li {
+            margin-bottom: 4px;
+        }
+        .materia-detalle-tabla .sin-datos {
+            font-style: italic;
+            color: #757575;
+        }
+        /* --- Alineación del texto 'sin-datos' --- */
+        .materia-detalle-tabla .col-logros .sin-datos,
+        .materia-detalle-tabla .col-comentarios .sin-datos {
+             text-align: left;
+             padding-left: 18px;
+        }
+        .materia-detalle-tabla .col-nota .sin-datos {
+            text-align: center;
+            padding-left: 0;
+        }
+
+
+        .materia-detalle-tabla .comentario-item {
+            font-style: italic;
+            color: #212121;
+            background: #fdfdfd;
+            border-left: 3px solid #003366;
+            padding: 6px 8px;
+            margin: 0;
+            font-size: 9pt;
+        }
+
+        .materia-footer {
+            background-color: #f5f8fa;
+            padding: 10px 15px;
+            text-align: right;
+            border-top: 1px solid #cccccc;
+        }
+        .materia-footer strong {
+            font-size: 11pt;
+            font-weight: 700; /* Bold */
+            color: #003366;
+            margin-left: 10px;
+        }
+        
+        /* --- ================================================== --- */
+        /* --- FIN DE NUEVOS ESTILOS                            --- */
+        /* --- ================================================== --- */
+
+
+        /* --- Pie de Página (Firmas) --- */
+        footer {
+            display: table;
+            width: 100%;
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #ccc;
+            page-break-before: auto;
+            page-break-inside: avoid;
+        }
+        .firma-container {
+            display: table-cell;
+            width: 50%;
+            text-align: center;
+        }
+        .firma-linea {
+            width: 250px;
+            border-top: 1px solid #757575; /* Línea más sutil */
+            margin: 50px auto 0 auto; /* Más espacio superior */
+            padding-top: 5px;
+        }
+        .firma-cargo {
+            font-size: 9pt;
+            font-weight: 500; /* Medium */
+            color: #212121;
+            margin: 0;
+        }
+
+        /* --- INICIO DE LA MEJORA: Marca de Agua --- */
+        .watermark {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(-45deg);
+            opacity: 0.07; /* Muy sutil */
+            z-index: -1000;
+            pointer-events: none;
+        }
+        .watermark img {
+            width: 400px; /* Ajusta el tamaño según tu logo */
+        }
+        /* --- FIN DE LA MEJORA --- */
+    </style>
+</head>
+<body>
+
+    <div class="watermark">
+        <img src="https://res.cloudinary.com/dukiyxfvn/image/upload/v1768668244/WhatsApp_Image_2026-01-11_at_4.25.52_PM_p8aicp.jpg" alt="Sello de Agua">
+    </div>
+
+    <header>
+        <div class="header-left">
+            <img src="https://res.cloudinary.com/dukiyxfvn/image/upload/v1768668244/WhatsApp_Image_2026-01-11_at_4.25.52_PM_p8aicp.jpg" alt="Logo del colegio" class="logo">
+        </div>
+        <div class="header-right">
+            <h1>LEARNING LABS</h1>
+            
+            <p>Somos la evolucion de la educacion</p>
+            <p>Resolución: 78965412</p>
+            <p>
+                Cra 14 a 5 a 14 | 
+                Chia
+            </p>
+            <p>
+                Tel: 3132533008 | 
+                Email: learninglabs@gmail.com | 
+                NIT: 900.555.5555
+            </p>
+        </div>
+    </header>
+
+    <section class="info">
+        <h2>BOLETÍN ACADÉMICO - AÑO LECTIVO 2026</h2>
+        <table>
+            <tr>
+                <td><strong>ESTUDIANTE:</strong></td>
+                <td>{{ estudiante.get_full_name|upper }}</td>
+                <td><strong>CURSO:</strong></td>
+                <td>{{ curso.nombre }}</td>
+            </tr>
+            <tr>
+                <td><strong>DOCUMENTO:</strong></td>
+                <td>
+                    {% if estudiante.perfil.numero_documento %}
+                        {{ estudiante.perfil.numero_documento }}
+                    {% else %}
+                        {{ estudiante.username }}
+                    {% endif %}
+                </td>
+                <td><strong>ACUDIENTE:</strong></td>
+                <td>{{ acudiente.get_full_name|upper|default:"-" }}</td>
+            </tr>
+            <tr>
+                <td><strong>FECHA DE EMISIÓN:</strong></td>
+                <td>{{ fecha_emision|date:"d/m/Y" }}</td>
+                <td></td> <td></td> </tr>
+            </table>
+    </section>
+
+    <section class="escala-desempeno">
+        <h3>ESCALA DE DESEMPEÑO</h3>
+        <table class="tabla-principal"> 
+            <thead>
+                <tr>
+                    <th>DESEMPEÑO SUPERIOR</th>
+                    <th>DESEMPEÑO ALTO</th>
+                    <th>DESEMPEÑO BÁSICO</th>
+                    <th>DESEMPEÑO BAJO</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td style="text-align: center;">4.6 - 5.0</td>
+                    <td style="text-align: center;">4.0 - 4.5</td>
+                    <td style="text-align: center;">3.0 - 3.9</td>
+                    <td style="text-align: center;">1.0 - 2.9</td>
+                </tr>
+            </tbody>
+        </table>
+    </section>
+    
+    <section class="informe-detallado">
+        <h3>INFORME ACADÉMICO DETALLADO</h3>
+        
+        {% for materia in materias_data %}
+        <div class="materia-block">
+            <div class="materia-header">
+                <div class="materia-header-titulo">{{ materia.nombre }}</div>
+                <div class="materia-header-docente">
+                    <span>Docente:</span> {{ materia.docente|default:"Por asignar" }}
+                </div>
+            </div>
+            
+            <table class="materia-detalle-tabla">
+                <thead>
+                    <tr>
+                        <th class="col-periodo">Período</th>
+                        <th class="col-nota">Nota</th>
+                        <th class="col-logros">Logros / Indicadores</th>
+                        <th class="col-comentarios">Comentarios del Docente</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for p_data in materia.periodos_data %}
+                    <tr>
+                        <td class="periodo-nombre"><strong>{{ p_data.nombre_periodo }}</strong></td>
+                        
+                        <td class="nota {% if p_data.promedio_periodo is not None and p_data.promedio_periodo < 3.0 %}nota-baja{% endif %}">
+                            {{ p_data.promedio_periodo|floatformat:2|default:"-" }}
+                        </td>
+                        
+                        <td class="logros">
+                            {% if p_data.logros %}
+                                <ul>
+                                {% for logro in p_data.logros %}
+                                    <li>{{ logro }}</li>
+                                {% endfor %}
+                                </ul>
+                            {% else %}
+                                <p class="sin-datos">- Sin logros -</p>
+                            {% endif %}
+                        </td>
+                        
+                        <td class="comentarios">
+                            {% if p_data.comentarios %}
+                                {% for comentario in p_data.comentarios %}
+                                    <p class="comentario-item">{{ comentario }}</p>
+                                {% endfor %}
+                            {% else %}
+                                <p class="sin-datos">- Sin comentarios -</p>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                    </tbody>
+            </table>
+            
+            <div class="materia-footer">
+                Promedio Final de la Materia: 
+                <strong>{{ materia.promedio_final_materia|floatformat:2|default:"-" }}</strong>
+            </div>
+        </div>
+        {% empty %}
+            <p style="text-align: center; font-style: italic;">No hay materias con información registrada para este estudiante.</p>
+        {% endfor %}
+    </section>
+    <footer>
+        <div class="firma-container">
+            <p class="firma-linea"></p>
+            <p class="firma-cargo">Firma Director(a) de Curso</p>
+        </div>
+        <div class="firma-container">
+            <p class="firma-linea"></p>
+            <p class="firma-cargo">Firma Rector(a)</p>
+        </div>
+    </footer>
+
+</body>
+</html>

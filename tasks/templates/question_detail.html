@@ -1,0 +1,402 @@
+{% extends 'base.html' %}
+{% block content %}
+<style>
+    /* Sistema de diseño para detalle de pregunta */
+    :root {
+        --edu-detail-primary: #4361ee;
+        --edu-detail-secondary: #3f37c9;
+        --edu-detail-accent: #4cc9f0;
+        --edu-detail-light: #f8f9fa;
+        --edu-detail-dark: #212529;
+        --edu-detail-text: #2b2d42;
+        --edu-detail-text-light: #6c757d;
+        --edu-detail-border: #e1e8ed;
+        --edu-detail-success: #38b000;
+        --edu-detail-radius: 12px;
+        --edu-detail-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+        --edu-detail-transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    }
+
+    .question-detail-container {
+        max-width: 900px;
+        margin: 2rem auto;
+        font-family: 'Open Sans', sans-serif;
+    }
+
+    .question-header {
+        background-color: white;
+        border-radius: var(--edu-detail-radius);
+        box-shadow: var(--edu-detail-shadow);
+        padding: 2.5rem;
+        margin-bottom: 2rem;
+        border-left: 5px solid var(--edu-detail-primary);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .question-header::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(135deg, rgba(67, 97, 238, 0.03), rgba(76, 201, 240, 0.03));
+        z-index: 0;
+    }
+
+    .question-title {
+        color: var(--edu-detail-dark);
+        font-weight: 700;
+        font-size: 2.2rem;
+        margin-bottom: 1.5rem;
+        position: relative;
+        z-index: 1;
+        font-family: 'Poppins', sans-serif;
+        line-height: 1.3;
+    }
+
+    .question-content {
+        color: var(--edu-detail-text);
+        line-height: 1.8;
+        margin-bottom: 2rem;
+        position: relative;
+        z-index: 1;
+        font-size: 1.1rem;
+        white-space: pre-wrap;
+    }
+
+    .question-meta {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        color: var(--edu-detail-text-light);
+        font-size: 0.95rem;
+        position: relative;
+        z-index: 1;
+        padding-top: 1.5rem;
+        border-top: 1px solid var(--edu-detail-border);
+    }
+
+    .question-author {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .question-author i {
+        color: var(--edu-detail-primary);
+        font-size: 1.2rem;
+    }
+
+    .question-actions {
+        display: flex;
+        gap: 1rem;
+        margin: 2rem 0;
+        flex-wrap: wrap;
+    }
+
+    .btn-answer {
+        background: linear-gradient(135deg, var(--edu-detail-primary), var(--edu-detail-secondary));
+        color: white;
+        border: none;
+        padding: 1rem 2rem;
+        border-radius: var(--edu-detail-radius);
+        font-weight: 600;
+        font-size: 1.05rem;
+        transition: var(--edu-detail-transition);
+        display: inline-flex;
+        align-items: center;
+        gap: 0.75rem;
+        box-shadow: var(--edu-detail-shadow);
+    }
+
+    .btn-answer:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 12px 20px rgba(67, 97, 238, 0.2);
+        color: white;
+    }
+
+    .btn-back {
+        background-color: white;
+        color: var(--edu-detail-text);
+        border: 2px solid var(--edu-detail-border);
+        padding: 1rem 2rem;
+        border-radius: var(--edu-detail-radius);
+        font-weight: 600;
+        font-size: 1.05rem;
+        transition: var(--edu-detail-transition);
+        display: inline-flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .btn-back:hover {
+        background-color: var(--edu-detail-light);
+        transform: translateY(-3px);
+        border-color: var(--edu-detail-primary);
+        color: var(--edu-detail-primary);
+    }
+
+    .answers-section {
+        margin-top: 3rem;
+    }
+
+    .answers-title {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: var(--edu-detail-dark);
+        margin-bottom: 2rem;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        font-family: 'Poppins', sans-serif;
+    }
+
+    .answers-title i {
+        color: var(--edu-detail-accent);
+    }
+
+    .answers-count {
+        background-color: var(--edu-detail-primary);
+        color: white;
+        padding: 0.25rem 1rem;
+        border-radius: 2rem;
+        font-size: 1rem;
+        font-weight: 600;
+    }
+
+    .answer-list {
+        list-style: none;
+        padding: 0;
+        display: grid;
+        gap: 2rem;
+    }
+
+    .answer-item {
+        background-color: white;
+        border-radius: var(--edu-detail-radius);
+        box-shadow: var(--edu-detail-shadow);
+        padding: 2rem;
+        position: relative;
+        border-left: 3px solid var(--edu-detail-accent);
+        transition: var(--edu-detail-transition);
+    }
+
+    .answer-item:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 12px 28px rgba(0, 0, 0, 0.12);
+    }
+
+    .answer-content {
+        color: var(--edu-detail-text);
+        line-height: 1.8;
+        margin-bottom: 1.5rem;
+        white-space: pre-wrap;
+    }
+
+    .answer-meta {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        color: var(--edu-detail-text-light);
+        font-size: 0.9rem;
+        padding-top: 1.5rem;
+        border-top: 1px solid var(--edu-detail-border);
+    }
+
+    .answer-author {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .answer-author i {
+        color: var(--edu-detail-primary);
+    }
+
+    .empty-answers {
+        text-align: center;
+        padding: 3rem;
+        background-color: white;
+        border-radius: var(--edu-detail-radius);
+        box-shadow: var(--edu-detail-shadow);
+    }
+
+    .empty-answers i {
+        font-size: 3rem;
+        color: var(--edu-detail-accent);
+        margin-bottom: 1.5rem;
+    }
+
+    .empty-answers h3 {
+        color: var(--edu-detail-dark);
+        margin-bottom: 1rem;
+        font-family: 'Poppins', sans-serif;
+    }
+
+    .empty-answers p {
+        color: var(--edu-detail-text-light);
+        margin-bottom: 2rem;
+        max-width: 500px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .markdown-content {
+        line-height: 1.8;
+    }
+
+    .markdown-content h2, 
+    .markdown-content h3 {
+        font-family: 'Poppins', sans-serif;
+        margin-top: 1.5rem;
+        margin-bottom: 1rem;
+    }
+
+    .markdown-content p {
+        margin-bottom: 1rem;
+    }
+
+    .markdown-content ul, 
+    .markdown-content ol {
+        margin-bottom: 1rem;
+        padding-left: 2rem;
+    }
+
+    .markdown-content code {
+        background-color: #f3f4f6;
+        padding: 0.2rem 0.4rem;
+        border-radius: 4px;
+        font-family: monospace;
+    }
+
+    .markdown-content pre {
+        background-color: #f8f9fa;
+        padding: 1rem;
+        border-radius: var(--edu-detail-radius);
+        overflow-x: auto;
+        margin-bottom: 1.5rem;
+    }
+
+    @media (max-width: 768px) {
+        .question-detail-container {
+            padding: 0 1.5rem;
+        }
+        
+        .question-header {
+            padding: 1.75rem;
+        }
+        
+        .question-title {
+            font-size: 1.8rem;
+        }
+        
+        .question-meta {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 1rem;
+        }
+        
+        .question-actions {
+            flex-direction: column;
+        }
+        
+        .btn-answer, .btn-back {
+            width: 100%;
+            justify-content: center;
+        }
+    }
+</style>
+
+<div class="question-detail-container">
+    <div class="question-header">
+        <h1 class="question-title">{{ question.title }}</h1>
+        <div class="question-content markdown-content">
+            {{ question.content|linebreaksbr }}
+        </div>
+        <div class="question-meta">
+            <div class="question-author">
+                <i class="fas fa-user-circle"></i>
+                <span>Publicado por {{ question.user.username }} el {{ question.created_at|date:"d M Y H:i" }}</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="question-actions">
+        <a href="{% url 'answer_question' question.id %}" class="btn-answer">
+            <i class="fas fa-reply"></i> Responder pregunta
+        </a>
+        <a href="{% url 'forum' %}" class="btn-back">
+            <i class="fas fa-arrow-left"></i> Volver al foro
+        </a>
+    </div>
+
+    <div class="answers-section">
+        <h2 class="answers-title">
+            <i class="fas fa-comments"></i> Respuestas
+            <span class="answers-count">{{ answers.count }} respuesta{{ answers.count|pluralize }}</span>
+        </h2>
+
+        {% if answers %}
+            <ul class="answer-list">
+                {% for answer in answers %}
+                    <li class="answer-item">
+                        <div class="answer-content markdown-content">
+                            {{ answer.content|linebreaksbr }}
+                        </div>
+                        <div class="answer-meta">
+                            <div class="answer-author">
+                                <i class="fas fa-user"></i>
+                                <span>{{ answer.user.username }}</span>
+                            </div>
+                            <div class="answer-date">
+                                {{ answer.created_at|date:"d M Y H:i" }}
+                            </div>
+                        </div>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <div class="empty-answers">
+                <i class="fas fa-comment-slash"></i>
+                <h3>No hay respuestas aún</h3>
+                <p>Sé el primero en compartir tu conocimiento y ayudar a resolver esta pregunta.</p>
+                <a href="{% url 'answer_question' question.id %}" class="btn-answer">
+                    <i class="fas fa-reply"></i> Responder ahora
+                </a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+    // Animación suave al cargar
+    document.addEventListener('DOMContentLoaded', function() {
+        const elements = [
+            document.querySelector('.question-header'),
+            document.querySelector('.question-actions'),
+            document.querySelector('.answers-section')
+        ];
+        
+        elements.forEach((el, index) => {
+            if(el) {
+                el.style.opacity = '0';
+                el.style.transform = 'translateY(20px)';
+                el.style.transition = `all 0.4s ease-out ${index * 0.1}s`;
+                
+                setTimeout(() => {
+                    el.style.opacity = '1';
+                    el.style.transform = 'translateY(0)';
+                }, 100);
+            }
+        });
+        
+        // Mejorar visualización de saltos de línea
+        const markdownContents = document.querySelectorAll('.markdown-content');
+        markdownContents.forEach(content => {
+            content.innerHTML = content.innerHTML.replace(/\n/g, '<br>');
+        });
+    });
+</script>
+{% endblock %}

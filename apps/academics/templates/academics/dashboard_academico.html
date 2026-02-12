@@ -1,0 +1,509 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+<style>
+    :root {
+        --primary-color: #4f46e5; /* Indigo moderno */
+        --secondary-color: #ec4899; /* Rosa vibrante */
+        --success-color: #10b981;
+        --warning-color: #f59e0b;
+        --danger-color: #ef4444;
+        --convivencia-color: #d97706; /* Ámbar oscuro para convivencia */
+        --bg-color: #f3f4f6;
+        --card-bg: #ffffff;
+        --text-dark: #111827;
+        --text-light: #6b7280;
+    }
+
+    body {
+        background-color: var(--bg-color);
+        font-family: 'Inter', sans-serif;
+    }
+
+    /* Botones */
+    .btn-primary { background-color: var(--primary-color); border-color: var(--primary-color); }
+    .btn-primary:hover { background-color: #4338ca; border-color: #4338ca; }
+
+    /* Tarjetas Glass */
+    .dashboard-card {
+        background: var(--card-bg);
+        border-radius: 16px;
+        border: 1px solid rgba(255, 255, 255, 0.5);
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        overflow: hidden;
+    }
+    .dashboard-card:hover { transform: translateY(-2px); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); }
+
+    /* Títulos */
+    .section-title { font-size: 1.25rem; font-weight: 700; color: var(--text-dark); margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem; }
+
+    /* Tablas */
+    .risk-table { width: 100%; border-collapse: separate; border-spacing: 0 8px; }
+    .risk-table tbody tr { background-color: white; box-shadow: 0 2px 4px rgba(0,0,0,0.02); transition: transform 0.1s; }
+    .risk-table tbody tr:hover { transform: scale(1.005); box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+    .risk-table td { padding: 16px; vertical-align: middle; border-top: 1px solid #f0f0f0; border-bottom: 1px solid #f0f0f0; }
+    .risk-table td:first-child { border-left: 1px solid #f0f0f0; border-radius: 12px 0 0 12px; }
+    .risk-table td:last-child { border-right: 1px solid #f0f0f0; border-radius: 0 12px 12px 0; }
+
+    /* Badges */
+    .badge-risk { padding: 6px 12px; border-radius: 9999px; font-weight: 600; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; }
+    .risk-critical { background-color: #fee2e2; color: #991b1b; }
+    .risk-high { background-color: #ffedd5; color: #9a3412; }
+    .risk-medium { background-color: #e0f2fe; color: #075985; }
+    
+    /* Convivencia Badge */
+    .badge-convivencia { background-color: #fffbeb; color: #b45309; border: 1px solid #fcd34d; padding: 4px 10px; border-radius: 8px; font-weight: 700; }
+
+    /* Avatares */
+    .student-avatar { width: 40px; height: 40px; border-radius: 10px; background: linear-gradient(135deg, var(--primary-color), #818cf8); color: white; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 1.1rem; }
+    .student-avatar.conv { background: linear-gradient(135deg, #f59e0b, #d97706); }
+</style>
+
+<div class="container py-5 animate__animated animate__fadeIn">
+    
+    <div class="row align-items-center mb-5">
+        <div class="col-lg-7">
+            <h1 class="display-5 fw-bold text-dark mb-2">Centro de Inteligencia Académica</h1>
+            <p class="text-muted fs-5">Monitorización en tiempo real del rendimiento estudiantil y detección temprana de riesgos.</p>
+        </div>
+        <div class="col-lg-5 text-end">
+            <div class="d-flex flex-column align-items-end">
+                <div class="d-flex gap-2 mb-2">
+                    <a href="{% url 'sabana_notas' %}" class="btn btn-primary rounded-pill px-4 hover-shadow">
+                        <i class="fas fa-table me-2"></i>Sábana de Notas
+                    </a>
+                    <a href="{% url 'dashboard_bienestar' %}" class="btn btn-outline-dark rounded-pill px-4 hover-shadow">
+                        <i class="fas fa-arrow-left me-2"></i>Volver al Panel
+                    </a>
+                </div>
+                <span class="badge bg-white text-secondary border py-2 px-3 rounded-pill shadow-sm">
+                    <i class="far fa-clock me-1"></i> Última actualización: {% now "H:i A" %}
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4 mb-5">
+        <div class="col-md-4">
+            <div class="dashboard-card p-4 h-100 position-relative overflow-hidden bg-white">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <p class="text-uppercase text-muted fw-bold small mb-1">Promedio Institucional</p>
+                        <h2 class="display-4 fw-bold text-dark mb-0">{{ kpi.promedio }}</h2>
+                        <small class="text-success fw-bold"><i class="fas fa-arrow-up"></i> Estable</small>
+                    </div>
+                    <div class="icon-bg opacity-10 text-primary"><i class="fas fa-chart-line fa-4x"></i></div>
+                </div>
+                <div class="progress mt-4" style="height: 6px; border-radius: 4px;">
+                    <div class="progress-bar bg-primary" role="progressbar" style="width: {% widthratio kpi.promedio 5 100 %}%"></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="dashboard-card p-4 h-100 position-relative overflow-hidden bg-white">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <p class="text-uppercase text-muted fw-bold small mb-1">Tasa de Reprobación</p>
+                        <h2 class="display-4 fw-bold text-danger mb-0">{{ kpi.tasa_reprobacion }}%</h2>
+                        <small class="text-danger fw-bold">{{ kpi.reprobadas }} asignaturas perdidas</small>
+                    </div>
+                    <div class="icon-bg opacity-10 text-danger"><i class="fas fa-exclamation-triangle fa-4x"></i></div>
+                </div>
+                <div class="progress mt-4" style="height: 6px; border-radius: 4px;">
+                    <div class="progress-bar bg-danger" role="progressbar" style="width: {{ kpi.tasa_reprobacion }}%"></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="dashboard-card p-4 h-100 position-relative overflow-hidden bg-white">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <p class="text-uppercase text-muted fw-bold small mb-1">Datos Procesados</p>
+                        <h2 class="display-4 fw-bold text-info mb-0">{{ kpi.total_evaluaciones }}</h2>
+                        <small class="text-muted">Notas finales registradas</small>
+                    </div>
+                    <div class="icon-bg opacity-10 text-info"><i class="fas fa-database fa-4x"></i></div>
+                </div>
+                <div class="progress mt-4" style="height: 6px; border-radius: 4px;">
+                    <div class="progress-bar bg-info" role="progressbar" style="width: 100%"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mb-5">
+        <div class="col-12">
+            <div class="dashboard-card">
+                <div class="card-header bg-white p-4 border-bottom d-flex justify-content-between align-items-center">
+                    <div>
+                        <h4 class="fw-bold mb-1 text-dark"><i class="fas fa-radar me-2 text-danger"></i>Radar de Riesgo Académico</h4>
+                        <p class="text-muted mb-0 small">Estudiantes que requieren intervención inmediata por bajo rendimiento (< 3.0)</p>
+                    </div>
+                    <span class="badge bg-danger-subtle text-danger px-3 py-2 rounded-pill">
+                        {{ lista_riesgo|length }} Casos Críticos
+                    </span>
+                </div>
+                <div class="card-body p-0 bg-light">
+                    <div class="table-responsive px-4 py-3">
+                        <table class="risk-table">
+                            <thead>
+                                <tr class="text-uppercase text-muted small">
+                                    <th class="pb-3 ps-3">Estudiante</th>
+                                    <th class="pb-3">Curso</th>
+                                    <th class="pb-3 text-center">Materias en Riesgo</th>
+                                    <th class="pb-3">Detalle de Asignaturas</th>
+                                    <th class="pb-3 text-end pe-3">Acción</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in lista_riesgo %}
+                                <tr>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <div class="student-avatar me-3">{{ item.estudiante.first_name|slice:":1" }}</div>
+                                            <div>
+                                                <div class="fw-bold text-dark">{{ item.estudiante.get_full_name }}</div>
+                                                <small class="text-muted">{{ item.estudiante.username }}</small>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td><span class="badge bg-white text-dark border shadow-sm">{{ item.curso }}</span></td>
+                                    <td class="text-center">
+                                        {% if item.total_perdidas >= 3 %}
+                                            <span class="badge-risk risk-critical">Crítico ({{ item.total_perdidas }})</span>
+                                        {% elif item.total_perdidas == 2 %}
+                                            <span class="badge-risk risk-high">Alto ({{ item.total_perdidas }})</span>
+                                        {% else %}
+                                            <span class="badge-risk risk-medium">Medio ({{ item.total_perdidas }})</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <div class="d-flex flex-wrap gap-2">
+                                            {% for mat in item.materias %}
+                                                <div class="d-flex align-items-center bg-white border rounded px-2 py-1 shadow-sm" style="font-size: 0.85rem;">
+                                                    <span class="text-muted me-2">{{ mat.nombre }}</span>
+                                                    <span class="fw-bold text-danger">{{ mat.nota }}</span>
+                                                </div>
+                                            {% endfor %}
+                                        </div>
+                                    </td>
+                                    <td class="text-end">
+                                        <div class="btn-group">
+                                            <a href="{% url 'ver_observador' item.estudiante.id %}" class="btn btn-sm btn-danger rounded-pill px-3 shadow-sm" title="Ver Observador">
+                                                <i class="fas fa-hand-holding-heart me-1"></i> Intervenir
+                                            </a>
+                                            <a href="{% url 'enviar_mensaje' %}?destinatario={{ item.estudiante.id }}&asunto=Citación Académica - Riesgo de Reprobación" 
+                                               class="btn btn-sm btn-outline-danger rounded-pill px-3 ms-1"
+                                               title="Citar Alumno y Acudiente">
+                                                <i class="fas fa-envelope"></i> Citar
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="5" class="text-center py-5">
+                                        <h5 class="fw-bold text-muted">¡Sin Alertas!</h5>
+                                        <p class="text-muted small">No hay estudiantes con materias reprobadas.</p>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mb-5">
+        <div class="col-12">
+            <div class="dashboard-card border-warning border-2">
+                <div class="card-header bg-warning-subtle p-4 border-bottom border-warning d-flex justify-content-between align-items-center">
+                    <div>
+                        <h4 class="fw-bold mb-1 text-dark">
+                            <i class="fas fa-users-slash me-2 text-warning"></i>Monitor de Convivencia - Alertas Críticas
+                        </h4>
+                        <p class="text-muted mb-0 small">Estudiantes reprobando la asignatura de Convivencia (< 3.0).</p>
+                    </div>
+                    <span class="badge bg-warning text-dark border border-warning px-3 py-2 rounded-pill shadow-sm" id="countConvivencia">
+                        Calculando...
+                    </span>
+                </div>
+                
+                <div class="card-body p-0 bg-white">
+                    <div class="table-responsive px-4 py-3">
+                        <table class="risk-table" id="tablaConvivencia">
+                            <thead>
+                                <tr class="text-uppercase text-secondary small" style="background-color: #fffbf2;">
+                                    <th class="pb-3 ps-3">Estudiante</th>
+                                    <th class="pb-3">Curso</th>
+                                    <th class="pb-3 text-center">Nota Convivencia</th>
+                                    <th class="pb-3">Estado / Proyección</th>
+                                    <th class="pb-3 text-end pe-3">Gestión</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in lista_riesgo %}
+                                    {% for mat in item.materias %}
+                                        {% if "Convivencia" in mat.nombre %}
+                                        <tr class="fila-convivencia">
+                                            <td>
+                                                <div class="d-flex align-items-center">
+                                                    <div class="student-avatar conv me-3">
+                                                        {{ item.estudiante.first_name|slice:":1" }}
+                                                    </div>
+                                                    <div>
+                                                        <div class="fw-bold text-dark">{{ item.estudiante.get_full_name }}</div>
+                                                        <small class="text-muted">ID: {{ item.estudiante.username }}</small>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <span class="fw-bold text-secondary">{{ item.curso }}</span>
+                                            </td>
+                                            <td class="text-center">
+                                                <span class="badge-convivencia fs-6">
+                                                    {{ mat.nota_actual|floatformat:1 }}
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <div class="d-flex flex-column small">
+                                                    <span class="text-muted mb-1">Nota Necesaria: <strong>{{ mat.nota_necesaria }}</strong></span>
+                                                    {% if "100%" in mat.probabilidad %}
+                                                        <span class="text-danger fw-bold"><i class="fas fa-times-circle"></i> Atención Prioritaria</span>
+                                                    {% else %}
+                                                        <span class="text-warning fw-bold"><i class="fas fa-exclamation-circle"></i> Riesgo {{ mat.probabilidad }}</span>
+                                                    {% endif %}
+                                                </div>
+                                            </td>
+                                            <td class="text-end">
+                                                <div class="btn-group">
+                                                    <a href="{% url 'ver_observador' item.estudiante.id %}" class="btn btn-sm btn-outline-warning rounded-pill px-3" title="Ver Observador">
+                                                        <i class="fas fa-eye"></i>
+                                                    </a>
+                                                    <a href="{% url 'enviar_mensaje' %}?destinatario={{ item.estudiante.id }}&asunto=Citación por Convivencia" 
+                                                       class="btn btn-sm btn-warning rounded-pill px-3 ms-1 text-white" 
+                                                       title="Citar Alumno y Acudiente">
+                                                        <i class="fas fa-envelope"></i> Citar
+                                                    </a>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        {% endif %}
+                                    {% endfor %}
+                                {% endfor %}
+                                
+                                <tr id="noDataConvivencia" style="display: none;">
+                                    <td colspan="5" class="text-center py-5">
+                                        <div class="mb-3">
+                                            <i class="fas fa-check-circle fa-4x text-success opacity-50"></i>
+                                        </div>
+                                        <h5 class="fw-bold text-muted">Excelente Convivencia</h5>
+                                        <p class="text-muted small">No hay estudiantes perdiendo Convivencia en este corte.</p>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-lg-4">
+            <div class="dashboard-card h-100 p-4">
+                <h5 class="section-title"><i class="fas fa-chart-pie text-info"></i> Distribución Global</h5>
+                <div style="height: 250px; position: relative;">
+                    <canvas id="distribucionChart"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4">
+            <div class="dashboard-card h-100 p-4">
+                <h5 class="section-title"><i class="fas fa-list-ul text-primary"></i> Rendimiento por Asignatura</h5>
+                <div style="height: 400px; overflow-y: auto;">
+                    <canvas id="materiasChart"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4">
+            <div class="dashboard-card h-100 p-4">
+                <h5 class="section-title"><i class="fas fa-layer-group text-success"></i> Rendimiento por Curso</h5>
+                <div style="height: 250px;">
+                    <canvas id="cursosChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4 mb-5 mt-4">
+        <div class="col-12">
+            <div class="dashboard-card h-100 p-4">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h5 class="section-title mb-0"><i class="fas fa-hand-holding-heart text-warning"></i> Promedios de Convivencia por Materia</h5>
+                    <span class="badge bg-warning-subtle text-warning border border-warning-subtle px-3 py-1 rounded-pill">
+                        Vista Global
+                    </span>
+                </div>
+                <div style="height: 350px;">
+                    <canvas id="convivenciaChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    // Configuración común
+    Chart.defaults.font.family = "'Inter', sans-serif";
+    Chart.defaults.color = '#6b7280';
+    
+    document.addEventListener('DOMContentLoaded', function() {
+        
+        // --- 1. LÓGICA DE CONTEO PARA TABLA CONVIVENCIA ---
+        const filasConv = document.querySelectorAll('.fila-convivencia');
+        const countBadge = document.getElementById('countConvivencia');
+        const noDataRow = document.getElementById('noDataConvivencia');
+        
+        if (filasConv.length > 0) {
+            countBadge.textContent = filasConv.length + " Estudiantes en Riesgo";
+        } else {
+            countBadge.textContent = "0 Casos";
+            countBadge.classList.replace('bg-warning', 'bg-success');
+            countBadge.classList.replace('text-dark', 'text-white');
+            countBadge.classList.replace('border-warning', 'border-success');
+            noDataRow.style.display = 'table-row';
+        }
+
+        // --- 2. GRÁFICOS ---
+        const rawMateriasLabels = {{ chart_materias_labels|safe }};
+        const rawMateriasData = {{ chart_materias_data|safe }};
+
+        // Gráfico Dona
+        new Chart(document.getElementById('distribucionChart'), {
+            type: 'doughnut',
+            data: {
+                labels: ['Aprobadas', 'Reprobadas'],
+                datasets: [{
+                    data: {{ chart_distribucion_data|safe }},
+                    backgroundColor: ['#10b981', '#ef4444'],
+                    borderWidth: 0,
+                    hoverOffset: 10
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '75%',
+                plugins: { legend: { position: 'bottom', labels: { usePointStyle: true, padding: 20 } } }
+            }
+        });
+
+        // Gráfico Materias (Todas)
+        new Chart(document.getElementById('materiasChart'), {
+            type: 'bar',
+            data: {
+                labels: rawMateriasLabels,
+                datasets: [{
+                    label: 'Promedio',
+                    data: rawMateriasData,
+                    backgroundColor: (context) => {
+                        const value = context.raw;
+                        return value < 3.0 ? '#ef4444' : '#4f46e5'; 
+                    },
+                    borderRadius: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                indexAxis: 'y',
+                scales: {
+                    x: { beginAtZero: true, max: 5, grid: { display: false } },
+                    y: { grid: { display: false }, ticks: { autoSkip: false } }
+                },
+                plugins: { legend: { display: false } }
+            }
+        });
+
+        // Gráfico Cursos
+        new Chart(document.getElementById('cursosChart'), {
+            type: 'line',
+            data: {
+                labels: {{ chart_cursos_labels|safe }},
+                datasets: [{
+                    label: 'Promedio',
+                    data: {{ chart_cursos_data|safe }},
+                    borderColor: '#10b981',
+                    backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                    borderWidth: 2,
+                    pointRadius: 3,
+                    pointBackgroundColor: '#fff',
+                    pointBorderColor: '#10b981',
+                    fill: true,
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: { beginAtZero: false, min: 1, max: 5, grid: { borderDash: [4, 4] } },
+                    x: { grid: { display: false } }
+                },
+                plugins: { legend: { display: false } }
+            }
+        });
+
+        // Gráfico Convivencia (Filtrado)
+        const convLabels = [];
+        const convData = [];
+        rawMateriasLabels.forEach((label, index) => {
+            if (label.toLowerCase().includes('convivencia')) {
+                convLabels.push(label);
+                convData.push(rawMateriasData[index]);
+            }
+        });
+
+        new Chart(document.getElementById('convivenciaChart'), {
+            type: 'bar',
+            data: {
+                labels: convLabels,
+                datasets: [{
+                    label: 'Nota de Convivencia',
+                    data: convData,
+                    backgroundColor: (context) => {
+                        const value = context.raw;
+                        if (value < 3.5) return '#ef4444';
+                        if (value < 4.0) return '#f59e0b';
+                        return '#10b981';
+                    },
+                    borderRadius: 6,
+                    borderWidth: 1,
+                    borderColor: 'rgba(255,255,255,0.5)'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: { beginAtZero: true, max: 5, grid: { borderDash: [5, 5] }, title: { display: true, text: 'Calificación (1.0 - 5.0)' } },
+                    x: { grid: { display: false }, ticks: { font: { weight: 'bold' } } }
+                },
+                plugins: { 
+                    legend: { display: false },
+                    tooltip: { callbacks: { label: function(context) { return `Nota: ${context.raw}`; } } }
+                }
+            }
+        });
+    });
+</script>
+{% endblock %}

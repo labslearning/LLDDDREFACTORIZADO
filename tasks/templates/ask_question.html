@@ -1,0 +1,264 @@
+{% extends 'base.html' %}
+{% block content %}
+<style>
+    /* Sistema de diseño educativo para formularios */
+    :root {
+        --edu-form-primary: #4361ee;
+        --edu-form-secondary: #3f37c9;
+        --edu-form-accent: #4cc9f0;
+        --edu-form-light: #f8f9fa;
+        --edu-form-dark: #212529;
+        --edu-form-text: #2b2d42;
+        --edu-form-text-light: #6c757d;
+        --edu-form-border: #e1e8ed;
+        --edu-form-success: #38b000;
+        --edu-form-radius: 12px;
+        --edu-form-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+        --edu-form-transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    }
+
+    .question-form-container {
+        max-width: 800px;
+        margin: 2rem auto;
+        padding: 2.5rem;
+        background-color: white;
+        border-radius: var(--edu-form-radius);
+        box-shadow: var(--edu-form-shadow);
+        font-family: 'Open Sans', sans-serif;
+    }
+
+    .question-form-title {
+        color: var(--edu-form-dark);
+        margin-bottom: 2rem;
+        font-weight: 700;
+        text-align: center;
+        font-size: 2.2rem;
+        position: relative;
+        padding-bottom: 1rem;
+        font-family: 'Poppins', sans-serif;
+    }
+
+    .question-form-title::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 80px;
+        height: 4px;
+        background: linear-gradient(90deg, var(--edu-form-primary), var(--edu-form-accent));
+        border-radius: 2px;
+    }
+
+    .question-form {
+        margin-top: 2rem;
+    }
+
+    .form-group {
+        margin-bottom: 1.75rem;
+        position: relative;
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: 0.75rem;
+        font-weight: 600;
+        color: var(--edu-form-dark);
+        font-size: 1.05rem;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 1rem 1.25rem;
+        font-size: 1rem;
+        line-height: 1.6;
+        color: var(--edu-form-text);
+        background-color: white;
+        background-clip: padding-box;
+        border: 2px solid var(--edu-form-border);
+        border-radius: var(--edu-form-radius);
+        transition: var(--edu-form-transition);
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
+    }
+
+    .form-control:focus {
+        border-color: var(--edu-form-primary);
+        box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.15);
+        outline: 0;
+    }
+
+    textarea.form-control {
+        min-height: 200px;
+        resize: vertical;
+    }
+
+    .form-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 1rem;
+        margin-top: 2.5rem;
+        flex-wrap: wrap;
+    }
+
+    .btn-submit {
+        background: linear-gradient(135deg, var(--edu-form-primary), var(--edu-form-secondary));
+        color: white;
+        border: none;
+        padding: 0.9rem 2.5rem;
+        border-radius: var(--edu-form-radius);
+        font-weight: 600;
+        font-size: 1.05rem;
+        transition: var(--edu-form-transition);
+        display: inline-flex;
+        align-items: center;
+        gap: 0.75rem;
+        box-shadow: 0 4px 12px rgba(67, 97, 238, 0.15);
+        cursor: pointer;
+    }
+
+    .btn-submit:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(67, 97, 238, 0.25);
+    }
+
+    .btn-cancel {
+        background-color: white;
+        color: var(--edu-form-text);
+        border: 2px solid var(--edu-form-border);
+        padding: 0.9rem 2rem;
+        border-radius: var(--edu-form-radius);
+        font-weight: 600;
+        font-size: 1.05rem;
+        transition: var(--edu-form-transition);
+        display: inline-flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .btn-cancel:hover {
+        background-color: var(--edu-form-light);
+        transform: translateY(-2px);
+        border-color: var(--edu-form-primary);
+        color: var(--edu-form-primary);
+    }
+
+    .form-tips {
+        margin-top: 2rem;
+        padding: 1.5rem;
+        background-color: #f5f7fb;
+        border-radius: var(--edu-form-radius);
+        border-left: 4px solid var(--edu-form-accent);
+    }
+
+    .form-tips h4 {
+        color: var(--edu-form-dark);
+        margin-bottom: 1rem;
+        font-family: 'Poppins', sans-serif;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .form-tips ul {
+        padding-left: 1.5rem;
+        color: var(--edu-form-text-light);
+    }
+
+    .form-tips li {
+        margin-bottom: 0.5rem;
+        line-height: 1.6;
+    }
+
+    @media (max-width: 768px) {
+        .question-form-container {
+            padding: 1.75rem;
+        }
+        
+        .question-form-title {
+            font-size: 1.8rem;
+        }
+        
+        .form-actions {
+            flex-direction: column;
+            gap: 1rem;
+        }
+        
+        .btn-submit, .btn-cancel {
+            width: 100%;
+            justify-content: center;
+        }
+    }
+</style>
+
+<div class="question-form-container">
+    <h1 class="question-form-title">
+        <i class="fas fa-question-circle"></i> Hacer una pregunta
+    </h1>
+    
+    <form method="post" class="question-form">
+        {% csrf_token %}
+        
+        <div class="form-group">
+            <label for="id_title">Título de la pregunta</label>
+            {{ form.title }}
+            <small class="text-muted">Sé específico como si le preguntaras a un experto</small>
+        </div>
+        
+        <div class="form-group">
+            <label for="id_content">Detalles de la pregunta</label>
+            {{ form.content }}
+            <small class="text-muted">Incluye toda la información necesaria para que otros puedan responder</small>
+        </div>
+        
+        <div class="form-tips">
+            <h4><i class="fas fa-lightbulb"></i> Consejos para una buena pregunta:</h4>
+            <ul>
+                <li>Describe claramente tu problema o duda</li>
+                <li>Menciona qué has intentado hasta ahora</li>
+                <li>Incluye ejemplos si es necesario</li>
+                <li>Sé respetuoso y claro</li>
+            </ul>
+        </div>
+        
+        <div class="form-actions">
+            <a href="{% url 'forum' %}" class="btn-cancel">
+                <i class="fas fa-times"></i> Cancelar
+            </a>
+            <button type="submit" class="btn-submit">
+                <i class="fas fa-paper-plane"></i> Publicar pregunta
+            </button>
+        </div>
+    </form>
+</div>
+
+<script>
+    // Mejora la experiencia de los campos del formulario
+    document.addEventListener('DOMContentLoaded', function() {
+        // Añade clases a los campos del formulario generados por Django
+        const titleField = document.querySelector('#id_title');
+        const contentField = document.querySelector('#id_content');
+        
+        if(titleField) {
+            titleField.classList.add('form-control');
+            titleField.placeholder = "Ej: ¿Cómo resolver ecuaciones de segundo grado?";
+        }
+        
+        if(contentField) {
+            contentField.classList.add('form-control');
+            contentField.placeholder = "Describe tu pregunta en detalle...";
+        }
+        
+        // Efecto de enfoque mejorado
+        const formControls = document.querySelectorAll('.form-control');
+        formControls.forEach(control => {
+            control.addEventListener('focus', function() {
+                this.parentElement.querySelector('label').style.color = 'var(--edu-form-primary)';
+            });
+            
+            control.addEventListener('blur', function() {
+                this.parentElement.querySelector('label').style.color = 'var(--edu-form-dark)';
+            });
+        });
+    });
+</script>
+{% endblock %}

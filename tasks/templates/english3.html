@@ -1,0 +1,756 @@
+{% extends 'base.html' %}
+{% block content %}
+<main class="container py-5 main-content-area">
+    <section class="text-center mb-5 page-header">
+        <h1 class="display-4 page-title">Aprende inglés con el Efecto Miller</h1>
+        <p class="lead page-subtitle">Explora nuestras clases y mejora tus habilidades en inglés de manera efectiva y memorable.</p>
+    </section>
+
+    <h2 class="display-6 text-center fw-bold my-5" style="color: #4A55A2;">
+        <i class="fas fa-book-open me-2"></i> Sexto Grado
+    </h2>
+    <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-3 row-cols-xl-4 g-4 g-md-5 lesson-grid">
+        <div class="col">
+            <div class="card h-100 lesson-card">
+                <div class="card-body text-center d-flex flex-column">
+                    <h5 class="card-title">Clase 1</h5>
+                    <p class="card-text">Descubre el Efecto Miller y su revolucionaria importancia en el aprendizaje acelerado del inglés.</p>
+                    <button class="btn btn-primary btn-lg mt-auto card-button" onclick="openVideoModal('https://res.cloudinary.com/do9orhb4k/video/upload/v1739634103/WhatsApp_Video_2025-02-15_at_8.34.38_AM_v0bpfq.mp4', 'Clase 1: Fundamentos del Efecto Miller')">
+                        <i class="fas fa-play-circle me-2"></i>Ver Clase
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="card h-100 lesson-card">
+                <div class="card-body text-center d-flex flex-column">
+                    <h5 class="card-title">Clase 2</h5>
+                    <p class="card-text">Primeros pasos prácticos para aplicar el Efecto Miller y potenciar tu memoria desde hoy.</p>
+                    <button class="btn btn-primary btn-lg mt-auto card-button" onclick="openVideoModal('https://res.cloudinary.com/do9orhb4k/video/upload/v1739634103/WhatsApp_Video_2025-02-15_at_8.34.38_AM_v0bpfq.mp4', 'Clase 2: Aplicación Inicial del Efecto Miller')">
+                        <i class="fas fa-play-circle me-2"></i>Ver Clase
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="card h-100 lesson-card">
+                <div class="card-body text-center d-flex flex-column">
+                    <h5 class="card-title">Clase 3</h5>
+                    <p class="card-text">Ejercicios prácticos de fonética y pronunciación para sonar más natural y claro.</p>
+                    <button class="btn btn-primary btn-lg mt-auto card-button" onclick="openVideoModal('TU_URL_AQUI', 'Clase 3: Dominando la Pronunciación Inglesa')">
+                        <i class="fas fa-play-circle me-2"></i>Ver Clase
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="card h-100 lesson-card">
+                <div class="card-body text-center d-flex flex-column">
+                    <h5 class="card-title">Clase 4</h5>
+                    <p class="card-text">Explora técnicas avanzadas de memorización de vocabulario y frases clave.</p>
+                    <button class="btn btn-primary btn-lg mt-auto card-button" onclick="openVideoModal('TU_URL_AQUI', 'Clase 4: Estrategias de Memorización Avanzada')">
+                        <i class="fas fa-play-circle me-2"></i>Ver Clase
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="card h-100 lesson-card">
+                <div class="card-body text-center d-flex flex-column">
+                    <h5 class="card-title">Clase 5</h5>
+                    <p class="card-text">Aplicación del Efecto Miller para mejorar tu redacción y escritura en inglés.</p>
+                    <button class="btn btn-primary btn-lg mt-auto card-button" onclick="openVideoModal('TU_URL_AQUI', 'Clase 5: El Efecto Miller en la Escritura')">
+                        <i class="fas fa-play-circle me-2"></i>Ver Clase
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="card h-100 lesson-card">
+                <div class="card-body text-center d-flex flex-column">
+                    <h5 class="card-title">Clase 6</h5>
+                    <p class="card-text">Desarrolla tu comprensión auditiva con ejercicios dinámicos y efectivos.</p>
+                    <button class="btn btn-primary btn-lg mt-auto card-button" onclick="openVideoModal('TU_URL_AQUI', 'Clase 6: Mejorando tu Listening Skill')">
+                        <i class="fas fa-play-circle me-2"></i>Ver Clase
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="card h-100 lesson-card">
+                <div class="card-body text-center d-flex flex-column">
+                    <h5 class="card-title">Clase 7</h5>
+                    <p class="card-text">Técnicas y trucos esenciales para aumentar tu fluidez verbal al hablar.</p>
+                    <button class="btn btn-primary btn-lg mt-auto card-button" onclick="openVideoModal('TU_URL_AQUI', 'Clase 7: Alcanzando la Fluidez Verbal')">
+                        <i class="fas fa-play-circle me-2"></i>Ver Clase
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="card h-100 lesson-card">
+                <div class="card-body text-center d-flex flex-column">
+                    <h5 class="card-title">Clase 8</h5>
+                    <p class="card-text">Fundamentos de la gramática inglesa explicados de forma clara y concisa.</p>
+                    <button class="btn btn-primary btn-lg mt-auto card-button" onclick="openVideoModal('TU_URL_AQUI', 'Clase 8: Gramática Esencial Desmitificada')">
+                        <i class="fas fa-play-circle me-2"></i>Ver Clase
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="card h-100 lesson-card">
+                <div class="card-body text-center d-flex flex-column">
+                    <h5 class="card-title">Clase 9</h5>
+                    <p class="card-text">Cómo aplicar el Efecto Miller para una lectura más rápida y comprensiva.</p>
+                    <button class="btn btn-primary btn-lg mt-auto card-button" onclick="openVideoModal('TU_URL_AQUI', 'Clase 9: Lectura Eficaz con Efecto Miller')">
+                        <i class="fas fa-play-circle me-2"></i>Ver Clase
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <hr class="my-5">
+
+    <h2 class="display-6 text-center fw-bold my-5" style="color: #4A55A2;">
+        <i class="fas fa-book-open me-2"></i> Séptimo Grado
+    </h2>
+    <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-3 row-cols-xl-4 g-4 g-md-5 lesson-grid">
+        <div class="col">
+            <div class="card h-100 lesson-card">
+                <div class="card-body text-center d-flex flex-column">
+                    <h5 class="card-title">Clase 10</h5>
+                    <p class="card-text">Expande tu vocabulario con métodos mnemotécnicos y contextuales.</p>
+                    <button class="btn btn-primary btn-lg mt-auto card-button" onclick="openVideoModal('TU_URL_AQUI', 'Clase 10: Estrategias para Ampliar Vocabulario')">
+                        <i class="fas fa-play-circle me-2"></i>Ver Clase
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="card h-100 lesson-card">
+                <div class="card-body text-center d-flex flex-column">
+                    <h5 class="card-title">Clase 11</h5>
+                    <p class="card-text">Refuerza tu pronunciación con ejercicios de acentuación y entonación.</p>
+                    <button class="btn btn-primary btn-lg mt-auto card-button" onclick="openVideoModal('TU_URL_AQUI', 'Clase 11: Perfeccionamiento de la Pronunciación')">
+                        <i class="fas fa-play-circle me-2"></i>Ver Clase
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="card h-100 lesson-card">
+                <div class="card-body text-center d-flex flex-column">
+                    <h5 class="card-title">Clase 12</h5>
+                    <p class="card-text">Comprensión auditiva avanzada: diálogos reales y diferentes acentos.</p>
+                    <button class="btn btn-primary btn-lg mt-auto card-button" onclick="openVideoModal('TU_URL_AQUI', 'Clase 12: Listening Avanzado en Contexto')">
+                        <i class="fas fa-play-circle me-2"></i>Ver Clase
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="card h-100 lesson-card">
+                <div class="card-body text-center d-flex flex-column">
+                    <h5 class="card-title">Clase 13</h5>
+                    <p class="card-text">Estructuras y estilos para una escritura avanzada y persuasiva en inglés.</p>
+                    <button class="btn btn-primary btn-lg mt-auto card-button" onclick="openVideoModal('TU_URL_AQUI', 'Clase 13: Técnicas de Escritura Avanzada')">
+                        <i class="fas fa-play-circle me-2"></i>Ver Clase
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="card h-100 lesson-card">
+                <div class="card-body text-center d-flex flex-column">
+                    <h5 class="card-title">Clase 14</h5>
+                    <p class="card-text">Profundización en tiempos verbales complejos y su uso correcto.</p>
+                    <button class="btn btn-primary btn-lg mt-auto card-button" onclick="openVideoModal('TU_URL_AQUI', 'Clase 14: Dominio de Tiempos Verbales')">
+                        <i class="fas fa-play-circle me-2"></i>Ver Clase
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="card h-100 lesson-card">
+                <div class="card-body text-center d-flex flex-column">
+                    <h5 class="card-title">Clase 15</h5>
+                    <p class="card-text">Desarrolla la fluidez en conversaciones y debates con confianza.</p>
+                    <button class="btn btn-primary btn-lg mt-auto card-button" onclick="openVideoModal('TU_URL_AQUI', 'Clase 15: Fluidez Conversacional Avanzada')">
+                        <i class="fas fa-play-circle me-2"></i>Ver Clase
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="card h-100 lesson-card">
+                <div class="card-body text-center d-flex flex-column">
+                    <h5 class="card-title">Clase 16</h5>
+                    <p class="card-text">Vocabulario específico para negocios y entornos profesionales.</p>
+                    <button class="btn btn-primary btn-lg mt-auto card-button" onclick="openVideoModal('TU_URL_AQUI', 'Clase 16: Vocabulario Profesional y de Negocios')">
+                        <i class="fas fa-play-circle me-2"></i>Ver Clase
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="card h-100 lesson-card">
+                <div class="card-body text-center d-flex flex-column">
+                    <h5 class="card-title">Clase 17</h5>
+                    <p class="card-text">Lectura crítica de textos complejos y análisis de contenido.</p>
+                    <button class="btn btn-primary btn-lg mt-auto card-button" onclick="openVideoModal('TU_URL_AQUI', 'Clase 17: Lectura Crítica y Analítica')">
+                        <i class="fas fa-play-circle me-2"></i>Ver Clase
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="card h-100 lesson-card">
+                <div class="card-body text-center d-flex flex-column">
+                    <h5 class="card-title">Clase 18</h5>
+                    <p class="card-text">Comprensión de matices culturales a través del listening y diálogos.</p>
+                    <button class="btn btn-primary btn-lg mt-auto card-button" onclick="openVideoModal('TU_URL_AQUI', 'Clase 18: Listening y Contexto Cultural')">
+                        <i class="fas fa-play-circle me-2"></i>Ver Clase
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <hr class="my-5">
+
+    <h2 class="display-6 text-center fw-bold my-5" style="color: #4A55A2;">
+        <i class="fas fa-book-open me-2"></i> Octavo Grado
+    </h2>
+    <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-3 row-cols-xl-4 g-4 g-md-5 lesson-grid">
+        <div class="col">
+            <div class="card h-100 lesson-card">
+                <div class="card-body text-center d-flex flex-column">
+                    <h5 class="card-title">Clase 19</h5>
+                    <p class="card-text">Reducción del acento y mejora de la claridad en la pronunciación.</p>
+                    <button class="btn btn-primary btn-lg mt-auto card-button" onclick="openVideoModal('TU_URL_AQUI', 'Clase 19: Refinando tu Acento Inglés')">
+                        <i class="fas fa-play-circle me-2"></i>Ver Clase
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="card h-100 lesson-card">
+                <div class="card-body text-center d-flex flex-column">
+                    <h5 class="card-title">Clase 20</h5>
+                    <p class="card-text">Uso avanzado de conectores y frases de transición en gramática.</p>
+                    <button class="btn btn-primary btn-lg mt-auto card-button" onclick="openVideoModal('TU_URL_AQUI', 'Clase 20: Conectores y Cohesión Gramatical')">
+                        <i class="fas fa-play-circle me-2"></i>Ver Clase
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="card h-100 lesson-card">
+                <div class="card-body text-center d-flex flex-column">
+                    <h5 class="card-title">Clase 21</h5>
+                    <p class="card-text">Estrategias de escritura para ensayos y reportes formales.</p>
+                    <button class="btn btn-primary btn-lg mt-auto card-button" onclick="openVideoModal('TU_URL_AQUI', 'Clase 21: Escritura Académica y Formal')">
+                        <i class="fas fa-play-circle me-2"></i>Ver Clase
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="card h-100 lesson-card">
+                <div class="card-body text-center d-flex flex-column">
+                    <h5 class="card-title">Clase 22</h5>
+                    <p class="card-text">Dominio de phrasal verbs comunes y su aplicación práctica.</p>
+                    <button class="btn btn-primary btn-lg mt-auto card-button" onclick="openVideoModal('TU_URL_AQUI', 'Clase 22: Phrasal Verbs en Acción')">
+                        <i class="fas fa-play-circle me-2"></i>Ver Clase
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="card h-100 lesson-card">
+                <div class="card-body text-center d-flex flex-column">
+                    <h5 class="card-title">Clase 23</h5>
+                    <p class="card-text">Prácticas de debate y argumentación para una fluidez superior.</p>
+                    <button class="btn btn-primary btn-lg mt-auto card-button" onclick="openVideoModal('TU_URL_AQUI', 'Clase 23: Debate y Argumentación en Inglés')">
+                        <i class="fas fa-play-circle me-2"></i>Ver Clase
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="card h-100 lesson-card">
+                <div class="card-body text-center d-flex flex-column">
+                    <h5 class="card-title">Clase 24</h5>
+                    <p class="card-text">Comprensión de discursos y presentaciones en inglés.</p>
+                    <button class="btn btn-primary btn-lg mt-auto card-button" onclick="openVideoModal('TU_URL_AQUI', 'Clase 24: Entendiendo Discursos y Presentaciones')">
+                        <i class="fas fa-play-circle me-2"></i>Ver Clase
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="card h-100 lesson-card">
+                <div class="card-body text-center d-flex flex-column">
+                    <h5 class="card-title">Clase 25</h5>
+                    <p class="card-text">Técnicas de lectura veloz y skimming para optimizar tu tiempo.</p>
+                    <button class="btn btn-primary btn-lg mt-auto card-button" onclick="openVideoModal('TU_URL_AQUI', 'Clase 25: Lectura Veloz y Skimming')">
+                        <i class="fas fa-play-circle me-2"></i>Ver Clase
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="card h-100 lesson-card">
+                <div class="card-body text-center d-flex flex-column">
+                    <h5 class="card-title">Clase 26</h5>
+                    <p class="card-text">Vocabulario académico y científico para estudios superiores.</p>
+                    <button class="btn btn-primary btn-lg mt-auto card-button" onclick="openVideoModal('TU_URL_AQUI', 'Clase 26: Vocabulario Académico Esencial')">
+                        <i class="fas fa-play-circle me-2"></i>Ver Clase
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="card h-100 lesson-card">
+                <div class="card-body text-center d-flex flex-column">
+                    <h5 class="card-title">Clase 27</h5>
+                    <p class="card-text">Práctica intensiva de la pronunciación de sonidos difíciles.</p>
+                    <button class="btn btn-primary btn-lg mt-auto card-button" onclick="openVideoModal('TU_URL_AQUI', 'Clase 27: Pronunciación de Sonidos Clave')">
+                        <i class="fas fa-play-circle me-2"></i>Ver Clase
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <hr class="my-5">
+
+    <h2 class="display-6 text-center fw-bold my-5" style="color: #4A55A2;">
+        <i class="fas fa-book-open me-2"></i> Noveno Grado
+    </h2>
+    <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-3 row-cols-xl-4 g-4 g-md-5 lesson-grid">
+        <div class="col">
+            <div class="card h-100 lesson-card">
+                <div class="card-body text-center d-flex flex-column">
+                    <h5 class="card-title">Clase 28</h5>
+                    <p class="card-text">Gramática avanzada: cláusulas relativas y voz pasiva.</p>
+                    <button class="btn btn-primary btn-lg mt-auto card-button" onclick="openVideoModal('TU_URL_AQUI', 'Clase 28: Gramática Avanzada: Cláusulas y Voz Pasiva')">
+                        <i class="fas fa-play-circle me-2"></i>Ver Clase
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="card h-100 lesson-card">
+                <div class="card-body text-center d-flex flex-column">
+                    <h5 class="card-title">Clase 29</h5>
+                    <p class="card-text">Escritura creativa: narración de historias y descripciones vívidas.</p>
+                    <button class="btn btn-primary btn-lg mt-auto card-button" onclick="openVideoModal('TU_URL_AQUI', 'Clase 29: Desarrollo de Escritura Creativa')">
+                        <i class="fas fa-play-circle me-2"></i>Ver Clase
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="card h-100 lesson-card">
+                <div class="card-body text-center d-flex flex-column">
+                    <h5 class="card-title">Clase 30</h5>
+                    <p class="card-text">Uso de modismos y expresiones idiomáticas comunes.</p>
+                    <button class="btn btn-primary btn-lg mt-auto card-button" onclick="openVideoModal('TU_URL_AQUI', 'Clase 30: Modismos y Expresiones Idiomáticas')">
+                        <i class="fas fa-play-circle me-2"></i>Ver Clase
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="card h-100 lesson-card">
+                <div class="card-body text-center d-flex flex-column">
+                    <h5 class="card-title">Clase 31</h5>
+                    <p class="card-text">Técnicas de presentación oral y discursos efectivos en inglés.</p>
+                    <button class="btn btn-primary btn-lg mt-auto card-button" onclick="openVideoModal('TU_URL_AQUI', 'Clase 31: Habilidades de Presentación Oral')">
+                        <i class="fas fa-play-circle me-2"></i>Ver Clase
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="card h-100 lesson-card">
+                <div class="card-body text-center d-flex flex-column">
+                    <h5 class="card-title">Clase 32</h5>
+                    <p class="card-text">Escucha activa y toma de notas en conferencias o clases.</p>
+                    <button class="btn btn-primary btn-lg mt-auto card-button" onclick="openVideoModal('TU_URL_AQUI', 'Clase 32: Listening Estratégico y Toma de Notas')">
+                        <i class="fas fa-play-circle me-2"></i>Ver Clase
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="card h-100 lesson-card">
+                <div class="card-body text-center d-flex flex-column">
+                    <h5 class="card-title">Clase 33</h5>
+                    <p class="card-text">Análisis de literatura y textos poéticos en inglés.</p>
+                    <button class="btn btn-primary btn-lg mt-auto card-button" onclick="openVideoModal('TU_URL_AQUI', 'Clase 33: Explorando la Literatura Inglesa')">
+                        <i class="fas fa-play-circle me-2"></i>Ver Clase
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="card h-100 lesson-card">
+                <div class="card-body text-center d-flex flex-column">
+                    <h5 class="card-title">Clase 34</h5>
+                    <p class="card-text">Vocabulario avanzado para temas de actualidad y cultura general.</p>
+                    <button class="btn btn-primary btn-lg mt-auto card-button" onclick="openVideoModal('https://res.cloudinary.com/do9orhb4k/video/upload/v1739634103/WhatsApp_Video_2025-02-15_at_8.34.38_AM_v0bpfq.mp4', 'Clase 34: Vocabulario de Actualidad y Cultura')">
+                        <i class="fas fa-play-circle me-2"></i>Ver Clase
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="card h-100 lesson-card">
+                <div class="card-body text-center d-flex flex-column">
+                    <h5 class="card-title">Clase 35</h5>
+                    <p class="card-text">Entonación y ritmo para una pronunciación avanzada y expresiva.</p>
+                    <button class="btn btn-primary btn-lg mt-auto card-button" onclick="openVideoModal('https://res.cloudinary.com/do9orhb4k/video/upload/v1739634103/WhatsApp_Video_2025-02-15_at_8.34.38_AM_v0bpfq.mp4', 'Clase 35: Musicalidad de la Pronunciación')">
+                        <i class="fas fa-play-circle me-2"></i>Ver Clase
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="card h-100 lesson-card">
+                <div class="card-body text-center d-flex flex-column">
+                    <h5 class="card-title">Clase 36</h5>
+                    <p class="card-text">Errores comunes en gramática y cómo evitarlos eficazmente.</p>
+                    <button class="btn btn-primary btn-lg mt-auto card-button" onclick="openVideoModal('TU_URL_AQUI', 'Clase 36: Evitando Errores Gramaticales Comunes')">
+                        <i class="fas fa-play-circle me-2"></i>Ver Clase
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <hr class="my-5">
+
+    <h2 class="display-6 text-center fw-bold my-5" style="color: #4A55A2;">
+        <i class="fas fa-book-open me-2"></i> Décimo Grado
+    </h2>
+    <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-3 row-cols-xl-4 g-4 g-md-5 lesson-grid">
+        <div class="col">
+            <div class="card h-100 lesson-card">
+                <div class="card-body text-center d-flex flex-column">
+                    <h5 class="card-title">Clase 37</h5>
+                    <p class="card-text">Redacción de correos electrónicos profesionales y correspondencia.</p>
+                    <button class="btn btn-primary btn-lg mt-auto card-button" onclick="openVideoModal('TU_URL_AQUI', 'Clase 37: Escritura de Correos Profesionales')">
+                        <i class="fas fa-play-circle me-2"></i>Ver Clase
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="card h-100 lesson-card">
+                <div class="card-body text-center d-flex flex-column">
+                    <h5 class="card-title">Clase 38</h5>
+                    <p class="card-text">Ampliando tu léxico: sinónimos, antónimos y matices de significado.</p>
+                    <button class="btn btn-primary btn-lg mt-auto card-button" onclick="openVideoModal('TU_URL_AQUI', 'Clase 38: Riqueza Léxica: Sinónimos y Antónimos')">
+                        <i class="fas fa-play-circle me-2"></i>Ver Clase
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="card h-100 lesson-card">
+                <div class="card-body text-center d-flex flex-column">
+                    <h5 class="card-title">Clase 39</h5>
+                    <p class="card-text">Simulaciones de conversaciones reales para máxima fluidez.</p>
+                    <button class="btn btn-primary btn-lg mt-auto card-button" onclick="openVideoModal('TU_URL_AQUI', 'Clase 39: Práctica Conversacional Intensiva')">
+                        <i class="fas fa-play-circle me-2"></i>Ver Clase
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="card h-100 lesson-card">
+                <div class="card-body text-center d-flex flex-column">
+                    <h5 class="card-title">Clase 40</h5>
+                    <p class="card-text">Comprensión de inglés en películas, series y podcasts sin subtítulos.</p>
+                    <button class="btn btn-primary btn-lg mt-auto card-button" onclick="openVideoModal('TU_URL_AQUI', 'Clase 40: Listening en Medios Audiovisuales')">
+                        <i class="fas fa-play-circle me-2"></i>Ver Clase
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="card h-100 lesson-card">
+                <div class="card-body text-center d-flex flex-column">
+                    <h5 class="card-title">Clase 41</h5>
+                    <p class="card-text">Estrategias para inferir significado en lecturas complejas.</p>
+                    <button class="btn btn-primary btn-lg mt-auto card-button" onclick="openVideoModal('TU_URL_AQUI', 'Clase 41: Inferencia y Comprensión de Lectura')">
+                        <i class="fas fa-play-circle me-2"></i>Ver Clase
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="card h-100 lesson-card">
+                <div class="card-body text-center d-flex flex-column">
+                    <h5 class="card-title">Clase 42</h5>
+                    <p class="card-text">Vocabulario técnico y especializado según áreas de interés.</p>
+                    <button class="btn btn-primary btn-lg mt-auto card-button" onclick="openVideoModal('TU_URL_AQUI', 'Clase 42: Vocabulario Técnico y Especializado')">
+                        <i class="fas fa-play-circle me-2"></i>Ver Clase
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="card h-100 lesson-card">
+                <div class="card-body text-center d-flex flex-column">
+                    <h5 class="card-title">Clase 43</h5>
+                    <p class="card-text">Corrección fonética personalizada y práctica de entonación.</p>
+                    <button class="btn btn-primary btn-lg mt-auto card-button" onclick="openVideoModal('TU_URL_AQUI', 'Clase 43: Taller de Corrección Fonética')">
+                        <i class="fas fa-play-circle me-2"></i>Ver Clase
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="card h-100 lesson-card">
+                <div class="card-body text-center d-flex flex-column">
+                    <h5 class="card-title">Clase 44</h5>
+                    <p class="card-text">Gramática avanzada: condicionales y estilo indirecto.</p>
+                    <button class="btn btn-primary btn-lg mt-auto card-button" onclick="openVideoModal('TU_URL_AQUI', 'Clase 44: Condicionales y Estilo Indirecto')">
+                        <i class="fas fa-play-circle me-2"></i>Ver Clase
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="card h-100 lesson-card">
+                <div class="card-body text-center d-flex flex-column">
+                    <h5 class="card-title">Clase 45</h5>
+                    <p class="card-text">Desarrollo de un estilo de escritura propio y auténtico en inglés.</p>
+                    <button class="btn btn-primary btn-lg mt-auto card-button" onclick="openVideoModal('TU_URL_AQUI', 'Clase 45: Encontrando tu Voz en la Escritura')">
+                        <i class="fas fa-play-circle me-2"></i>Ver Clase
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <hr class="my-5">
+
+    <h2 class="display-6 text-center fw-bold my-5" style="color: #4A55A2;">
+        <i class="fas fa-book-open me-2"></i> Grado Once
+    </h2>
+    <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-3 row-cols-xl-4 g-4 g-md-5 lesson-grid">
+        <div class="col">
+            <div class="card h-100 lesson-card">
+                <div class="card-body text-center d-flex flex-column">
+                    <h5 class="card-title">Clase 46</h5>
+                    <p class="card-text">Repaso integral de vocabulario clave y expresiones útiles.</p>
+                    <button class="btn btn-primary btn-lg mt-auto card-button" onclick="openVideoModal('TU_URL_AQUI', 'Clase 46: Consolidación de Vocabulario y Expresiones')">
+                        <i class="fas fa-play-circle me-2"></i>Ver Clase
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="card h-100 lesson-card">
+                <div class="card-body text-center d-flex flex-column">
+                    <h5 class="card-title">Clase 47</h5>
+                    <p class="card-text">Manteniendo conversaciones fluidas sobre temas complejos.</p>
+                    <button class="btn btn-primary btn-lg mt-auto card-button" onclick="openVideoModal('TU_URL_AQUI', 'Clase 47: Conversaciones Avanzadas y Temas Complejos')">
+                        <i class="fas fa-play-circle me-2"></i>Ver Clase
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="card h-100 lesson-card">
+                <div class="card-body text-center d-flex flex-column">
+                    <h5 class="card-title">Clase 48</h5>
+                    <p class="card-text">Preparación para exámenes de certificación: estrategias de listening.</p>
+                    <button class="btn btn-primary btn-lg mt-auto card-button" onclick="openVideoModal('TU_URL_AQUI', 'Clase 48: Listening para Exámenes de Certificación')">
+                        <i class="fas fa-play-circle me-2"></i>Ver Clase
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="card h-100 lesson-card">
+                <div class="card-body text-center d-flex flex-column">
+                    <h5 class="card-title">Clase 49</h5>
+                    <p class="card-text">Lectura y comprensión de artículos de investigación y noticias.</p>
+                    <button class="btn btn-primary btn-lg mt-auto card-button" onclick="openVideoModal('TU_URL_AQUI', 'Clase 49: Lectura de Artículos y Noticias')">
+                        <i class="fas fa-play-circle me-2"></i>Ver Clase
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="card h-100 lesson-card">
+                <div class="card-body text-center d-flex flex-column">
+                    <h5 class="card-title">Clase 50</h5>
+                    <p class="card-text">Proyecto final: Aplicación integral del Efecto Miller.</p>
+                    <button class="btn btn-primary btn-lg mt-auto card-button" onclick="openVideoModal('TU_URL_AQUI', 'Clase 50: Proyecto Final Integrador')">
+                        <i class="fas fa-play-circle me-2"></i>Ver Clase
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="card h-100 lesson-card">
+                <div class="card-body text-center d-flex flex-column">
+                    <h5 class="card-title">Clase 51</h5>
+                    <p class="card-text">Pasos siguientes: Cómo seguir mejorando tu inglés continuamente.</p>
+                    <button class="btn btn-primary btn-lg mt-auto card-button" onclick="openVideoModal('TU_URL_AQUI', 'Clase 51: Manteniendo y Mejorando tu Inglés')">
+                        <i class="fas fa-play-circle me-2"></i>Ver Clase
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="text-center mt-5 navigation-buttons">
+        <a href="/english2" class="btn btn-success btn-lg section-nav-button">
+            <i class="fas fa-layer-group me-2"></i>Sección 2 Inglés
+        </a>
+    </div>
+
+    <div class="back-button-section">
+        <a href="/english" class="btn btn-custom-back">
+            <i class="fas fa-arrow-circle-left me-2"></i>Sección 1 Inglés Atrás
+        </a>
+    </div>
+</main>
+
+<style>
+    :root {
+        --lesson-primary-color: #007bff;
+        --lesson-primary-hover: #0056b3;
+        --lesson-secondary-color: #28a745;
+        --lesson-secondary-hover: #1e7e34;
+        --lesson-page-bg: #f8f9fa;
+        --lesson-card-bg: #ffffff;
+        --lesson-card-shadow: 0 6px 18px rgba(0, 0, 0, 0.07);
+        --lesson-card-hover-shadow: 0 10px 25px rgba(0, 0, 0, 0.12);
+        --lesson-text-dark: #343a40;
+        --lesson-text-muted: #6c757d;
+        --lesson-radius-md: 12px;
+        --lesson-radius-sm: 0.35rem;
+        --lesson-font-primary: 'Poppins', sans-serif; 
+        --lesson-font-secondary: 'Roboto', sans-serif;
+    }
+    .main-content-area {
+        font-family: var(--lesson-font-secondary, 'Arial', sans-serif);
+        background-color: var(--lesson-page-bg);
+    }
+    .page-header .page-title {
+        font-family: var(--lesson-font-primary, 'Arial', sans-serif);
+        color: var(--lesson-primary-color);
+        font-weight: 700;
+        margin-bottom: 0.75rem;
+        font-size: 2.8rem;
+    }
+    .page-header .page-subtitle {
+        font-size: 1.2rem;
+        color: var(--lesson-text-muted);
+        max-width: 750px;
+        margin-left: auto;
+        margin-right: auto;
+        font-weight: 400;
+        line-height: 1.7;
+    }
+    .lesson-card {
+        background-color: var(--lesson-card-bg);
+        border: none; 
+        border-radius: var(--lesson-radius-md);
+        box-shadow: var(--lesson-card-shadow);
+        transition: transform 0.35s cubic-bezier(0.25, 0.1, 0.25, 1), box-shadow 0.35s cubic-bezier(0.25, 0.1, 0.25, 1);
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+    }
+    .lesson-card:hover {
+        transform: translateY(-10px) scale(1.03);
+        box-shadow: var(--lesson-card-hover-shadow);
+    }
+    .lesson-card .card-body {
+        padding: 1.75rem;
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+        text-align: center;
+    }
+    .lesson-card .card-title {
+        font-family: var(--lesson-font-primary, 'Arial', sans-serif);
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: var(--lesson-text-dark);
+        margin-bottom: 0.85rem;
+    }
+    .lesson-card .card-text {
+        color: var(--lesson-text-muted);
+        font-size: 0.95rem;
+        flex-grow: 1;
+        margin-bottom: 1.5rem;
+        line-height: 1.6;
+    }
+    .lesson-card .card-button {
+        font-family: var(--lesson-font-primary, 'Arial', sans-serif);
+        font-weight: 500;
+        font-size: 1rem; 
+        padding: 0.75rem 1.6rem;
+        border-radius: var(--lesson-radius-sm);
+        background-color: var(--lesson-primary-color);
+        border-color: var(--lesson-primary-color);
+        color: white;
+        transition: background-color 0.25s ease, border-color 0.25s ease, transform 0.15s ease, box-shadow 0.25s ease;
+        align-self: center;
+        box-shadow: 0 2px 5px rgba(0,123,255,0.2);
+    }
+    .lesson-card .card-button:hover {
+        background-color: var(--lesson-primary-hover);
+        border-color: var(--lesson-primary-hover);
+        transform: translateY(-3px);
+        box-shadow: 0 4px 10px rgba(0,123,255,0.3);
+    }
+    .lesson-card .card-button:active {
+        transform: translateY(-1px);
+        box-shadow: 0 2px 5px rgba(0,123,255,0.2);
+    }
+    .navigation-buttons, .back-button-section {
+        padding-top: 2rem;
+        padding-bottom: 1.5rem;
+    }
+    .section-nav-button, .btn-custom-back {
+        font-family: var(--lesson-font-primary, 'Arial', sans-serif);
+        font-weight: 500;
+        padding: 0.85rem 2rem;
+        border-radius: var(--lesson-radius-sm);
+        font-size: 1.05rem;
+    }
+    .section-nav-button {
+        background-color: var(--lesson-secondary-color);
+        border-color: var(--lesson-secondary-color);
+    }
+    .section-nav-button:hover {
+        background-color: var(--lesson-secondary-hover);
+        border-color: var(--lesson-secondary-hover);
+    }
+    .btn-custom-back {
+        background-color: var(--lesson-text-muted);
+        border-color: var(--lesson-text-muted);
+        color: white;
+    }
+    .btn-custom-back:hover {
+        background-color: #545b62;
+        border-color: #545b62;
+        color: white;
+    }
+    .btn .fas {
+        vertical-align: -0.05em;
+    }
+</style>
+{% endblock %}

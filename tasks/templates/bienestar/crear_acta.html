@@ -1,0 +1,285 @@
+{% extends 'base.html' %}
+{% load widget_tweaks %}
+{% load static %}
+
+{% block content %}
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" />
+
+<style>
+    /* ESTILOS EDUTECH PREMIUM */
+    .card-pro {
+        border: none;
+        border-radius: 20px;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.08);
+        overflow: hidden;
+    }
+    .header-gradient {
+        background: linear-gradient(135deg, #4f46e5 0%, #3b82f6 100%);
+        padding: 30px;
+        position: relative;
+    }
+    .header-icon-bg {
+        position: absolute;
+        right: 20px;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 80px;
+        opacity: 0.1;
+        color: white;
+    }
+    .form-label {
+        font-weight: 700;
+        color: #374151;
+        font-size: 0.9rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 8px;
+    }
+    .input-group-text {
+        background-color: #f3f4f6;
+        border: 1px solid #e5e7eb;
+    }
+    .form-control, .form-select {
+        border-radius: 10px;
+        border: 1px solid #e5e7eb;
+        padding: 12px 15px;
+        font-size: 0.95rem;
+        transition: all 0.3s ease;
+    }
+    .form-control:focus, .form-select:focus {
+        border-color: #4f46e5;
+        box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1);
+    }
+    
+    /* Select2 Personalizado */
+    .select2-container--bootstrap-5 .select2-selection {
+        border-radius: 10px;
+        border: 1px solid #e5e7eb;
+        min-height: 50px;
+    }
+    .select2-container--bootstrap-5 .select2-selection--multiple .select2-selection__rendered .select2-selection__choice {
+        background-color: #e0e7ff;
+        border: 1px solid #c7d2fe;
+        color: #4338ca;
+        border-radius: 6px;
+        font-weight: 600;
+        font-size: 0.85rem;
+        padding: 4px 10px;
+    }
+    .select2-results__group {
+        background-color: #f9fafb;
+        color: #6b7280;
+        font-size: 0.8rem;
+        padding: 8px 10px;
+        font-weight: 800;
+        text-transform: uppercase;
+    }
+
+    /* CONTENEDOR ESPECIAL PARA EL IMPLICADO */
+    #implicadoContainer {
+        background-color: #fff8e1; /* Fondo amarillo suave */
+        border: 2px dashed #ffc107;
+        padding: 20px;
+        border-radius: 12px;
+        display: none; /* Oculto por defecto, JS lo activa */
+        margin-bottom: 25px;
+        transition: all 0.3s ease;
+    }
+</style>
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-xl-9 col-lg-11">
+            
+            <div class="card card-pro bg-white">
+                
+                <div class="header-gradient text-white">
+                    <i class="fas fa-file-signature header-icon-bg"></i>
+                    <h3 class="mb-1 fw-bold">Crear Acta Institucional</h3>
+                    <p class="mb-0 opacity-75">Documentación oficial y seguimiento de procesos educativos.</p>
+                </div>
+
+                <div class="card-body p-5">
+                    
+                    {% if form.errors %}
+                        <div class="alert alert-danger shadow-sm rounded-3 border-0 mb-4 animate__animated animate__shakeX">
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-exclamation-circle fa-2x me-3"></i>
+                                <div>
+                                    <h6 class="fw-bold mb-1">Se encontraron errores en el formulario</h6>
+                                    <ul class="mb-0 small ps-3">
+                                        {% for field in form %}
+                                            {% for error in field.errors %}
+                                                <li><strong>{{ field.label }}:</strong> {{ error }}</li>
+                                            {% endfor %}
+                                        {% endfor %}
+                                        {% for error in form.non_field_errors %}
+                                            <li>{{ error }}</li>
+                                        {% endfor %}
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    {% endif %}
+
+                    <form method="post" enctype="multipart/form-data" id="actaForm">
+                        {% csrf_token %}
+                        
+                        <h6 class="text-primary fw-bold mb-4 border-bottom pb-2"><i class="fas fa-info-circle me-2"></i>Información General</h6>
+                        
+                        <div class="row g-4 mb-4">
+                            <div class="col-md-8">
+                                <label class="form-label">Asunto / Título</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="fas fa-heading text-muted"></i></span>
+                                    {% render_field form.titulo class="form-control fw-bold" placeholder="Ej: Descargos por falta tipo II - Grado 11" %}
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Tipo de Reunión</label>
+                                {% render_field form.tipo class="form-select" id="tipoSelector" %}
+                            </div>
+                        </div>
+
+                        <div id="implicadoContainer" class="animate__animated animate__fadeIn">
+                            <div class="d-flex align-items-center mb-3">
+                                <i class="fas fa-user-tag fa-2x text-warning me-3"></i>
+                                <div>
+                                    <h6 class="fw-bold mb-0 text-dark">Persona Citada / Implicada</h6>
+                                    <small class="text-muted">Seleccione al estudiante, docente o funcionario objeto de este proceso (Descargos).</small>
+                                </div>
+                            </div>
+                            {% render_field form.implicado class="form-select select2-user-search" style="width: 100%" %}
+                        </div>
+
+                        <div class="row g-4 mb-4">
+                            <div class="col-md-6">
+                                <label class="form-label">Lugar del Encuentro</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="fas fa-map-marker-alt text-muted"></i></span>
+                                    {% render_field form.lugar class="form-control" placeholder="Ej: Sala de Juntas / Rectoría" %}
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Fecha</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="far fa-calendar-alt text-muted"></i></span>
+                                    {% render_field form.fecha class="form-control" type="date" %}
+                                </div>
+                            </div>
+                        </div>
+
+                        <h6 class="text-primary fw-bold mt-5 mb-4 border-bottom pb-2"><i class="fas fa-users me-2"></i>Asistentes y Participantes</h6>
+                        
+                        <div class="mb-4">
+                            <label class="form-label">
+                                Buscar Asistentes del Sistema
+                                <span class="badge bg-primary-subtle text-primary ms-2 rounded-pill">Profesores, Alumnos, Staff</span>
+                            </label>
+                            
+                            {% render_field form.participantes class="form-select select2-user-search" style="width: 100%" multiple="multiple" %}
+                            <div class="form-text mt-2"><i class="fas fa-search me-1"></i> Puedes buscar por nombre o apellido. Selecciona múltiples personas.</div>
+                        </div>
+
+                        <div class="row g-4 mb-4">
+                            <div class="col-md-7">
+                                <label class="form-label">Invitados Externos (No registrados)</label>
+                                {% render_field form.asistentes_externos class="form-control" placeholder="Escribe los nombres separados por comas..." %}
+                            </div>
+                            <div class="col-md-5">
+                                <label class="form-label">Adjuntar Evidencia (PDF/Img)</label>
+                                {% render_field form.archivo_adjunto class="form-control" %}
+                            </div>
+                        </div>
+
+                        <h6 class="text-primary fw-bold mt-5 mb-4 border-bottom pb-2"><i class="fas fa-align-left me-2"></i>Desarrollo y Conclusiones</h6>
+
+                        <div class="mb-4">
+                            <label class="form-label">Orden del Día</label>
+                            {% render_field form.orden_dia class="form-control" rows="3" placeholder="1. Verificación del quórum..." %}
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label">Desarrollo de la Agenda / Hechos</label>
+                            {% render_field form.contenido class="form-control" rows="6" placeholder="Describe detalladamente los temas tratados o los descargos..." %}
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label text-success">Compromisos y Tareas</label>
+                            <div class="position-relative">
+                                <i class="fas fa-check-circle position-absolute top-0 start-0 m-3 text-success"></i>
+                                {% render_field form.compromisos class="form-control border-success bg-success-subtle ps-5" rows="4" placeholder="Lista de compromisos adquiridos y responsables..." %}
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-between align-items-center mt-5 pt-3 border-top">
+                            <a href="{% url 'historial_actas' %}" class="btn btn-light text-muted fw-bold px-4 rounded-pill">
+                                <i class="fas fa-arrow-left me-2"></i>Volver
+                            </a>
+                            <button type="submit" class="btn btn-primary btn-lg px-5 rounded-pill shadow-lg hover-scale">
+                                <i class="fas fa-save me-2"></i> Guardar Acta Oficial
+                            </button>
+                        </div>
+
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+<script>
+    $(document).ready(function() {
+        // 1. Inicializar Select2 en los campos de búsqueda
+        $('.select2-user-search').select2({
+            theme: 'bootstrap-5',
+            placeholder: "🔍 Escribe para buscar docentes, estudiantes o directivos...",
+            allowClear: true,
+            width: '100%',
+            language: {
+                noResults: function() {
+                    return "No se encontraron usuarios con ese nombre.";
+                }
+            }
+        });
+
+        // 2. Lógica Inteligente para Mostrar/Ocultar Implicado
+        const tipoSelect = $('#tipoSelector');
+        const implicadoBox = $('#implicadoContainer');
+
+        function toggleImplicado() {
+            const val = tipoSelect.val();
+            // Lista de tipos de acta que requieren un implicado (Descargos, Comités, etc)
+            const tiposConImplicado = [
+                'DESCARGOS', 
+                'SITUACION_ESPECIAL', 
+                'ACTA_COMPROMISO', 
+                'MEDIACION', 
+                'COMITE_CONVIVENCIA'
+            ];
+            
+            if (tiposConImplicado.includes(val)) {
+                implicadoBox.slideDown();
+            } else {
+                implicadoBox.slideUp();
+                // Opcional: Limpiar el campo si se oculta para no enviar datos basura
+                // $('#id_implicado').val(null).trigger('change');
+            }
+        }
+
+        // Ejecutar al cambiar el select y al cargar la página
+        tipoSelect.on('change', toggleImplicado);
+        toggleImplicado(); 
+    });
+</script>
+
+<style>
+    /* Efecto Hover en el botón */
+    .hover-scale { transition: transform 0.2s; }
+    .hover-scale:hover { transform: scale(1.02); }
+</style>
+{% endblock %}

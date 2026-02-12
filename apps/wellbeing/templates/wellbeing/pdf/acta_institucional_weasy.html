@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Acta Oficial No. {{ acta.consecutivo }}</title>
+    <style>
+        /* =========================================
+           CONFIGURACIÓN MAESTRA DE PÁGINA
+           ========================================= */
+        @page {
+            size: Letter;
+            margin-top: 4.5cm;    
+            margin-bottom: 3cm; 
+            margin-left: 2.5cm;
+            margin-right: 2.5cm;
+
+            @top-center { 
+                content: element(header); 
+                margin-top: 1cm; 
+            }
+            @bottom-center { 
+                content: element(footer); 
+                margin-bottom: 1cm;
+            }
+        }
+
+        /* FUENTES Y TIPOGRAFÍA */
+        body {
+            font-family: 'Times New Roman', Times, serif; 
+            font-size: 11pt;
+            line-height: 1.6; 
+            color: #1a1a1a;   
+            text-align: justify;
+            text-rendering: optimizeLegibility;
+        }
+
+        /* =========================================
+           ENCABEZADO (MEMBRETE)
+           ========================================= */
+        header {
+            position: running(header);
+            width: 100%;
+            text-align: center;
+            border-bottom: 1px solid #000;
+            padding-bottom: 15px;
+            margin-bottom: 20px; 
+        }
+
+        header::after {
+            content: "";
+            display: block;
+            border-bottom: 3px solid #000;
+            margin-top: 3px;
+        }
+
+        .header-logo {
+            height: 75px; 
+            margin-bottom: 12px;
+            object-fit: contain;
+        }
+
+        .header-inst {
+            font-family: 'Arial', sans-serif;
+            font-size: 14pt;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: #000;
+            margin-bottom: 5px;
+        }
+
+        .header-meta {
+            font-family: 'Arial', sans-serif;
+            font-size: 8pt;
+            color: #555;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            line-height: 1.2;
+        }
+
+        /* =========================================
+           PIE DE PÁGINA
+           ========================================= */
+        footer {
+            position: running(footer);
+            width: 100%;
+            border-top: 1px solid #ccc;
+            padding-top: 10px;
+            font-family: 'Arial', sans-serif;
+            font-size: 8pt;
+            color: #777;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        /* =========================================
+           ESTRUCTURA DEL CUERPO
+           ========================================= */
+        .doc-header-block {
+            text-align: center;
+            margin-bottom: 45px;
+            margin-top: 10px;
+        }
+
+        .doc-type {
+            font-family: 'Arial', sans-serif;
+            font-size: 10pt;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            border: 1px solid #000;
+            display: inline-block;
+            padding: 8px 25px;
+            margin-bottom: 15px;
+            background-color: #fff;
+        }
+
+        .doc-number {
+            font-size: 18pt;
+            font-weight: 700;
+            text-transform: uppercase;
+            display: block;
+            letter-spacing: -0.5px;
+        }
+
+        /* TABLA DE METADATOS LIMPIA */
+        table.info-grid {
+            width: 100%;
+            margin-bottom: 40px;
+            border-collapse: collapse;
+            font-size: 11pt;
+        }
+        table.info-grid td {
+            padding: 8px 0;
+            vertical-align: top;
+        }
+        .label {
+            font-family: 'Arial', sans-serif;
+            font-weight: 700;
+            width: 25%;
+            text-transform: uppercase;
+            font-size: 8.5pt;
+            color: #333;
+            letter-spacing: 0.5px;
+            padding-top: 8px !important;
+        }
+        .value {
+            border-bottom: 1px dotted #aaa;
+            width: 75%;
+            padding-left: 15px;
+            color: #000;
+        }
+
+        /* SECCIONES */
+        h3.section {
+            font-family: 'Arial', sans-serif;
+            font-size: 10.5pt;
+            font-weight: 800;
+            text-transform: uppercase;
+            background-color: #f8f8f8;
+            padding: 8px 15px;
+            margin-top: 35px;
+            margin-bottom: 20px;
+            border-left: 5px solid #222;
+            letter-spacing: 0.5px;
+        }
+
+        .text-block {
+            margin-bottom: 20px;
+            white-space: pre-wrap;
+            text-align: justify;
+        }
+
+        /* LISTAS */
+        ul.list-clean {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        ul.list-clean li {
+            margin-bottom: 8px;
+            padding-left: 20px;
+            position: relative;
+        }
+        ul.list-clean li::before {
+            content: "▪";
+            position: absolute;
+            left: 0;
+            font-size: 12pt;
+            line-height: 14pt;
+            color: #444;
+        }
+
+        /* CAJA DEL CITADO */
+        .cited-box {
+            border: 1px solid #ddd;
+            background-color: #fafafa;
+            padding: 20px;
+            margin-bottom: 35px;
+            border-left: 6px solid #c0392b; /* Rojo institucional */
+            border-radius: 4px;
+        }
+
+        /* FIRMAS */
+        .signatures-container {
+            margin-top: 90px;
+            page-break-inside: avoid;
+        }
+        .signature-row {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            gap: 60px 30px;
+        }
+        .sig-box {
+            width: 45%;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .sig-line {
+            border-top: 1px solid #000;
+            width: 80%;
+            margin: 0 auto 10px auto;
+        }
+        .sig-name {
+            font-family: 'Arial', sans-serif;
+            font-weight: 700;
+            font-size: 9.5pt;
+            text-transform: uppercase;
+            margin-bottom: 3px;
+        }
+        .sig-role {
+            font-family: 'Times New Roman', serif;
+            font-size: 10.5pt;
+            font-style: italic;
+            color: #555;
+        }
+
+        /* MARCA DE AGUA */
+        .watermark {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 550px;
+            opacity: 0.04;
+            z-index: -1;
+            filter: grayscale(100%);
+        }
+
+    </style>
+</head>
+<body>
+
+    {% if institucion.logo %}
+        <img src="{{ institucion.logo.url }}" class="watermark">
+    {% endif %}
+
+    <header>
+        {% if institucion.logo %}
+            <img src="{{ institucion.logo.url }}" class="header-logo">
+        {% endif %}
+        <div class="header-inst">{{ institucion.nombre }}</div>
+        <div class="header-meta">
+            NIT: {{ institucion.nit }} &nbsp;|&nbsp; CÓDIGO DANE: {{ institucion.dane|default:"N/A" }}<br>
+            {{ institucion.direccion }} &nbsp;•&nbsp; {{ institucion.ciudad }}
+        </div>
+    </header>
+
+    <footer>
+        <div>
+            <strong>Original:</strong> Archivo de Gestión &nbsp;|&nbsp; 
+            <strong>Copia:</strong> Interesados
+        </div>
+        <div>
+            Generado: {% now "d/m/Y H:i" %} &nbsp;|&nbsp; 
+            Página <span content="counter(page)"></span> de <span content="counter(pages)"></span>
+        </div>
+    </footer>
+
+    <div class="doc-header-block">
+        <div class="doc-type">ACTA DE {{ acta.get_tipo_display }}</div>
+        <div class="doc-number">No. {{ acta.consecutivo|stringformat:"04d" }}-{% now "Y" %}</div>
+    </div>
+
+    <table class="info-grid">
+        <tr>
+            <td class="label">LUGAR Y FECHA:</td>
+            <td class="value">
+                En {{ institucion.ciudad|default:"la ciudad sede" }}, a los {{ acta.fecha|date:"d" }} días del mes de {{ acta.fecha|date:"F" }} del año {{ acta.fecha|date:"Y" }}.
+            </td>
+        </tr>
+        <tr>
+            <td class="label">ASUNTO:</td>
+            <td class="value"><strong>{{ acta.titulo }}</strong></td>
+        </tr>
+        <tr>
+            <td class="label">HORA INICIO:</td>
+            <td class="value">{{ acta.fecha|date:"H:i A" }}</td>
+        </tr>
+        <tr>
+            <td class="label">MODERADOR:</td>
+            <td class="value">{{ acta.creador.get_full_name|upper }}</td>
+        </tr>
+    </table>
+
+    {% if acta.implicado %}
+        {% if acta.tipo == 'DESCARGOS' or acta.tipo == 'SITUACION_CONVIVENCIA' or acta.tipo == 'SITUACION_ESPECIAL' or acta.tipo == 'SEGUIMIENTO_ACADEMICO' %}
+        <div class="cited-box">
+            <table style="width: 100%; border: none;">
+                <tr>
+                    <td style="width: 25%; font-family: 'Arial'; font-weight: 800; font-size: 9pt; color: #333;">
+                        {% if acta.tipo == 'DESCARGOS' %}
+                            PERSONA CITADA A DESCARGOS:
+                        {% else %}
+                            ESTUDIANTE / IMPLICADO:
+                        {% endif %}
+                    </td>
+                    <td style="font-size: 12pt; font-weight: bold; color: #000;">{{ acta.implicado.get_full_name|upper }}</td>
+                </tr>
+                <tr>
+                    <td style="font-family: 'Arial'; font-weight: 800; font-size: 9pt; color: #333;">CALIDAD / ROL:</td>
+                    <td style="font-style: italic;">{{ acta.implicado.perfil.get_rol_display }}</td>
+                </tr>
+            </table>
+        </div>
+        {% endif %}
+    {% endif %}
+
+    {% if acta.orden_dia %}
+    <h3 class="section">I. ORDEN DEL DÍA</h3>
+    <div class="text-block">{{ acta.orden_dia }}</div>
+    {% endif %}
+
+    <h3 class="section">{% if acta.orden_dia %}II{% else %}I{% endif %}. VERIFICACIÓN DEL QUÓRUM Y ASISTENCIA</h3>
+    <p>Se procede a la verificación de los asistentes convocados para la presente diligencia, confirmando la presencia de:</p>
+    
+    <ul class="list-clean">
+        <li><strong>{{ acta.creador.get_full_name|upper }}</strong> &mdash; <em>{{ acta.creador.perfil.get_rol_display }} (Secretario Ad-Hoc)</em></li>
+        
+        {% for p in acta.participantes.all %}
+            {% if p != acta.creador %}
+            <li><strong>{{ p.get_full_name|upper }}</strong> &mdash; <em>{{ p.perfil.get_rol_display }}</em></li>
+            {% endif %}
+        {% endfor %}
+
+        {% if acta.asistentes_externos %}
+            <br>
+            <li><em>Invitados Externos: {{ acta.asistentes_externos }}</em></li>
+        {% endif %}
+    </ul>
+
+    <h3 class="section">{% if acta.orden_dia %}III{% else %}II{% endif %}. DESARROLLO DE LA AGENDA</h3>
+    <div class="text-block">
+        {{ acta.contenido }}
+    </div>
+
+    {% if acta.compromisos %}
+    <h3 class="section">{% if acta.orden_dia %}IV{% else %}III{% endif %}. CONCLUSIONES Y COMPROMISOS</h3>
+    <div class="text-block">
+        {{ acta.compromisos }}
+    </div>
+    {% endif %}
+
+    <p style="margin-top: 50px; margin-bottom: 50px; font-style: italic; border-top: 1px solid #eee; padding-top: 20px;">
+        Agotado el orden del día y no habiendo más asuntos que tratar, se levanta la sesión siendo las <strong>{{ acta.hora_fin|default:"____" }}</strong> horas. Se firma la presente acta por quienes en ella intervinieron, en señal de conformidad con lo aquí estipulado.
+    </p>
+
+    <div class="signatures-container">
+        <h3 class="section" style="background: none; border: none; padding: 0; margin-bottom: 50px; border-left: none;">FIRMAS DE LOS INTERVINIENTES:</h3>
+        
+        <div class="signature-row">
+            
+            <div class="sig-box">
+                <div class="sig-line"></div>
+                <div class="sig-name">{{ acta.creador.get_full_name }}</div>
+                <div class="sig-role">Quien elabora el Acta</div>
+            </div>
+
+            {% if acta.implicado %}
+                {% if acta.tipo == 'DESCARGOS' or acta.tipo == 'SITUACION_CONVIVENCIA' or acta.tipo == 'SITUACION_ESPECIAL' or acta.tipo == 'SEGUIMIENTO_ACADEMICO' %}
+                <div class="sig-box">
+                    <div class="sig-line"></div>
+                    <div class="sig-name">{{ acta.implicado.get_full_name }}</div>
+                    <div class="sig-role">
+                        {% if acta.tipo == 'DESCARGOS' %}
+                            En versión libre y espontánea
+                        {% else %}
+                            Citado / Interesado
+                        {% endif %}
+                    </div>
+                </div>
+                {% endif %}
+            {% endif %}
+
+            {% for p in acta.participantes.all|slice:":2" %}
+                {% if p != acta.creador %}
+                <div class="sig-box">
+                    <div class="sig-line"></div>
+                    <div class="sig-name">{{ p.get_full_name }}</div>
+                    <div class="sig-role">Asistente / Testigo</div>
+                </div>
+                {% endif %}
+            {% endfor %}
+        </div>
+    </div>
+
+</body>
+</html>

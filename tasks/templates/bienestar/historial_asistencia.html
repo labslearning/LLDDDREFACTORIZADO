@@ -1,0 +1,286 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+
+<div class="modal fade" id="modalStratosAusentismo" tabindex="-1" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-2xl overflow-hidden" style="border-radius: 24px;">
+            <div class="modal-body p-0 text-center">
+                <div class="position-relative py-5 px-4" style="background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%);">
+                    <div class="mb-4 position-relative d-inline-block">
+                        <div class="position-absolute top-50 start-50 translate-middle" style="width: 150px; height: 150px; background: rgba(255, 255, 255, 0.1); border-radius: 50%; animation: pulse-ring 2s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;"></div>
+                        <div class="position-absolute top-50 start-50 translate-middle" style="width: 110px; height: 110px; background: rgba(255, 255, 255, 0.2); border-radius: 50%; animation: pulse-ring 2s cubic-bezier(0.215, 0.61, 0.355, 1) infinite 0.5s;"></div>
+                        <div class="bg-white rounded-circle position-relative d-flex align-items-center justify-content-center shadow-lg" style="width: 80px; height: 80px; z-index: 10;">
+                            <i class="fas fa-search-location fa-2x text-danger animate__animated animate__pulse animate__infinite"></i>
+                        </div>
+                    </div>
+                    <h4 class="text-white fw-bold mb-2">Auditando Asistencia...</h4>
+                    <p class="text-white-50 small mb-0">Stratos AI está buscando patrones de deserción</p>
+                </div>
+                <div class="bg-white p-4">
+                    <div class="d-flex align-items-center justify-content-center mb-3">
+                        <span class="spinner-border spinner-border-sm text-danger me-2" role="status"></span>
+                        <span id="ausentismoStatusText" class="fw-bold text-dark small text-uppercase ls-1">Conectando con base de datos...</span>
+                    </div>
+                    <div class="progress" style="height: 6px; border-radius: 10px;">
+                        <div id="ausentismoProgressBar" class="progress-bar bg-danger" role="progressbar" style="width: 0%; transition: width 0.5s ease;"></div>
+                    </div>
+                    <p class="text-muted x-small mt-3 fst-italic">Analizando excusas, retardos y días críticos.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container py-5 animate__animated animate__fadeIn">
+    
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold text-dark"><i class="fas fa-history me-2 text-warning"></i>Historial de Asistencia</h2>
+            <p class="text-muted mb-0">Registro detallado de fallas, retardos y asistencias.</p>
+        </div>
+        <div class="d-flex gap-2">
+            <a href="{% url 'dashboard_bienestar' %}" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left me-2"></i>Dashboard
+            </a>
+            <a href="{% url 'dashboard_academico' %}" class="btn btn-warning text-dark fw-bold shadow-sm">
+                <i class="fas fa-brain me-2"></i>Inteligencia Académica
+            </a>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-12">
+            {% if top_fallas %}
+                <div class="card border-0 shadow-sm bg-danger bg-opacity-10 border-start border-4 border-danger animate__animated animate__fadeInDown">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center justify-content-between mb-3">
+                            <h5 class="fw-bold text-danger mb-0"><i class="fas fa-siren-on me-2"></i>Alerta de Deserción: Top Ausentismo</h5>
+                            <small class="text-muted">Estudiantes con mayor riesgo acumulado</small>
+                        </div>
+                        <div class="row g-3">
+                            {% for alumno in top_fallas %}
+                            <div class="col-md-6 col-lg-3">
+                                <div class="card border-0 shadow-sm h-100 hover-lift">
+                                    <div class="card-body p-3 position-relative">
+                                        <span class="position-absolute top-0 end-0 badge bg-danger m-2 rounded-pill shadow-sm">{{ alumno.total }} Fallas</span>
+                                        <div class="d-flex align-items-center mb-2">
+                                            <div class="avatar-sm bg-danger text-white rounded-circle d-flex align-items-center justify-content-center fw-bold me-2" style="width: 45px; height: 45px; font-size: 1.1rem;">
+                                                {{ alumno.estudiante__first_name|slice:":1" }}
+                                            </div>
+                                            <div class="text-truncate">
+                                                <h6 class="mb-0 fw-bold text-dark text-truncate" style="max-width: 140px;">{{ alumno.estudiante__first_name }} {{ alumno.estudiante__last_name }}</h6>
+                                                <small class="text-muted">{{ alumno.curso__nombre }}</small>
+                                            </div>
+                                        </div>
+                                        <div class="d-grid mt-3">
+                                            <button onclick="analizarAusentismo(event, '{% url 'ai_engine' %}?action=plan_asistencia&target_id={{ alumno.estudiante__id }}', '{{ alumno.estudiante__first_name }}')" 
+                                                    class="btn btn-sm btn-outline-danger rounded-pill fw-bold">
+                                                <i class="fas fa-robot me-1"></i>Analizar Caso
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            {% else %}
+                <div class="card border-0 shadow-sm bg-success bg-opacity-10 border-start border-4 border-success animate__animated animate__fadeInDown">
+                    <div class="card-body d-flex align-items-center justify-content-between">
+                        <div>
+                            <h5 class="fw-bold text-success mb-1"><i class="fas fa-check-circle me-2"></i>Asistencia Saludable</h5>
+                            <p class="mb-0 text-muted small">No se detectan estudiantes con ausentismo crítico (Top Fallas) en este momento.</p>
+                        </div>
+                        <i class="fas fa-calendar-check fa-3x text-success opacity-25"></i>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="card border-0 shadow-sm mb-4 bg-light">
+        <div class="card-body p-4">
+            <form method="GET" class="row g-3 align-items-end">
+                <div class="col-md-4">
+                    <label class="form-label fw-bold">Filtrar por Curso</label>
+                    <select name="curso" class="form-select">
+                        <option value="">Todos los cursos</option>
+                        {% for c in cursos %}
+                        <option value="{{ c.id }}" {% if current_curso == c.id %}selected{% endif %}>{{ c.nombre }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label fw-bold">Filtrar por Estado</label>
+                    <select name="estado" class="form-select">
+                        <option value="">Todos los estados</option>
+                        <option value="FALLA" {% if current_estado == 'FALLA' %}selected{% endif %}>Falla Injustificada</option>
+                        <option value="TARDE" {% if current_estado == 'TARDE' %}selected{% endif %}>Llegada Tarde</option>
+                        <option value="EXCUSA" {% if current_estado == 'EXCUSA' %}selected{% endif %}>Excusa Médica/Familiar</option>
+                        <option value="ASISTIO" {% if current_estado == 'ASISTIO' %}selected{% endif %}>Asistió</option>
+                    </select>
+                </div>
+                <div class="col-md-4 d-flex gap-2">
+                    <button type="submit" class="btn btn-primary w-100 fw-bold"><i class="fas fa-filter me-2"></i>Filtrar</button>
+                    {% if current_curso or current_estado %}
+                    <a href="{% url 'historial_asistencia' %}" class="btn btn-outline-danger" title="Limpiar"><i class="fas fa-times"></i></a>
+                    {% endif %}
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="card border-0 shadow-lg overflow-hidden rounded-3">
+        <div class="card-header bg-white p-3 border-bottom d-flex justify-content-between align-items-center">
+            <span class="fw-bold text-primary">Resultados: {{ total_registros }} registros encontrados</span>
+            <button class="btn btn-sm btn-outline-success" onclick="window.print()"><i class="fas fa-print me-1"></i> Imprimir</button>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="bg-light text-uppercase small text-muted">
+                    <tr>
+                        <th class="ps-4 py-3">Fecha</th>
+                        <th>Estudiante</th>
+                        <th>Curso</th>
+                        <th>Materia / Docente</th>
+                        <th class="text-center">Estado</th>
+                        <th class="text-end pe-4">Acción</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in page_obj %}
+                    <tr>
+                        <td class="ps-4 fw-bold text-secondary">{{ item.fecha|date:"d M, Y" }}</td>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                <div class="avatar-xs rounded-circle bg-light text-primary d-flex align-items-center justify-content-center me-2" style="width: 32px; height: 32px; font-weight: bold;">
+                                    {{ item.estudiante.first_name|slice:":1" }}
+                                </div>
+                                <div>
+                                    <div class="fw-bold text-dark">{{ item.estudiante.get_full_name }}</div>
+                                    <small class="text-muted" style="font-size: 0.75rem;">{{ item.estudiante.username }}</small>
+                                </div>
+                            </div>
+                        </td>
+                        <td><span class="badge bg-light text-dark border">{{ item.curso.nombre }}</span></td>
+                        <td>
+                            <div class="small fw-bold">{{ item.materia.nombre }}</div>
+                            <div class="small text-muted">Reg: {{ item.registrado_por.get_full_name|default:"Sistema" }}</div>
+                        </td>
+                        <td class="text-center">
+                            {% if item.estado == 'FALLA' %}
+                                <span class="badge bg-danger-subtle text-danger border border-danger"><i class="fas fa-times-circle me-1"></i> Falla</span>
+                            {% elif item.estado == 'TARDE' %}
+                                <span class="badge bg-warning-subtle text-warning border border-warning"><i class="fas fa-clock me-1"></i> Tarde</span>
+                            {% elif item.estado == 'EXCUSA' %}
+                                <span class="badge bg-info-subtle text-info border border-info"><i class="fas fa-file-medical me-1"></i> Excusa</span>
+                            {% else %}
+                                <span class="badge bg-success-subtle text-success"><i class="fas fa-check me-1"></i> Asistió</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-end pe-4">
+                            <a href="{% url 'ver_observador' item.estudiante.id %}" class="btn btn-sm btn-outline-primary rounded-pill" title="Ir al Observador">
+                                <i class="fas fa-eye"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="text-center py-5 text-muted">
+                            <i class="fas fa-search fa-3x mb-3 opacity-25"></i>
+                            <p>No se encontraron registros con los filtros aplicados.</p>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        
+        {% if page_obj.has_other_pages %}
+        <div class="card-footer bg-white py-3">
+            <nav>
+                <ul class="pagination justify-content-center mb-0">
+                    {% if page_obj.has_previous %}
+                        <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}&curso={{ current_curso }}&estado={{ current_estado }}">Anterior</a></li>
+                    {% endif %}
+                    <li class="page-item disabled"><span class="page-link">Página {{ page_obj.number }}</span></li>
+                    {% if page_obj.has_next %}
+                        <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}&curso={{ current_curso }}&estado={{ current_estado }}">Siguiente</a></li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<style>
+    .bg-danger-subtle { background-color: #fce8e6; color: #dc3545; }
+    .bg-warning-subtle { background-color: #fff3cd; color: #ffc107; }
+    .bg-info-subtle { background-color: #cff4fc; color: #0dcaf0; }
+    .bg-success-subtle { background-color: #d1e7dd; color: #198754; }
+    
+    .hover-lift { transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out; }
+    .hover-lift:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important; }
+
+    @keyframes pulse-ring {
+        0% { transform: translate(-50%, -50%) scale(0.33); opacity: 1; }
+        80%, 100% { opacity: 0; }
+    }
+
+    @media print {
+        .btn, form, .card-footer, .d-flex.gap-2, .animate__animated { display: none !important; }
+        .card { border: none !important; shadow: none !important; }
+    }
+</style>
+
+<script>
+    // Lógica para el modal de Ausentismo
+    let modalAusentismo;
+
+    document.addEventListener('DOMContentLoaded', function () {
+        const modalEl = document.getElementById('modalStratosAusentismo');
+        if (modalEl) {
+            modalAusentismo = new bootstrap.Modal(modalEl);
+        }
+    });
+
+    function analizarAusentismo(event, url, nombreEstudiante) {
+        event.preventDefault();
+        
+        if (!modalAusentismo) {
+            window.location.href = url;
+            return;
+        }
+
+        modalAusentismo.show();
+        
+        const statusText = document.getElementById('ausentismoStatusText');
+        const progressBar = document.getElementById('ausentismoProgressBar');
+        
+        const pasos = [
+            { msg: `Auditando expediente de ${nombreEstudiante}...`, progress: 15 },
+            { msg: "Cruzando fechas con calendario académico...", progress: 40 },
+            { msg: "Detectando patrones (lunes/viernes)...", progress: 70 },
+            { msg: "Calculando riesgo de pérdida de año...", progress: 90 },
+            { msg: "Generando reporte disciplinario...", progress: 100 }
+        ];
+
+        let pasoActual = 0;
+        const intervalo = setInterval(() => {
+            if (pasoActual < pasos.length) {
+                statusText.innerText = pasos[pasoActual].msg;
+                progressBar.style.width = pasos[pasoActual].progress + "%";
+                pasoActual++;
+            } else {
+                clearInterval(intervalo);
+                setTimeout(() => { window.location.href = url; }, 500);
+            }
+        }, 800);
+    }
+</script>
+
+{% endblock %}

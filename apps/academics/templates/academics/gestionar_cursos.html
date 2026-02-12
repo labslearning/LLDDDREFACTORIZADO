@@ -1,0 +1,332 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="card p-5 shadow-lg">
+        <h1 class="text-center mb-4 text-primary">Gestión de Cursos</h1>
+        <p class="lead text-center text-muted mb-5">
+            Administra la creación y asignación de cursos para la institución.
+        </p>
+        <hr>
+        
+        <h3 class="mb-3">Crear Cursos de Forma Masiva</h3>
+        <p class="text-muted">
+            Utiliza esta sección para crear cursos de forma automática por nivel académico.
+        </p>
+
+        <form method="POST" action="{% url 'academics:gestionar_cursos' %}" class="needs-validation" novalidate>
+            {% csrf_token %}
+            <input type="hidden" name="crear_cursos_personalizados" value="1">
+            <div class="mb-4">
+                <label for="anio_escolar_personalizado" class="form-label h5 text-secondary">Año Escolar</label>
+                <input type="text" class="form-control form-control-lg" id="anio_escolar_personalizado" name="anio_escolar_personalizado" value="{{ anio_escolar }}" required>
+                <div class="form-text">Ejemplo: 2025-2026</div>
+            </div>
+            
+            <div class="row g-4 mb-4">
+                <div class="col-md-4">
+                    <div class="card h-100 p-4 border-info">
+                        <h5 class="card-title text-info mb-3">Preescolar</h5>
+                        <p class="card-text text-muted small">Aplica para grados preescolares.</p>
+                        <label for="num_preescolar" class="form-label">Cursos por grado (A, B, C...)</label>
+                        <input type="number" class="form-control" id="num_preescolar" name="num_preescolar" value="0" min="0" required>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card h-100 p-4 border-success">
+                        <h5 class="card-title text-success mb-3">Primaria</h5>
+                        <p class="card-text text-muted small">Aplica para grados 1° a 5°.</p>
+                        <label for="num_primaria" class="form-label">Cursos por grado (A, B, C...)</label>
+                        <input type="number" class="form-control" id="num_primaria" name="num_primaria" value="0" min="0" required>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card h-100 p-4 border-danger">
+                        <h5 class="card-title text-danger mb-3">Bachillerato</h5>
+                        <p class="card-text text-muted small">Aplica para grados 6° a 11°.</p>
+                        <label for="num_bachillerato" class="form-label">Cursos por grado (A, B, C...)</label>
+                        <input type="number" class="form-control" id="num_bachillerato" name="num_bachillerato" value="0" min="0" required>
+                    </div>
+                </div>
+            </div>
+            <div class="d-grid gap-2">
+                <button type="submit" class="btn btn-primary btn-lg"><i class="fas fa-plus-circle me-2"></i>Crear Cursos Masivamente</button>
+            </div>
+        </form>
+
+        <hr class="my-5">
+
+        <h3 class="mb-3">Crear Curso Individual</h3>
+        <p class="text-muted">Crea un curso de forma manual, especificando su grado y sección.</p>
+        <form method="POST" action="{% url 'academics:gestionar_cursos' %}" class="needs-validation" novalidate>
+            {% csrf_token %}
+            <input type="hidden" name="crear_curso" value="1">
+            <div class="row g-3 mb-4">
+                <div class="col-md-4">
+                    <label for="grado" class="form-label">Grado</label>
+                    <select id="grado" name="grado" class="form-select" required>
+                        <option value="">-- Selecciona --</option>
+                        {% for value, text in grados %}
+                        <option value="{{ value }}">{{ text }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label for="seccion" class="form-label">Sección</label>
+                    <input type="text" class="form-control" id="seccion" name="seccion" required>
+                </div>
+                <div class="col-md-4">
+                    <label for="capacidad_maxima" class="form-label">Capacidad Máxima</label>
+                    <input type="number" class="form-control" id="capacidad_maxima" name="capacidad_maxima" value="40" min="1" required>
+                </div>
+                <div class="col-12">
+                    <label for="descripcion" class="form-label">Descripción (Opcional)</label>
+                    <textarea class="form-control" id="descripcion" name="descripcion" rows="2"></textarea>
+                </div>
+            </div>
+            <div class="d-grid gap-2">
+                <button type="submit" class="btn btn-success btn-lg"><i class="fas fa-plus me-2"></i>Crear Curso Individual</button>
+            </div>
+        </form>
+
+        <hr class="my-5">
+
+        <h3>Cursos Existentes</h3>
+        
+        {% if cursos_por_nivel.preescolar %}
+        <h4 class="mt-4 text-info">Cursos de Preescolar</h4>
+        <div class="table-responsive">
+            <table class="table table-striped" id="tabla-cursos-preescolar">
+                <thead>
+                    <tr>
+                        <th>Nombre</th>
+                        <th>Grado</th>
+                        <th>Sección</th>
+                        <th>Director</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for curso in cursos_por_nivel.preescolar %}
+                    <tr id="curso-{{ curso.id }}">
+                        <td>{{ curso.nombre }}</td>
+                        <td>{{ curso.get_grado_display }}</td>
+                        <td>{{ curso.seccion }}</td>
+                        <td id="director-{{ curso.id }}">{{ curso.director.get_full_name|default:"-" }}</td>
+                        <td>
+                            <button type="button" class="btn btn-sm btn-info" onclick="abrirModalMover('{{ curso.id }}')">
+                                Mover Alumno
+                            </button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% endif %}
+
+        {% if cursos_por_nivel.primaria %}
+        <h4 class="mt-4 text-success">Cursos de Primaria</h4>
+        <div class="table-responsive">
+            <table class="table table-striped" id="tabla-cursos-primaria">
+                <thead>
+                    <tr>
+                        <th>Nombre</th>
+                        <th>Grado</th>
+                        <th>Sección</th>
+                        <th>Director</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for curso in cursos_por_nivel.primaria %}
+                    <tr id="curso-{{ curso.id }}">
+                        <td>{{ curso.nombre }}</td>
+                        <td>{{ curso.get_grado_display }}</td>
+                        <td>{{ curso.seccion }}</td>
+                        <td id="director-{{ curso.id }}">{{ curso.director.get_full_name|default:"-" }}</td>
+                        <td>
+                            <button type="button" class="btn btn-sm btn-info" onclick="abrirModalMover('{{ curso.id }}')">
+                                Mover Alumno
+                            </button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% endif %}
+
+        {% if cursos_por_nivel.bachillerato %}
+        <h4 class="mt-4 text-danger">Cursos de Bachillerato</h4>
+        <div class="table-responsive">
+            <table class="table table-striped" id="tabla-cursos-bachillerato">
+                <thead>
+                    <tr>
+                        <th>Nombre</th>
+                        <th>Grado</th>
+                        <th>Sección</th>
+                        <th>Director</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for curso in cursos_por_nivel.bachillerato %}
+                    <tr id="curso-{{ curso.id }}">
+                        <td>{{ curso.nombre }}</td>
+                        <td>{{ curso.get_grado_display }}</td>
+                        <td>{{ curso.seccion }}</td>
+                        <td id="director-{{ curso.id }}">{{ curso.director.get_full_name|default:"-" }}</td>
+                        <td>
+                            <button type="button" class="btn btn-sm btn-info" onclick="abrirModalMover('{{ curso.id }}')">
+                                Mover Alumno
+                            </button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% endif %}
+
+        {% if not cursos %}
+        <div class="text-center mt-3">
+            <p>No hay cursos registrados en el sistema.</p>
+        </div>
+        {% endif %}
+
+        <div class="text-center mt-3">
+            <a href="{% url 'admin_dashboard' %}" class="btn btn-dark">Volver al Dashboard</a>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalMoverAlumno" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content p-4">
+            <h5>Mover Alumno</h5>
+            <form id="formMoverAlumno">
+                {% csrf_token %}
+                <input type="hidden" id="curso_origen_id">
+                <div class="mb-3">
+                    <label for="estudiante_id" class="form-label">Selecciona Alumno</label>
+                    <select id="estudiante_id" class="form-select" required>
+                        <option value="">Cargando estudiantes...</option>
+                        </select>
+                </div>
+                <div class="mb-3">
+                    <label for="curso_destino_id" class="form-label">Curso destino</label>
+                    <select id="curso_destino_id" class="form-select" required>
+                        <option value="">-- Selecciona un curso --</option>
+                        {% for curso in cursos %}
+                            <option value="{{ curso.id }}">{{ curso.nombre }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="text-end">
+                    <button type="button" class="btn btn-secondary me-2" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary" onclick="moverAlumno()">Mover</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Estilos para el nuevo diseño */
+    .card {
+        border-radius: 1rem;
+        transition: all 0.3s ease;
+        border: 1px solid rgba(0,0,0,.125);
+    }
+    .card:hover {
+        box-shadow: 0 0.5rem 1rem rgba(0,0,0,.15)!important;
+    }
+    .card.border-info { border-left: 5px solid #0dcaf0; }
+    .card.border-success { border-left: 5px solid #198754; }
+    .card.border-danger { border-left: 5px solid #dc3545; }
+</style>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+    const modalMoverAlumno = new bootstrap.Modal(document.getElementById('modalMoverAlumno'));
+
+    async function abrirModalMover(cursoId) {
+        document.getElementById("curso_origen_id").value = cursoId;
+        const estudianteSelect = document.getElementById("estudiante_id");
+        estudianteSelect.innerHTML = '<option value="">Cargando estudiantes...</option>';
+        document.getElementById('formMoverAlumno').querySelector('.btn-primary').disabled = false;
+
+        try {
+            const response = await fetch(`{% url 'api_get_students_by_course' 0 %}`.replace('0', cursoId));
+            const data = await response.json();
+
+            if (data.success) {
+                estudianteSelect.innerHTML = '';
+                if (data.students.length > 0) {
+                    const defaultOption = document.createElement('option');
+                    defaultOption.value = "";
+                    defaultOption.textContent = "-- Selecciona un estudiante --";
+                    estudianteSelect.appendChild(defaultOption);
+                    data.students.forEach(student => {
+                        const option = document.createElement('option');
+                        option.value = student.id;
+                        option.textContent = student.name;
+                        estudianteSelect.appendChild(option);
+                    });
+                } else {
+                    estudianteSelect.innerHTML = '<option value="">No hay estudiantes en este curso</option>';
+                    document.getElementById('formMoverAlumno').querySelector('.btn-primary').disabled = true;
+                }
+            } else {
+                alert(data.error || "Error al cargar los estudiantes.");
+                estudianteSelect.innerHTML = '<option value="">Error al cargar</option>';
+            }
+        } catch (error) {
+            console.error("Fetch error:", error);
+            estudianteSelect.innerHTML = '<option value="">Error de conexión</option>';
+        }
+
+        modalMoverAlumno.show();
+    }
+
+    function moverAlumno() {
+        const estudianteId = document.getElementById('estudiante_id').value;
+        const cursoDestinoId = document.getElementById('curso_destino_id').value;
+        const cursoOrigenId = document.getElementById('curso_origen_id').value;
+
+        if (!estudianteId || !cursoDestinoId) {
+            alert("Por favor, selecciona un estudiante y un curso de destino.");
+            return;
+        }
+
+        if (cursoDestinoId === cursoOrigenId) {
+            alert("El curso de origen y el de destino no pueden ser el mismo.");
+            return;
+        }
+
+        fetch("{% url 'api_mover_estudiante' %}", {
+            method: "POST",
+            headers: { "Content-Type": "application/json", "X-CSRFToken": csrftoken },
+            body: JSON.stringify({ estudiante_id: estudianteId, curso_destino_id: cursoDestinoId })
+        })
+        .then(r => r.json())
+        .then(data => {
+            if (data.success) {
+                alert("Alumno movido correctamente.");
+                location.reload();
+            } else {
+                alert(data.error || "Error al mover el alumno.");
+            }
+        })
+        .catch(error => {
+            console.error("Error en moverAlumno:", error);
+            alert("Ocurrió un error inesperado al mover el alumno.");
+        });
+    }
+</script>
+{% endblock %}

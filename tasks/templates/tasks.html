@@ -1,0 +1,197 @@
+{% extends 'base.html' %}
+{% block content %}
+<style>
+    :root {
+        --font-heading: 'Lexend', sans-serif;
+        --font-body: 'Inter', sans-serif;
+        
+        /* Paleta de colores - Inspiradora, Profesional, Moderna */
+        --color-brand-primary: #4A55A2; /* Un azul índigo sofisticado */
+        --color-brand-secondary: #7895CB; /* Azul más claro para acentos o gradientes */
+        --color-accent-warm: #FFA07A; 
+        --color-text-dark: #2C3E50; 
+        --color-text-medium: #5D6D7E; 
+        --color-text-light: #ABB2B9; 
+        --color-bg-light: #F8F9FA; 
+        --color-bg-card: #FFFFFF;
+        --color-border-soft: #EAECEE;
+
+        /* Sombras */
+        --shadow-subtle: 0 2px 8px rgba(0, 0, 0, 0.04);
+        --shadow-card: 0 8px 25px rgba(74, 85, 162, 0.12); 
+        --shadow-interactive: 0 4px 12px rgba(74, 85, 162, 0.15);
+
+        /* Radios y Transiciones */
+        --radius-card: 16px;
+        --radius-image: 12px;
+        --timing-function-smooth: cubic-bezier(0.25, 0.8, 0.25, 1); /* Definido para animaciones */
+        --transition-general: all 0.3s var(--timing-function-smooth); /* Para transiciones generales de hover, etc. */
+    }
+
+    .welcome-section-wrapper {
+        background-color: var(--color-bg-light);
+        padding-top: 3rem; 
+        padding-bottom: 3rem;
+        min-height: 80vh; 
+        display: flex;
+        flex-direction: column;
+        justify-content: center; 
+    }
+
+    .welcome-hero-card {
+        max-width: 750px; 
+        margin: 0 auto; 
+        background: var(--color-bg-card);
+        border-radius: var(--radius-card);
+        box-shadow: var(--shadow-card);
+        padding: 2.5rem 3rem; 
+        text-align: center;
+        overflow: hidden; 
+        border: 1px solid var(--color-border-soft);
+        
+        /* Animación de la tarjeta */
+        opacity: 0; /* Estado inicial */
+        transform: translateY(20px); /* Estado inicial */
+        animation: fadeInCardAnimation 0.8s var(--timing-function-smooth) forwards;
+        animation-delay: 0.1s; /* Pequeño delay para que la tarjeta aparezca */
+    }
+
+    @keyframes fadeInCardAnimation { /* Renombrado para evitar posible conflicto con clases */
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    /* Animación para elementos hijos de la tarjeta */
+    .welcome-hero-card > * {
+        opacity: 0; /* Estado inicial */
+        transform: translateY(15px); /* Estado inicial */
+        animation: fadeInContentAnimation 0.6s var(--timing-function-smooth) forwards;
+    }
+
+    @keyframes fadeInContentAnimation { /* Renombrado */
+        from {
+            opacity: 0;
+            transform: translateY(15px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    /* Aplicar delays escalonados a los elementos hijos para una aparición más fluida */
+    .welcome-hero-card .logo-container { animation-delay: 0.4s; } /* Aumentar delay base de hijos ya que la tarjeta tiene 0.1s */
+    .welcome-hero-card .hero-title { animation-delay: 0.55s; }
+    .welcome-hero-card .hero-subtitle { animation-delay: 0.7s; }
+    .welcome-hero-card .hero-tagline { animation-delay: 0.85s; }
+
+
+    .welcome-hero-card .logo-container {
+        margin-bottom: 2rem; 
+        display: inline-block; 
+    }
+
+    .welcome-hero-card .logo-image {
+        max-width: 160px; 
+        height: auto; 
+        border-radius: var(--radius-image);
+        box-shadow: var(--shadow-subtle);
+        transition: var(--transition-general); /* Usar la variable para transiciones generales */
+    }
+    .welcome-hero-card .logo-image:hover {
+        transform: scale(1.05);
+        box-shadow: var(--shadow-interactive);
+    }
+
+    .welcome-hero-card .hero-title {
+        font-family: var(--font-heading);
+        font-size: 3rem; 
+        font-weight: 700; 
+        color: var(--color-brand-primary);
+        margin-bottom: 0.75rem; 
+        line-height: 1.2;
+    }
+
+    .welcome-hero-card .hero-subtitle {
+        font-family: var(--font-body);
+        font-size: 1.5rem; 
+        color: var(--color-text-medium);
+        font-weight: 400;
+        margin-bottom: 1.5rem; 
+        line-height: 1.5;
+    }
+
+    .welcome-hero-card .hero-tagline {
+        font-family: var(--font-heading);
+        font-size: 1.125rem; 
+        color: var(--color-brand-secondary);
+        font-weight: 500;
+        margin-bottom: 0; 
+    }
+    
+    .welcome-footer {
+        text-align: center;
+        margin-top: 3rem; 
+        padding: 1.5rem 0; 
+        font-family: var(--font-body);
+        color: var(--color-text-light);
+        font-size: 0.875rem; 
+        border-top: 1px solid var(--color-border-soft);
+        background-color: var(--color-bg-card); 
+        box-shadow: 0 -2px 10px rgba(0,0,0,0.03); 
+        
+        /* Animación del footer */
+        opacity: 0; /* Estado inicial */
+        transform: translateY(10px); /* Estado inicial */
+        /* Usa la misma animación que los contenidos de la tarjeta, pero con mayor delay */
+        animation: fadeInContentAnimation 0.6s var(--timing-function-smooth) forwards; 
+        animation-delay: 1s; /* Asegurar que sea el último en aparecer */
+    }
+    .welcome-footer p {
+        margin-bottom: 0;
+    }
+
+    /* Ajustes para pantallas más pequeñas */
+    @media (max-width: 768px) {
+        .welcome-hero-card {
+            padding: 2rem 1.5rem; 
+            margin-left: 1rem; 
+            margin-right: 1rem;
+        }
+        .welcome-hero-card .hero-title {
+            font-size: 2.5rem; 
+        }
+        .welcome-hero-card .hero-subtitle {
+            font-size: 1.25rem; 
+        }
+        .welcome-hero-card .logo-image {
+            max-width: 120px;
+        }
+    }
+
+</style>
+
+<div class="welcome-section-wrapper">
+    <main>
+        <section class="welcome-hero-card">
+            <div class="logo-container">
+                <img src="https://res.cloudinary.com/diarfrbzp/image/upload/v1745917191/ChatGPT_Image_29_avr._2025_03_h_53_min_30_s_lkajo1.png" alt="Learning Labs Logo" class="logo-image">
+            </div>
+            <h1 class="hero-title">Welcome to Learning Labs</h1>
+            <h2 class="hero-subtitle">Where education evolves</h2>
+            <h3 class="hero-tagline">All our programs are led by AI</h3>
+        </section>
+    </main>
+    
+    <footer class="welcome-footer">
+        <p>&copy; 2025 Todos los derechos reservados. Producto de Hydra School</p>
+    </footer>
+</div>
+
+{% endblock %}

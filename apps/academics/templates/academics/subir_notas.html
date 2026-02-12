@@ -1,0 +1,818 @@
+{% extends "base.html" %}
+{% load dict_filters %}
+{% load static %}
+{% load grading_tags %} {# LIBRERÍA CRÍTICA: Asegúrate de tener tasks/templatetags/grading_tags.py #}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="card border-0 shadow-lg animate animated fadeInUp">
+        <div class="card-header bg-primary text-white p-4">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h2 class="mb-0 fw-bold"><i class="fas fa-chart-line me-3"></i> Sistema de Calificaciones</h2>
+                    <p class="mb-0 fs-5">Curso: {{ curso.nombre }} | Materia: {{ materia.nombre }}</p>
+                </div>
+                
+                <div class="d-flex gap-2">
+                    <button type="button" class="btn btn-success fw-bold border-white" onclick="document.getElementById('notasForm').submit()">
+                        <i class="fas fa-save me-2"></i>Guardar Todo
+                    </button>
+
+                    <button type="button" class="btn btn-outline-light fw-bold" data-bs-toggle="modal" data-bs-target="#modalAsistencia">
+                        <i class="fas fa-user-check me-2"></i>Asistencia Hoy
+                    </button>
+                    <a href="{% url 'dashboard_docente' %}" class="btn btn-light text-primary fw-bold">
+                        <i class="fas fa-arrow-left me-1"></i>Volver al Panel
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card-body p-4">
+            <form method="POST" id="notasForm">
+                {% csrf_token %}
+                <input type="hidden" name="logros_json_data" id="logros-json-data">
+
+                <div class="d-flex justify-content-between align-items-center mb-5">
+                    <div class="d-flex align-items-center">
+                        <label for="periodoSelector" class="form-label h4 text-secondary mb-0 me-3">
+                            <i class="fas fa-calendar-alt me-2"></i>Periodo Académico: 
+                        </label>
+                        <select class="form-select form-select-lg w-auto border-primary shadow-sm" id="periodoSelector" name="periodo_id">
+                            {% for periodo in periodos %}
+                            <option value="{{ periodo.id }}">{{ periodo.nombre }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <button type="button" class="btn btn-outline-primary btn-lg" onclick="abrirConfiguracionPlan()">
+                        <i class="fas fa-cogs me-2"></i>Configurar Notas y Temas
+                    </button>
+                </div>
+
+                <div class="card border-0 shadow-sm mb-5">
+                    <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0"><i class="fas fa-bullhorn me-2"></i>Actividades de la Semana</h5>
+                        <button type="button" class="btn btn-sm btn-outline-light" id="btn-agregar-actividad"><i class="fas fa-plus me-1"></i>Agregar Actividad</button>
+                    </div>
+                    <div class="card-body">
+                        <div id="lista-actividades">
+                            {% for actividad in actividades_semanales %}
+                            <div class="actividad-item p-3 mb-3 border rounded-3" data-id="{{ actividad.id }}">
+                                <div class="actividad-info d-flex justify-content-between align-items-start">
+                                    <div>
+                                        <h6 class="fw-bold">{{ actividad.titulo }}</h6>
+                                        <p class="small text-muted mb-2"><i class="fas fa-calendar-alt me-1"></i>Fechas: {{ actividad.fecha_inicio|date:"d M Y" }} - {{ actividad.fecha_fin|date:"d M Y" }}</p>
+                                        <p class="mb-0">{{ actividad.descripcion }}</p>
+                                    </div>
+                                    <div class="actividad-acciones">
+                                        <button type="button" class="btn btn-sm btn-outline-primary btn-editar-actividad"><i class="fas fa-edit"></i></button>
+                                        <button type="button" class="btn btn-sm btn-outline-danger btn-borrar-actividad" data-id="{{ actividad.id }}"><i class="fas fa-trash"></i></button>
+                                    </div>
+                                </div>
+                                <div class="actividad-form-edit mt-3" style="display:none;">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label class="form-label">Titulo</label>
+                                                <input type="text" class="form-control titulo-actividad-input" value="{{ actividad.titulo }}">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="mb-3">
+                                                <label class="form-label">Fecha de inicio</label>
+                                                <input type="date" class="form-control fecha-inicio-actividad-input" value="{{ actividad.fecha_inicio|date:'Y-m-d' }}">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="mb-3">
+                                                <label class="form-label">Fecha de finalización</label>
+                                                <input type="date" class="form-control fecha-fin-actividad-input" value="{{ actividad.fecha_fin|date:'Y-m-d' }}">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Descripción</label>
+                                        <textarea class="form-control descripcion-actividad-input" rows="3">{{ actividad.descripcion }}</textarea>
+                                    </div>
+                                    <div class="text-end">
+                                        <button type="button" class="btn btn-sm btn-secondary btn-cancelar-edicion">Cancelar</button>
+                                        <button type="button" class="btn btn-sm btn-primary btn-guardar-edicion">Guardar Edición</button>
+                                    </div>
+                                </div>
+                                <input type="hidden" name="actividad_id[]" value="{{ actividad.id }}">
+                                <input type="hidden" name="titulo_actividad[]" value="{{ actividad.titulo }}">
+                                <input type="hidden" name="descripcion_actividad[]" value="{{ actividad.descripcion }}">
+                                <input type="hidden" name="fecha_inicio_actividad[]" value="{{ actividad.fecha_inicio|date:'Y-m-d' }}">
+                                <input type="hidden" name="fecha_fin_actividad[]" value="{{ actividad.fecha_fin|date:'Y-m-d' }}">
+                            </div>
+                            {% empty %}
+                            <p class="text-muted mb-0">No hay actividades semanales registradas.</p>
+                            {% endfor %}
+                        </div>
+
+                        <div id="plantilla-nueva-actividad" style="display: none;">
+                            <div class="actividad-item p-3 mb-3 border rounded-3 new-activity-item">
+                                <div class="actividad-form-new">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label class="form-label">Titulo</label>
+                                                <input type="text" class="form-control titulo-actividad-input" placeholder="Escribe un título...">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="mb-3">
+                                                <label class="form-label">Fecha de inicio</label>
+                                                <input type="date" class="form-control fecha-inicio-actividad-input">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="mb-3">
+                                                <label class="form-label">Fecha de finalización</label>
+                                                <input type="date" class="form-control fecha-fin-actividad-input">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Descripción</label>
+                                        <textarea class="form-control descripcion-actividad-input" rows="3" placeholder="Describe la tarea..."></textarea>
+                                    </div>
+                                    <div class="text-end">
+                                        <button type="button" class="btn btn-sm btn-secondary btn-cancelar-creacion">Cancelar</button>
+                                        <button type="button" class="btn btn-sm btn-primary btn-guardar-creacion">Guardar Actividad</button>
+                                    </div>
+                                </div>
+                                <input type="hidden" name="actividad_id[]" value="">
+                                <input type="hidden" name="titulo_actividad[]" value="">
+                                <input type="hidden" name="descripcion_actividad[]" value="">
+                                <input type="hidden" name="fecha_inicio_actividad[]" value="">
+                                <input type="hidden" name="fecha_fin_actividad[]" value="">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card border-0 shadow-sm mb-5">
+                    <div class="card-header bg-warning text-dark d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0 fw-bold"><i class="fas fa-trophy me-2"></i>Logros del Período</h5>
+                        <button type="button" class="btn btn-sm btn-outline-dark" id="btn-agregar-logro"><i class="fas fa-plus me-1"></i>Agregar Logro</button>
+                    </div>
+                    <div class="card-body">
+                        <div id="lista-logros">
+                            <p class="text-muted mb-0">Selecciona un período para ver y editar los logros.</p>
+                        </div>
+                        <div id="plantilla-nueva-logro" style="display: none;">
+                            <div class="logro-item p-3 mb-3 border rounded-3 new-logro-item">
+                                <div class="logro-form">
+                                    <div class="mb-3">
+                                        <label class="form-label">Descripción del Logro</label>
+                                        <textarea class="form-control descripcion-logro-input" rows="3" placeholder="Describe el logro..."></textarea>
+                                    </div>
+                                    <div class="text-end">
+                                        <button type="button" class="btn btn-sm btn-secondary btn-cancelar-creacion-logro">Cancelar</button>
+                                        <button type="button" class="btn btn-sm btn-primary btn-guardar-creacion-logro">Guardar Logro</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table table-bordered table-hover table-striped">
+                        
+                        {% for periodo in periodos %}
+                        <thead class="bg-primary text-white periodo-header" data-periodo-id="{{ periodo.id }}" style="display:none;">
+                            <tr>
+                                <th class="align-middle text-center" rowspan="2" style="width: 250px;">Estudiante</th>
+                                <th class="text-center" colspan="{% with defs=definiciones_map|get_item:periodo.id %}{% if defs %}{{ defs|length|add:2 }}{% else %}2{% endif %}{% endwith %}">
+                                    Calificaciones: {{ periodo.nombre }}
+                                </th>
+                            </tr>
+                            <tr>
+                                {% with definiciones=definiciones_map|get_item:periodo.id %}
+                                    {% for definicion in definiciones %}
+                                    <th class="text-center bg-light-blue text-primary fw-bold position-relative" style="min-width: 120px;">
+                                        <div class="d-flex flex-column">
+                                            <span>{{ definicion.nombre }}</span>
+                                            <span class="badge bg-secondary rounded-pill mt-1" style="font-size: 0.65rem;">
+                                                {{ definicion.porcentaje|floatformat:0 }}%
+                                            </span>
+                                        </div>
+                                        {% if definicion.temas %}
+                                            <i class="fas fa-info-circle position-absolute top-0 end-0 m-1 text-info" 
+                                               data-bs-toggle="tooltip" 
+                                               data-bs-placement="top" 
+                                               title="Temas: {{ definicion.temas }}">
+                                            </i>
+                                        {% endif %}
+                                    </th>
+                                    {% empty %}
+                                    <th class="text-center bg-light-blue text-primary">Sin notas configuradas</th>
+                                    {% endfor %}
+                                {% endwith %}
+                                
+                                <th class="text-center bg-warning text-dark fw-bold" style="width: 80px;">Def.</th>
+                                <th class="text-center bg-light-blue text-primary fw-bold" style="min-width: 200px;">Comentario</th>
+                            </tr>
+                        </thead>
+                        {% endfor %}
+
+                        <tbody>
+                            {% for matricula in estudiantes_matriculados %}
+                            <tr class="align-middle">
+                                <td class="fw-bold">
+                                    <div class="d-flex align-items-center">
+                                        <div class="avatar-circle bg-primary text-white me-2">
+                                            {{ matricula.estudiante.first_name|slice:":1" }}{{ matricula.estudiante.last_name|slice:":1" }}
+                                        </div>
+                                        <span data-estudiante-id="{{ matricula.estudiante.id }}">
+                                            {{ matricula.estudiante.last_name }} {{ matricula.estudiante.first_name }}
+                                        </span>
+                                    </div>
+                                </td>
+                                
+                                {% for periodo in periodos %}
+                                    {% with definiciones=definiciones_map|get_item:periodo.id %}
+                                        {% for definicion in definiciones %}
+                                            <td class="p-0 periodo-cell text-center align-middle" 
+                                                data-periodo-id="{{ periodo.id }}" 
+                                                style="display:none;">
+                                                
+                                                {% get_nota_celda notas_map matricula.estudiante.id definicion.id as valor_nota %}
+                                                
+                                                <input type="number" 
+                                                       name="nota_{{ matricula.estudiante.id }}_{{ definicion.id }}" 
+                                                       value="{{ valor_nota }}" 
+                                                       class="form-control form-control-sm nota-input mx-auto fw-bold {{ valor_nota|color_nota_css }}" 
+                                                       step="0.1" min="0.0" max="5.0" placeholder="-"
+                                                       data-porcentaje="{{ definicion.porcentaje }}"
+                                                       autocomplete="off">
+                                            </td>
+                                        {% endfor %}
+                                    {% endwith %}
+
+                                    <td class="text-center fw-bold bg-warning-light p-0 periodo-cell align-middle" 
+                                        data-periodo-id="{{ periodo.id }}" 
+                                        style="display:none;">
+                                        <span id="promedio_{{ matricula.estudiante.id }}_{{ periodo.id }}" class="fs-5">-</span>
+                                    </td>
+                                    
+                                    <td class="p-0 periodo-cell" 
+                                        data-periodo-id="{{ periodo.id }}" 
+                                        style="display:none;">
+                                        {% with comentarios_periodo=comentarios_data|get_item:matricula.estudiante.id %}
+                                        <textarea name="comentario_{{ matricula.estudiante.id }}_{{ periodo.id }}" 
+                                                  class="form-control form-control-sm" 
+                                                  placeholder="Observación..." 
+                                                  rows="1">{{ comentarios_periodo|get_item:periodo.id|default:'' }}</textarea>
+                                        {% endwith %}
+                                    </td>
+                                {% endfor %}
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="d-grid gap-2 d-md-flex justify-content-md-end my-4">
+                    <button type="submit" class="btn btn-success btn-lg px-5 shadow">
+                        <i class="fas fa-save me-2"></i>GUARDAR CAMBIOS
+                    </button>
+                </div>
+
+                <div id="floating-save-button" class="d-none fixed-bottom text-center p-3 bg-white border-top shadow-lg">
+                    <div class="container d-flex justify-content-center gap-3">
+                        <button type="submit" class="btn btn-success btn-lg px-5 shadow">
+                            <i class="fas fa-save me-2"></i>GUARDAR CAMBIOS
+                        </button>
+                        <a href="{% url 'dashboard_docente' %}" class="btn btn-secondary btn-lg ms-2">
+                            <i class="fas fa-times me-2"></i>Cancelar
+                        </a>
+                    </div>
+                </div>
+
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalAsistencia" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-info text-white">
+                <h5 class="modal-title fw-bold"><i class="fas fa-calendar-check me-2"></i>Asistencia Rápida</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-0">
+                <div class="alert alert-light m-3 border-start border-4 border-info small">
+                    <i class="fas fa-info-circle text-info me-1"></i>
+                    Al marcar <strong>Falla</strong> o <strong>Tarde</strong>, se enviará una notificación automática al acudiente.
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th class="ps-4">Estudiante</th>
+                                <th class="text-center">Estado</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for m in estudiantes_matriculados %}
+                            <tr>
+                                <td class="ps-4 fw-bold text-secondary">{{ m.estudiante.get_full_name|default:m.estudiante.username }}</td>
+                                <td class="text-center py-3">
+                                    <div class="btn-group" role="group" aria-label="Asistencia">
+                                        <button type="button" class="btn btn-outline-success btn-sm px-3" onclick="setAsistencia('{{m.estudiante.id}}', 'ASISTIO', this)">
+                                            <i class="fas fa-check"></i>
+                                        </button>
+                                        <button type="button" class="btn btn-outline-warning btn-sm px-3" onclick="setAsistencia('{{m.estudiante.id}}', 'TARDE', this)">
+                                            Tarde
+                                        </button>
+                                        <button type="button" class="btn btn-outline-danger btn-sm px-3" onclick="setAsistencia('{{m.estudiante.id}}', 'FALLA', this)">
+                                            Falla
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalAgregarLogro" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-warning text-dark">
+                <h5 class="modal-title">Nuevo Logro</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <textarea id="textoNuevoLogro" class="form-control" rows="3" placeholder="Descripción del logro pedagógico..."></textarea>
+                <input type="hidden" id="periodoLogroActual">
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-warning fw-bold" onclick="guardarLogroModal()">Agregar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalConfigurarPlan" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title"><i class="fas fa-cog me-2"></i>Configurar Plan de Evaluación</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-info small border-start border-4 border-info">
+                    <i class="fas fa-info-circle"></i> Define las actividades evaluativas. Aquí puedes agregar los temas que se verán en cada nota.
+                </div>
+                
+                <table class="table table-bordered table-sm" id="tablaConfiguracion">
+                    <thead class="table-light">
+                        <tr>
+                            <th width="30%">Nombre (Ej: Taller, Quiz)</th>
+                            <th width="15%">% (0-100)</th>
+                            <th width="45%">Temas / Subtemas</th>
+                            <th width="10%">Acción</th>
+                        </tr>
+                    </thead>
+                    <tbody id="bodyConfiguracion">
+                        </tbody>
+                    <tfoot>
+                        <tr>
+                            <td colspan="4" class="text-end">
+                                <span class="fw-bold me-2">Total: <span id="totalPorcentaje">0</span>%</span>
+                                <button type="button" class="btn btn-sm btn-success" onclick="agregarFilaConfig()">
+                                    <i class="fas fa-plus"></i> Agregar Columna
+                                </button>
+                            </td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" onclick="guardarConfiguracionPlan()">
+                    Guardar Cambios
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="confirmarBorrarModal" tabindex="-1" aria-labelledby="confirmarBorrarModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title" id="confirmarBorrarModalLabel">Confirmar Eliminación</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                ¿Estás seguro de que deseas eliminar la actividad semanal?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-danger" id="btn-confirmar-borrar">Eliminar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .input-nota:focus { background-color: #e8f0fe !important; box-shadow: inset 0 0 0 2px #4361ee; }
+    .input-nota.text-danger { color: #dc3545 !important; font-weight: 800; }
+    .avatar-circle { width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: bold; }
+    .bg-warning-light { background-color: #fff3cd !important; }
+</style>
+
+<script>
+    const definicionesGlobales = {
+        {% for periodo in periodos %}
+            "{{ periodo.id }}": [
+                {% with defs=definiciones_map|get_item:periodo.id %}
+                    {% for d in defs %}
+                        {id: "{{ d.id }}", nombre: "{{ d.nombre }}", porcentaje: {{ d.porcentaje }}, temas: "{{ d.temas|default:'' }}"},
+                    {% endfor %}
+                {% endwith %}
+            ],
+        {% endfor %}
+    };
+
+    function abrirConfiguracionPlan() {
+        const periodoId = document.getElementById('periodoSelector').value;
+        const tbody = document.getElementById('bodyConfiguracion');
+        tbody.innerHTML = '';
+        
+        const items = definicionesGlobales[periodoId] || [];
+        
+        if(items.length === 0) {
+            tbody.appendChild(crearFilaConfig(null, '', 0, ''));
+        } else {
+            items.forEach(item => {
+                tbody.appendChild(crearFilaConfig(item.id, item.nombre, item.porcentaje, item.temas));
+            });
+        }
+        
+        actualizarTotal();
+        new bootstrap.Modal(document.getElementById('modalConfigurarPlan')).show();
+    }
+
+    function crearFilaConfig(id, nombre, porcentaje, temas) {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td>
+                <input type="text" class="form-control form-control-sm nombre-conf" value="${nombre}" placeholder="Nombre">
+                <input type="hidden" class="id-conf" value="${id || ''}">
+            </td>
+            <td><input type="number" class="form-control form-control-sm porc-conf" value="${porcentaje}" oninput="actualizarTotal()"></td>
+            <td><input type="text" class="form-control form-control-sm temas-conf" value="${temas}" placeholder="Temas separados por comas"></td>
+            <td class="text-center"><button class="btn btn-sm btn-outline-danger" onclick="this.closest('tr').remove(); actualizarTotal()"><i class="fas fa-trash"></i></button></td>
+        `;
+        return tr;
+    }
+
+    function agregarFilaConfig() {
+        document.getElementById('bodyConfiguracion').appendChild(crearFilaConfig(null, '', 0, ''));
+    }
+
+    function actualizarTotal() {
+        let total = 0;
+        document.querySelectorAll('.porc-conf').forEach(inp => total += parseFloat(inp.value || 0));
+        const el = document.getElementById('totalPorcentaje');
+        el.innerText = total;
+        el.className = Math.abs(total - 100) < 0.1 ? 'text-success fw-bold' : 'text-danger fw-bold';
+    }
+
+    function guardarConfiguracionPlan() {
+        const periodoId = document.getElementById('periodoSelector').value;
+        const filas = document.querySelectorAll('#bodyConfiguracion tr');
+        const items = [];
+        let total = 0;
+
+        filas.forEach(tr => {
+            const porc = parseFloat(tr.querySelector('.porc-conf').value || 0);
+            total += porc;
+            items.push({
+                id: tr.querySelector('.id-conf').value,
+                nombre: tr.querySelector('.nombre-conf').value,
+                porcentaje: porc,
+                temas: tr.querySelector('.temas-conf').value
+            });
+        });
+
+        if (Math.abs(total - 100) > 0.1) {
+            alert(`El total suma ${total}%. Debe sumar exactamente 100%.`);
+            return;
+        }
+
+        fetch("{% url 'api_configurar_plan' %}", {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json', 'X-CSRFToken': '{{ csrf_token }}'},
+            body: JSON.stringify({
+                periodo_id: periodoId,
+                materia_id: "{{ materia.id }}",
+                items: items
+            })
+        }).then(r => r.json()).then(d => {
+            if(d.success) {
+                location.reload();
+            } else {
+                alert("Error al guardar: " + d.error);
+            }
+        });
+    }
+
+    function setAsistencia(estId, estado, btn) {
+        const parent = btn.parentElement;
+        Array.from(parent.children).forEach(c => c.classList.remove('active', 'btn-success', 'btn-warning', 'btn-danger', 'text-white'));
+        
+        btn.classList.add('active', 'text-white');
+        if(estado === 'ASISTIO') btn.classList.add('btn-success');
+        if(estado === 'TARDE') btn.classList.add('btn-warning');
+        if(estado === 'FALLA') btn.classList.add('btn-danger');
+
+        fetch("{% url 'api_tomar_asistencia' %}", {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json', 'X-CSRFToken': '{{ csrf_token }}'},
+            body: JSON.stringify({
+                estudiante_id: estId,
+                materia_id: "{{ materia.id }}",
+                estado: estado,
+                fecha: new Date().toISOString().split('T')[0]
+            })
+        }).then(r => r.json()).then(d => {
+            if(!d.success) alert("Error: " + d.error);
+        }).catch(e => alert("Error de conexión"));
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl)
+        });
+
+        const periodoSelector = document.getElementById('periodoSelector');
+        const floatingSaveButton = document.getElementById('floating-save-button');
+        
+        function mostrarPeriodoNotas() {
+            const periodoId = periodoSelector.value;
+            document.querySelectorAll('.periodo-header, .periodo-cell').forEach(el => el.style.display = 'none');
+            const header = document.querySelector(`.periodo-header[data-periodo-id="${periodoId}"]`);
+            if (header) header.style.display = 'table-header-group';
+            document.querySelectorAll(`.periodo-cell[data-periodo-id="${periodoId}"]`).forEach(cell => {
+                cell.style.display = 'table-cell';
+            });
+        }
+
+        function calcularPromedio() {
+            const periodoId = periodoSelector.value;
+            document.querySelectorAll('tbody tr').forEach(fila => {
+                const estudianteId = fila.querySelector('span[data-estudiante-id]').dataset.estudianteId;
+                let suma = 0;
+                let porcentajeTotal = 0;
+                
+                const inputs = fila.querySelectorAll(`td.periodo-cell[data-periodo-id="${periodoId}"] input.nota-input`);
+                
+                inputs.forEach(input => {
+                    const val = parseFloat(input.value);
+                    const peso = parseFloat(input.dataset.porcentaje);
+                    
+                    input.classList.remove('text-danger', 'text-success');
+                    if (!isNaN(val)) {
+                        if(val < 3.0) input.classList.add('text-danger');
+                        else if(val >= 4.0) input.classList.add('text-success');
+                        
+                        suma += val * (peso / 100.0);
+                        porcentajeTotal += peso;
+                    }
+                });
+
+                const spanProm = fila.querySelector(`#promedio_${estudianteId}_${periodoId}`);
+                if (porcentajeTotal > 0) {
+                    spanProm.textContent = suma.toFixed(2);
+                    spanProm.className = "fs-5 fw-bold " + (suma < 3.0 ? 'text-danger' : (suma >= 4.0 ? 'text-success' : 'text-dark'));
+                } else {
+                    spanProm.textContent = "-";
+                }
+            });
+        }
+
+        const btnAgregarLogro = document.getElementById('btn-agregar-logro');
+        const listaLogros = document.getElementById('lista-logros');
+        let logrosPorPeriodoData = {};
+
+        try {
+            // CORRECCIÓN FINAL: Usamos escapejs y poblamos el objeto JS directamente.
+            // El input oculto se deja VACÍO en el HTML y se llena aquí.
+            const rawData = "{{ logros_por_periodo|escapejs }}"; 
+            logrosPorPeriodoData = JSON.parse(rawData || '{}');
+            
+            // Inyectamos los datos en el input oculto para que al guardar (POST) se envíen
+            document.getElementById('logros-json-data').value = JSON.stringify(logrosPorPeriodoData);
+        } catch(e) {
+            console.error("Error al inicializar logros:", e);
+            logrosPorPeriodoData = {};
+        }
+        
+        const modalLogroBS = new bootstrap.Modal(document.getElementById('modalAgregarLogro'));
+
+        window.renderizarLogros = function() {
+            const periodoId = periodoSelector.value;
+            const logrosDelPeriodo = logrosPorPeriodoData[periodoId] || [];
+            const logrosVisibles = logrosDelPeriodo.filter(l => l.id >= 0);
+
+            listaLogros.innerHTML = '';
+            if (logrosVisibles.length === 0) {
+                listaLogros.innerHTML = '<p class="text-muted mb-0">No hay logros registrados para este período.</p>';
+            } else {
+                logrosDelPeriodo.forEach((logro, index) => {
+                    if (logro.id >= 0) {
+                        const logroItem = document.createElement('div');
+                        logroItem.classList.add('logro-item', 'p-3', 'mb-3', 'border', 'rounded-3');
+                        logroItem.innerHTML = `
+                            <div class="d-flex justify-content-between align-items-center">
+                                <p class="mb-0">${logro.descripcion}</p>
+                                <button type="button" class="btn btn-sm btn-outline-danger" onclick="borrarLogro('${periodoId}', ${index})"><i class="fas fa-trash"></i></button>
+                            </div>
+                        `;
+                        listaLogros.appendChild(logroItem);
+                    }
+                });
+            }
+            document.getElementById('logros-json-data').value = JSON.stringify(logrosPorPeriodoData);
+        }
+
+        btnAgregarLogro.addEventListener('click', function() {
+            document.getElementById('periodoLogroActual').value = periodoSelector.value;
+            document.getElementById('textoNuevoLogro').value = '';
+            modalLogroBS.show();
+        });
+
+        window.guardarLogroModal = function() {
+            const pid = document.getElementById('periodoLogroActual').value;
+            const texto = document.getElementById('textoNuevoLogro').value;
+            if(texto.trim()) {
+                if(!logrosPorPeriodoData[pid]) logrosPorPeriodoData[pid] = [];
+                logrosPorPeriodoData[pid].push({id: 0, descripcion: texto, periodo_id: parseInt(pid)});
+                renderizarLogros();
+                floatingSaveButton.classList.remove('d-none');
+                modalLogroBS.hide();
+            }
+        };
+
+        window.borrarLogro = function(pid, idx) {
+            if (logrosPorPeriodoData[pid][idx].id > 0) {
+                logrosPorPeriodoData[pid][idx].id = -logrosPorPeriodoData[pid][idx].id;
+            } else {
+                logrosPorPeriodoData[pid].splice(idx, 1);
+            }
+            renderizarLogros();
+            floatingSaveButton.classList.remove('d-none');
+        };
+
+        periodoSelector.addEventListener('change', function () {
+            mostrarPeriodoNotas();
+            calcularPromedio();
+            renderizarLogros();
+        });
+        periodoSelector.dispatchEvent(new Event('change'));
+
+        document.querySelector('tbody').addEventListener('input', function(e) {
+            if (e.target.classList.contains('nota-input')) {
+                calcularPromedio();
+                floatingSaveButton.classList.remove('d-none');
+            }
+        });
+
+        const listaActividades = document.getElementById('lista-actividades');
+        const plantillaNuevaActividad = document.getElementById('plantilla-nueva-actividad');
+        const btnAgregarActividad = document.getElementById('btn-agregar-actividad');
+        const confirmarBorrarModal = new bootstrap.Modal(document.getElementById('confirmarBorrarModal'));
+        let id_a_borrar = null;
+
+        btnAgregarActividad.addEventListener('click', function() {
+            const nuevaActividadHtml = plantillaNuevaActividad.querySelector('.new-activity-item').cloneNode(true);
+            nuevaActividadHtml.style.display = '';
+            listaActividades.appendChild(nuevaActividadHtml);
+            
+            const btnGuardar = nuevaActividadHtml.querySelector('.btn-guardar-creacion');
+            const btnCancelar = nuevaActividadHtml.querySelector('.btn-cancelar-creacion');
+
+            btnGuardar.addEventListener('click', function() {
+                const titulo = nuevaActividadHtml.querySelector('.titulo-actividad-input').value;
+                const descripcion = nuevaActividadHtml.querySelector('.descripcion-actividad-input').value;
+                const fechaInicio = nuevaActividadHtml.querySelector('.fecha-inicio-actividad-input').value;
+                const fechaFin = nuevaActividadHtml.querySelector('.fecha-fin-actividad-input').value;
+
+                nuevaActividadHtml.querySelector('input[name="titulo_actividad[]"]').value = titulo;
+                nuevaActividadHtml.querySelector('input[name="descripcion_actividad[]"]').value = descripcion;
+                nuevaActividadHtml.querySelector('input[name="fecha_inicio_actividad[]"]').value = fechaInicio;
+                nuevaActividadHtml.querySelector('input[name="fecha_fin_actividad[]"]').value = fechaFin;
+
+                const infoDiv = document.createElement('div');
+                infoDiv.classList.add('actividad-info', 'd-flex', 'justify-content-between', 'align-items-start');
+                infoDiv.innerHTML = `
+                    <div>
+                        <h6 class="fw-bold">${titulo}</h6>
+                        <p class="small text-muted mb-2"><i class="fas fa-calendar-alt me-1"></i>Fechas: ${fechaInicio} - ${fechaFin}</p>
+                        <p class="mb-0">${descripcion}</p>
+                    </div>
+                    <div class="actividad-acciones">
+                        <button type="button" class="btn btn-sm btn-outline-danger btn-borrar-actividad"><i class="fas fa-trash"></i></button>
+                    </div>
+                `;
+                nuevaActividadHtml.innerHTML = infoDiv.outerHTML + `
+                    <input type="hidden" name="actividad_id[]" value="">
+                    <input type="hidden" name="titulo_actividad[]" value="${titulo}">
+                    <input type="hidden" name="descripcion_actividad[]" value="${descripcion}">
+                    <input type="hidden" name="fecha_inicio_actividad[]" value="${fechaInicio}">
+                    <input type="hidden" name="fecha_fin_actividad[]" value="${fechaFin}">
+                `;
+                floatingSaveButton.classList.remove('d-none');
+                nuevaActividadHtml.querySelector('.btn-borrar-actividad').addEventListener('click', function() {
+                    this.closest('.actividad-item').remove();
+                    floatingSaveButton.classList.remove('d-none');
+                });
+            });
+
+            btnCancelar.addEventListener('click', function() {
+                nuevaActividadHtml.remove();
+            });
+        });
+
+        document.querySelectorAll('.btn-borrar-actividad').forEach(btn => {
+            btn.addEventListener('click', function() {
+                id_a_borrar = this.dataset.id;
+                confirmarBorrarModal.show();
+            });
+        });
+        
+        document.getElementById('btn-confirmar-borrar').addEventListener('click', function() {
+            if (id_a_borrar) {
+                const actividadItem = document.querySelector(`.actividad-item[data-id="${id_a_borrar}"]`);
+                if (actividadItem) {
+                    actividadItem.querySelector('input[name="actividad_id[]"]').value = -id_a_borrar;
+                    actividadItem.style.display = 'none';
+                    confirmarBorrarModal.hide();
+                    floatingSaveButton.classList.remove('d-none');
+                }
+            }
+        });
+
+        document.addEventListener('click', function(e) {
+            if (e.target.closest('.btn-editar-actividad')) {
+                const btn = e.target.closest('.btn-editar-actividad');
+                const actividadItem = btn.closest('.actividad-item');
+                const infoDiv = actividadItem.querySelector('.actividad-info');
+                const formDiv = actividadItem.querySelector('.actividad-form-edit');
+                const btnGuardarEdicion = formDiv.querySelector('.btn-guardar-edicion');
+                const btnCancelarEdicion = formDiv.querySelector('.btn-cancelar-edicion');
+
+                infoDiv.style.display = 'none';
+                formDiv.style.display = '';
+
+                btnGuardarEdicion.onclick = function() {
+                    const titulo = formDiv.querySelector('.titulo-actividad-input').value;
+                    const descripcion = formDiv.querySelector('.descripcion-actividad-input').value;
+                    const fechaInicio = formDiv.querySelector('.fecha-inicio-actividad-input').value;
+                    const fechaFin = formDiv.querySelector('.fecha-fin-actividad-input').value;
+                    
+                    actividadItem.querySelector('input[name="titulo_actividad[]"]').value = titulo;
+                    actividadItem.querySelector('input[name="descripcion_actividad[]"]').value = descripcion;
+                    actividadItem.querySelector('input[name="fecha_inicio_actividad[]"]').value = fechaInicio;
+                    actividadItem.querySelector('input[name="fecha_fin_actividad[]"]').value = fechaFin;
+                    
+                    infoDiv.querySelector('h6.fw-bold').textContent = titulo;
+                    infoDiv.querySelector('p.small').textContent = descripcion;
+                    infoDiv.querySelector('p.small.text-muted').textContent = `Fechas: ${fechaInicio} - ${fechaFin}`;
+
+                    formDiv.style.display = 'none';
+                    infoDiv.style.display = 'flex';
+                    floatingSaveButton.classList.remove('d-none');
+                };
+
+                btnCancelarEdicion.onclick = function() {
+                    formDiv.style.display = 'none';
+                    infoDiv.style.display = 'flex';
+                };
+            }
+        });
+
+        document.querySelectorAll('#notasForm input, #notasForm textarea').forEach(el => {
+            el.addEventListener('input', () => floatingSaveButton.classList.remove('d-none'));
+        });
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,76 @@
+<!-- templates/subir_notas_simple.html -->
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="card p-5">
+        <div class="card-header bg-warning text-dark">
+            <h2 class="text-center mb-0">
+                <i class="fas fa-tools me-2"></i>Sistema en Mantenimiento
+            </h2>
+        </div>
+        
+        <div class="card-body">
+            <div class="alert alert-info">
+                <h4 class="alert-heading">
+                    <i class="fas fa-info-circle me-2"></i>Funcionalidad en Desarrollo
+                </h4>
+                <p>Estamos implementando el nuevo sistema de 4 notas por período.</p>
+                
+                <hr>
+                
+                <h5>Pasos a seguir:</h5>
+                <ol>
+                    <li>Ejecuta en la terminal:
+                        <br><code class="bg-light p-1">python manage.py makemigrations</code>
+                    </li>
+                    <li>Luego ejecuta:
+                        <br><code class="bg-light p-1">python manage.py migrate</code>
+                    </li>
+                    <li>Una vez completadas las migraciones, esta página se actualizará automáticamente</li>
+                </ol>
+                
+                <div class="mt-3 p-3 bg-light rounded">
+                    <h6><i class="fas fa-lightbulb me-2"></i>¿Qué estamos implementando?</h6>
+                    <ul class="mb-0">
+                        <li>✅ Sistema de 4 notas por período académico</li>
+                        <li>✅ Cálculo automático de promedios</li>
+                        <li>✅ Interfaz visual mejorada para docentes</li>
+                        <li>✅ Organización por estudiantes y períodos</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="text-center mt-4">
+                <a href="{% url 'dashboard_docente' %}" class="btn btn-primary btn-lg">
+                    <i class="fas fa-arrow-left me-2"></i>Volver al Dashboard
+                </a>
+                
+                <a href="/admin/" class="btn btn-secondary btn-lg ms-2">
+                    <i class="fas fa-cog me-2"></i>Panel de Administración
+                </a>
+            </div>
+        </div>
+        
+        <div class="card-footer text-center text-muted">
+            <small>
+                <i class="fas fa-clock me-1"></i>
+                Esta es una vista temporal - El sistema estará disponible después de las migraciones
+            </small>
+        </div>
+    </div>
+</div>
+
+<style>
+.code {
+    font-family: 'Courier New', monospace;
+    background-color: #f8f9fa;
+    padding: 0.2rem 0.4rem;
+    border-radius: 0.25rem;
+    font-size: 0.9em;
+}
+.alert-info {
+    border-left: 4px solid #0dcaf0;
+}
+</style>
+{% endblock %}

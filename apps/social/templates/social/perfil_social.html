@@ -1,0 +1,558 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load humanize %}
+
+{% block content %}
+<style>
+    /* --- Estilos del Perfil Social --- */
+    :root {
+        --profile-bg: #f0f2f5;
+        --card-bg: #ffffff;
+        --text-primary: #050505;
+        --text-secondary: #65676b;
+        --edu-primary: #0d6efd; /* Azul Institucional */
+    }
+
+    body {
+        background-color: var(--profile-bg);
+    }
+
+    /* Cabecera */
+    .profile-header-card {
+        background-color: var(--card-bg);
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+        margin-bottom: 20px;
+        background: linear-gradient(to bottom, #ffffff, #f0f2f5);
+        padding-bottom: 0;
+    }
+
+    .cover-container {
+        max-width: 1100px;
+        margin: 0 auto;
+        position: relative;
+    }
+
+    /* Estilo de la Foto de Portada */
+    .cover-photo {
+        width: 100%;
+        height: 350px;
+        border-bottom-left-radius: 8px;
+        border-bottom-right-radius: 8px;
+        object-fit: cover;
+        object-position: center;
+        background-color: #ddd;
+    }
+    
+    /* Fondo por defecto si no hay foto */
+    .cover-placeholder {
+        width: 100%;
+        height: 350px;
+        background: linear-gradient(135deg, var(--edu-primary), #0043a8);
+        border-bottom-left-radius: 8px;
+        border-bottom-right-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: rgba(255,255,255,0.1);
+        font-size: 5rem;
+    }
+
+    .profile-info-section {
+        max-width: 1050px;
+        margin: 0 auto;
+        padding: 0 20px 20px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        position: relative;
+    }
+
+    @media (min-width: 992px) {
+        .profile-info-section {
+            flex-direction: row;
+            align-items: flex-end;
+            text-align: left;
+            padding-bottom: 0;
+        }
+        .profile-avatar-container { margin-right: 20px; }
+        .profile-details { margin-bottom: 15px; flex-grow: 1; }
+        .profile-actions { margin-bottom: 15px; }
+    }
+
+    .profile-avatar-container {
+        margin-top: -90px;
+        position: relative;
+        z-index: 2;
+    }
+
+    .profile-avatar {
+        width: 168px;
+        height: 168px;
+        border-radius: 50%;
+        border: 5px solid var(--card-bg);
+        background-color: #fff;
+        object-fit: cover;
+    }
+    
+    .profile-avatar-placeholder {
+        width: 168px;
+        height: 168px;
+        border-radius: 50%;
+        border: 5px solid var(--card-bg);
+        background-color: #6c757d;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 4rem;
+        color: white;
+        font-weight: bold;
+    }
+
+    .profile-name { font-size: 2rem; font-weight: 700; margin: 0; color: var(--text-primary); }
+    .profile-role-badge { font-size: 1rem; vertical-align: middle; margin-left: 10px; }
+    .profile-stats-text { font-weight: 600; color: var(--text-secondary); font-size: 1rem; }
+
+    /* Barra de Navegación */
+    .profile-nav-bar {
+        max-width: 1050px;
+        margin: 0 auto;
+        padding: 0 20px;
+        border-top: 1px solid #ced0d4;
+    }
+    
+    .nav-tabs .nav-link {
+        color: var(--text-secondary);
+        font-weight: 600;
+        padding: 15px 20px;
+        border: none;
+        border-bottom: 3px solid transparent;
+    }
+    
+    .nav-tabs .nav-link.active {
+        color: var(--edu-primary);
+        border-bottom: 3px solid var(--edu-primary);
+        background: none;
+    }
+
+    /* Grid Principal */
+    .profile-content-container {
+        max-width: 1050px;
+        margin: 20px auto;
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 20px;
+        padding: 0 10px;
+    }
+    
+    @media (min-width: 992px) {
+        .profile-content-container {
+            grid-template-columns: 360px 1fr; /* Sidebar fijo, contenido flexible */
+        }
+    }
+
+    .info-card {
+        background: var(--card-bg);
+        border-radius: 8px;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+        padding: 20px;
+        margin-bottom: 20px;
+    }
+
+    .info-card h5 { font-weight: 700; margin-bottom: 15px; font-size: 1.2rem; }
+
+    /* Estilos de Posts */
+    .post-card {
+        background: var(--card-bg);
+        border-radius: 8px;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+        margin-bottom: 20px;
+        padding: 20px;
+    }
+    .post-header { display: flex; align-items: center; margin-bottom: 10px; }
+    .user-avatar-sm { width: 40px; height: 40px; border-radius: 50%; margin-right: 10px; object-fit: cover;}
+    .post-author { font-weight: 600; color: var(--text-primary); text-decoration: none; }
+    .post-date { font-size: 0.8rem; color: var(--text-secondary); display: block;}
+    .post-content { margin-bottom: 15px; white-space: pre-line; }
+    .post-image img { width: 100%; border-radius: 4px; margin-bottom: 10px; }
+    .post-footer { border-top: 1px solid #eee; padding-top: 10px; display: flex; gap: 15px; }
+    .action-text { cursor: pointer; color: var(--text-secondary); font-weight: 600; font-size: 0.9rem; }
+    .action-text:hover { color: var(--edu-primary); }
+
+    /* Badge Grid */
+    .badge-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        gap: 15px;
+    }
+</style>
+
+<div class="profile-header-card">
+    <div class="cover-container">
+        
+        {% if perfil.foto_portada %}
+            <img src="{{ perfil.foto_portada.url }}" class="cover-photo" alt="Portada de {{ perfil_user.username }}">
+        {% else %}
+            <div class="cover-placeholder">
+                <i class="fas fa-image"></i>
+            </div>
+        {% endif %}
+
+        <div class="profile-info-section">
+            <div class="profile-avatar-container">
+                {% if perfil.foto_perfil %}
+                    <img src="{{ perfil.foto_perfil.url }}" class="profile-avatar" alt="Avatar">
+                {% else %}
+                    <div class="profile-avatar-placeholder">
+                        {{ perfil_user.username|slice:":1"|upper }}
+                    </div>
+                {% endif %}
+            </div>
+
+            <div class="profile-details text-center text-lg-start">
+                <h1 class="profile-name">
+                    {{ perfil_user.get_full_name|default:perfil_user.username }}
+                    {% if perfil.rol == 'DOCENTE' %}
+                        <span class="badge bg-primary profile-role-badge"><i class="fas fa-chalkboard-teacher"></i> Docente</span>
+                    {% elif perfil.rol == 'ADMINISTRADOR' %}
+                        <span class="badge bg-danger profile-role-badge"><i class="fas fa-user-shield"></i> Admin</span>
+                    {% endif %}
+                </h1>
+                <p class="profile-stats-text mb-2">
+                    <span class="text-dark fw-bold" id="followers-count">{{ followers_count }}</span> seguidores 
+                    &bull; <span class="text-dark fw-bold">{{ following_count }}</span> seguidos
+                    &bull; <span class="text-warning fw-bold"><i class="fas fa-star"></i> {{ perfil.puntos_reputacion }}</span> pts
+                </p>
+                
+                <div class="profile-actions mt-3">
+                    {% if is_own_profile %}
+                        <a href="{% url 'editar_perfil' %}" class="btn btn-secondary fw-bold">
+                            <i class="fas fa-pen me-2"></i>Editar perfil
+                        </a>
+                    {% else %}
+                        <button class="btn {% if is_following %}btn-outline-secondary{% else %}btn-primary{% endif %} fw-bold me-2" 
+                                onclick="toggleFollow('{{ perfil_user.id }}', this)">
+                            {% if is_following %}
+                                <i class="fas fa-check me-2"></i>Siguiendo
+                            {% else %}
+                                <i class="fas fa-user-plus me-2"></i>Seguir
+                            {% endif %}
+                        </button>
+                        <a href="{% url 'buzon_mensajes' %}?destinatario={{ perfil_user.id }}" class="btn btn-secondary fw-bold">
+                            <i class="fas fa-comment-dots me-2"></i>Mensaje
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="profile-nav-bar">
+            <ul class="nav nav-tabs" id="profileTabs" role="tablist">
+                <li class="nav-item">
+                    <a class="nav-link active" id="posts-tab" data-bs-toggle="tab" href="#posts" role="tab">Publicaciones</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" id="about-tab" data-bs-toggle="tab" href="#about" role="tab">Información</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" id="badges-tab" data-bs-toggle="tab" href="#badges" role="tab">Logros</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<div class="profile-content-container">
+    
+    <div class="left-column">
+        <div class="info-card">
+            <h5 class="fw-bold mb-3">Sobre mí</h5>
+            
+            {% if perfil.biografia %}
+                <p class="mb-3">{{ perfil.biografia|linebreaksbr }}</p>
+            {% else %}
+                <p class="text-muted fst-italic mb-3">Sin presentación aún.</p>
+            {% endif %}
+            
+            <div class="d-flex flex-column gap-2 border-top pt-3 mt-2">
+                {% if perfil.hobbies %}
+                <div class="mb-1">
+                    <strong class="text-dark d-block small"><i class="fas fa-gamepad me-2 text-primary"></i>Hobbies:</strong>
+                    <span class="text-muted small d-block">{{ perfil.hobbies|linebreaksbr }}</span>
+                </div>
+                {% endif %}
+
+                {% if perfil.gustos_musicales %}
+                <div class="mb-1">
+                    <strong class="text-dark d-block small"><i class="fas fa-music me-2 text-danger"></i>Música:</strong>
+                    <span class="text-muted small d-block">{{ perfil.gustos_musicales|linebreaksbr }}</span>
+                </div>
+                {% endif %}
+
+                {% if perfil.libros_favoritos %}
+                <div class="mb-1">
+                    <strong class="text-dark d-block small"><i class="fas fa-book me-2 text-success"></i>Libros:</strong>
+                    <span class="text-muted small d-block">{{ perfil.libros_favoritos|linebreaksbr }}</span>
+                </div>
+                {% endif %}
+
+                {% if perfil.materia_favorita %}
+                <div class="mb-1">
+                    <strong class="text-dark d-block small"><i class="fas fa-graduation-cap me-2 text-info"></i>Materia:</strong>
+                    <span class="text-muted small d-block">{{ perfil.materia_favorita|linebreaksbr }}</span>
+                </div>
+                {% endif %}
+
+                {% if perfil.metas_anio %}
+                <div class="mb-1">
+                    <strong class="text-dark d-block small"><i class="fas fa-bullseye me-2 text-warning"></i>Metas:</strong>
+                    <span class="text-muted small fst-italic d-block">"{{ perfil.metas_anio|linebreaksbr }}"</span>
+                </div>
+                {% endif %}
+            </div>
+            
+            <hr>
+            
+            <div class="d-flex align-items-center mb-2">
+                <i class="fas fa-clock text-secondary me-2" style="width: 20px;"></i>
+                <span class="small">Se unió el {{ perfil_user.date_joined|date:"d M Y" }}</span>
+            </div>
+            {% if perfil.esta_en_linea %}
+            <div class="d-flex align-items-center">
+                <i class="fas fa-circle text-success me-2" style="width: 20px; font-size: 0.8rem;"></i>
+                <span class="text-success fw-bold small">En línea ahora</span>
+            </div>
+            {% else %}
+            <div class="d-flex align-items-center">
+                <i class="fas fa-history text-secondary me-2" style="width: 20px;"></i>
+                <span class="text-muted small">Última vez: {{ perfil.last_seen|naturaltime|default:"Hace mucho" }}</span>
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="info-card">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="mb-0">Trofeos Recientes</h5>
+            </div>
+            
+            {% if mis_logros %}
+                <div class="d-flex flex-wrap gap-2">
+                    {% for ul in mis_logros|slice:":6" %} 
+                    <div class="text-center" title="{{ ul.logro.descripcion }}">
+                        {% if ul.logro.imagen %}
+                            <img src="{{ ul.logro.imagen.url }}" alt="{{ ul.logro.nombre }}" style="width: 50px; height: 50px; object-fit: contain;">
+                        {% else %}
+                            <div class="text-warning fs-2"><i class="fas fa-award"></i></div>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p class="text-center text-muted small">Aún no ha ganado insignias.</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="right-column">
+        <div class="tab-content">
+            
+            <div class="tab-pane fade show active" id="posts" role="tabpanel">
+                
+                {% if is_own_profile %}
+                <div class="info-card mb-3 p-3">
+                    <div class="d-flex gap-2 align-items-center">
+                        {% if perfil.foto_perfil %}
+                            <img src="{{ perfil.foto_perfil.url }}" class="user-avatar-sm">
+                        {% else %}
+                            <div class="user-avatar-sm d-flex align-items-center justify-content-center bg-secondary text-white fw-bold">
+                                {{ perfil_user.username|slice:":1"|upper }}
+                            </div>
+                        {% endif %}
+                        <input type="text" class="form-control rounded-pill bg-light border-0" placeholder="¿Qué estás pensando?" onclick="window.location.href='{% url 'social_feed' %}'">
+                    </div>
+                </div>
+                {% endif %}
+
+                {% for post in page_obj %}
+                    <div class="post-card">
+                        <div class="post-header">
+                            {% if post.autor.perfil.foto_perfil %}
+                                <img src="{{ post.autor.perfil.foto_perfil.url }}" class="user-avatar-sm">
+                            {% else %}
+                                <div class="user-avatar-sm d-flex align-items-center justify-content-center bg-secondary text-white fw-bold me-2">
+                                    {{ post.autor.username|slice:":1"|upper }}
+                                </div>
+                            {% endif %}
+                            <div>
+                                <a href="#" class="post-author">{{ post.autor.get_full_name|default:post.autor.username }}</a>
+                                <span class="post-date">{{ post.creado_en|naturaltime }}</span>
+                            </div>
+                        </div>
+                        <div class="post-content">{{ post.contenido|linebreaksbr }}</div>
+                        
+                        {% if post.imagen %}
+                        <div class="post-image">
+                            <img src="{{ post.imagen.url }}" alt="Post image">
+                        </div>
+                        {% endif %}
+
+                        <div class="post-footer">
+                            <div class="action-text" onclick="toggleReaction({{ post.id }}, 'post', this)">
+                                <i class="far fa-thumbs-up me-1"></i> {{ post.total_reacciones }}
+                            </div>
+                            <div class="action-text">
+                                <i class="far fa-comment-alt me-1"></i> {{ post.total_comentarios }}
+                            </div>
+                            <div class="action-text ms-auto">
+                                <i class="fas fa-share me-1"></i>
+                            </div>
+                        </div>
+                    </div>
+                {% empty %}
+                    <div class="info-card text-center py-5">
+                        <i class="fas fa-ghost fa-3x text-muted mb-3"></i>
+                        <h5>No hay publicaciones aún</h5>
+                        <p class="text-muted">Este usuario no ha publicado nada todavía.</p>
+                    </div>
+                {% endfor %}
+            </div>
+
+            <div class="tab-pane fade" id="about" role="tabpanel">
+                <div class="info-card">
+                    <h5 class="mb-4 text-primary"><i class="fas fa-user-graduate me-2"></i>Perfil Académico</h5>
+                    
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <strong>Rol:</strong>
+                            <p>{{ perfil.get_rol_display }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <strong>Materia Favorita:</strong>
+                            <p>{{ perfil.materia_favorita|default:"No especificada"|linebreaksbr }}</p>
+                        </div>
+                        <div class="col-12">
+                            <strong>Metas del Año:</strong>
+                            <p class="mb-0 bg-light p-2 rounded">{{ perfil.metas_anio|default:"No ha definido metas aún."|linebreaksbr }}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="info-card mt-3">
+                    <h5 class="mb-4 text-primary"><i class="fas fa-heart me-2"></i>Gustos Personales</h5>
+                    
+                    <div class="row g-3">
+                        <div class="col-12">
+                            <strong><i class="fas fa-gamepad me-1 text-muted"></i> Hobbies:</strong>
+                            <p>{{ perfil.hobbies|default:"No especificado"|linebreaksbr }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <strong><i class="fas fa-music me-1 text-muted"></i> Música Favorita:</strong>
+                            <p>{{ perfil.gustos_musicales|default:"No especificado"|linebreaksbr }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <strong><i class="fas fa-book me-1 text-muted"></i> Libros Favoritos:</strong>
+                            <p>{{ perfil.libros_favoritos|default:"No especificado"|linebreaksbr }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="tab-pane fade" id="badges" role="tabpanel">
+                <div class="info-card">
+                    <h5>Colección de Insignias</h5>
+                    {% if mis_logros %}
+                        <div class="badge-grid text-start">
+                             {% for ul in mis_logros %}
+                                <div class="badge-item p-3 border rounded d-flex align-items-center">
+                                    {% if ul.logro.imagen %}
+                                        <img src="{{ ul.logro.imagen.url }}" style="width: 50px; height: 50px; object-fit: contain;" class="me-3">
+                                    {% else %}
+                                        <div class="me-3 fs-2 text-warning"><i class="fas fa-trophy"></i></div>
+                                    {% endif %}
+                                    <div>
+                                        <div class="badge-name fw-bold">{{ ul.logro.nombre }}</div>
+                                        <small class="text-muted d-block">{{ ul.logro.descripcion }}</small>
+                                        <small class="text-muted" style="font-size: 0.75rem;">{{ ul.fecha_obtenido|date:"d M Y" }}</small>
+                                    </div>
+                                </div>
+                             {% endfor %}
+                        </div>
+                    {% else %}
+                        <p class="text-muted mt-3">Aún no hay medallas para mostrar.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Función para obtener el CSRF token (Necesaria para todas las peticiones POST de Django)
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+    async function toggleFollow(targetUserId, button) {
+        // La vista Python espera el ID numérico con la clave 'user_id'
+        const csrftoken = getCookie('csrftoken');
+        
+        // Desactivar temporalmente el botón para evitar doble clic
+        button.disabled = true;
+
+        try {
+            const response = await fetch('{% url "toggle_follow" %}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrftoken
+                },
+                // ENVIAMOS EL ID NUMÉRICO BAJO LA CLAVE 'user_id'
+                body: JSON.stringify({ 'user_id': targetUserId }) 
+            });
+            
+            const data = await response.json();
+
+            if (data.success) {
+                // Actualiza el texto y estilo del botón
+                if (data.action === 'followed') {
+                    button.innerHTML = '<i class="fas fa-check me-2"></i>Siguiendo';
+                    button.classList.add('btn-outline-secondary');
+                    button.classList.remove('btn-primary');
+                } else {
+                    button.innerHTML = '<i class="fas fa-user-plus me-2"></i>Seguir';
+                    button.classList.add('btn-primary');
+                    button.classList.remove('btn-outline-secondary');
+                }
+
+                // Actualiza el contador de seguidores dinámicamente
+                const followersCountElement = document.getElementById('followers-count');
+                if (followersCountElement && data.followers_count !== undefined) {
+                    followersCountElement.textContent = data.followers_count;
+                }
+                
+                // Mantenemos el log de consola para depuración
+                console.log(`Seguimiento: ${data.action}. Seguidores: ${data.followers_count}`);
+            } else {
+                alert("Error al procesar la acción: " + (data.error || 'Fallo desconocido del servidor.'));
+            }
+        } catch (error) {
+            console.error('Error de red o servidor:', error);
+            alert('No se pudo contactar al servidor.');
+        } finally {
+            // Reactivar el botón
+            button.disabled = false;
+        }
+    }
+</script>
+
+{% endblock %}

@@ -1,0 +1,397 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Certificado Oficial de Estudios</title>
+    <style>
+        /* FUENTES DE ALTA CALIDAD */
+        @import url('https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Playfair+Display:wght@400;700&display=swap');
+
+        @page {
+            size: Letter;
+            margin: 0;
+        }
+
+        body {
+            font-family: 'Libre Baskerville', 'Times New Roman', serif;
+            color: #1a1a1a;
+            margin: 0;
+            padding: 0;
+            background-color: #fff;
+        }
+
+        /* === FONDO DE SEGURIDAD === */
+        .security-background {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-image: 
+                radial-gradient(circle at 100% 50%, transparent 20%, rgba(0,0,0,0.02) 21%, rgba(0,0,0,0.02) 34%, transparent 35%, transparent),
+                radial-gradient(circle at 0% 50%, transparent 20%, rgba(0,0,0,0.02) 21%, rgba(0,0,0,0.02) 34%, transparent 35%, transparent);
+            background-size: 40px 40px;
+            z-index: -5;
+        }
+
+        /* === MARCO PRINCIPAL === */
+        .frame-container {
+            position: absolute;
+            top: 15mm; left: 15mm; right: 15mm; bottom: 15mm;
+            border: 2px solid #2c3e50;
+            padding: 4px;
+        }
+
+        .frame-inner {
+            height: 100%;
+            border: 5px double #b45309; /* Dorado Oscuro */
+            position: relative;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 40px 50px; /* Márgenes internos cómodos */
+            box-sizing: border-box;
+        }
+
+        /* === MARCA DE AGUA === */
+        .watermark-container {
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            width: 450px;
+            opacity: 0.05;
+            z-index: 0;
+            filter: grayscale(100%);
+        }
+        .watermark-img { width: 100%; }
+
+        /* === ENCABEZADO === */
+        .header-table {
+            width: 100%;
+            border-bottom: 2px solid #b45309;
+            padding-bottom: 15px;
+            margin-bottom: 25px;
+        }
+        .logo-cell { width: 18%; text-align: center; vertical-align: middle; }
+        .info-cell { width: 82%; text-align: center; vertical-align: middle; }
+        
+        .header-logo { height: 90px; object-fit: contain; }
+        
+        .inst-name {
+            font-family: 'Playfair Display', serif;
+            font-size: 20pt;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: #1f2937;
+            letter-spacing: 1px;
+            margin: 0;
+            line-height: 1.1;
+        }
+        .inst-meta {
+            font-size: 9pt;
+            color: #6b7280;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-top: 8px;
+        }
+
+        /* === TÍTULO === */
+        .doc-title-container {
+            text-align: center;
+            margin: 25px 0;
+        }
+        .doc-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 26pt;
+            color: #b45309;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-weight: 700;
+            display: inline-block;
+            border-bottom: 1px solid #e5e7eb;
+            padding-bottom: 5px;
+        }
+        .doc-subtitle {
+            display: block;
+            font-size: 11pt;
+            color: #4b5563;
+            font-style: italic;
+            margin-top: 8px;
+        }
+
+        /* === CUERPO DEL DOCUMENTO === */
+        .content {
+            font-size: 12pt;
+            line-height: 1.6;
+            text-align: justify;
+            color: #374151;
+            margin: 0 10px;
+            position: relative;
+            z-index: 10;
+        }
+
+        .certify-intro {
+            text-align: center;
+            font-weight: bold;
+            font-size: 12pt;
+            margin-bottom: 20px;
+            letter-spacing: 1px;
+            color: #111827;
+        }
+
+        .student-name-box {
+            background-color: #f9fafb;
+            border: 1px solid #e5e7eb;
+            padding: 10px;
+            text-align: center;
+            margin: 15px 0;
+        }
+        .student-name {
+            font-family: 'Playfair Display', serif;
+            font-size: 22pt;
+            font-weight: 700;
+            color: #111827;
+            text-transform: uppercase;
+        }
+        
+        .highlight-data { font-weight: bold; color: #000; }
+
+        .grade-highlight {
+            font-family: 'Playfair Display', serif;
+            font-size: 16pt;
+            font-weight: bold;
+            color: #b45309;
+            text-align: center;
+            display: block;
+            margin: 15px 0;
+            text-transform: uppercase;
+        }
+
+        /* === FECHA (ALINEADA Y LIMPIA) === */
+        .date-section {
+            margin-top: 30px;
+            text-align: center;
+            font-style: italic;
+            color: #4b5563;
+            font-size: 11pt;
+        }
+
+        /* === FIRMAS Y SELLO === */
+        .signatures-wrapper {
+            margin-top: 50px;
+            position: relative; /* Para posicionar el sello relativo a esto */
+            width: 100%;
+        }
+
+        .signatures-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .sig-cell {
+            width: 40%;
+            text-align: center;
+            vertical-align: bottom;
+        }
+        .sig-spacer { width: 20%; } /* Espacio central */
+        
+        .sig-line {
+            border-top: 1px solid #1f2937;
+            width: 85%;
+            margin: 5px auto 0 auto;
+        }
+        .sig-img {
+            height: 80px;
+            display: block;
+            margin: 0 auto -20px auto;
+            position: relative;
+            z-index: 5;
+        }
+        .sig-name {
+            font-weight: bold;
+            font-size: 9pt;
+            text-transform: uppercase;
+            margin-top: 8px;
+        }
+        .sig-role {
+            font-size: 8pt;
+            font-style: italic;
+            color: #6b7280;
+        }
+
+        /* === SELLO DORADO (UBICADO ESTRATÉGICAMENTE) === */
+        .seal-css {
+            position: absolute;
+            top: -20px; /* Ligeramente por encima de las firmas */
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px; height: 100px;
+            border-radius: 50%;
+            border: 3px double #b45309;
+            display: flex; align-items: center; justify-content: center;
+            text-align: center;
+            color: #b45309;
+            font-weight: bold;
+            font-size: 8pt;
+            text-transform: uppercase;
+            background: rgba(255,255,255,0.85); /* Semitransparente */
+            z-index: 2; /* Detrás de la firma si se cruzan */
+            box-shadow: 0 0 10px rgba(180, 83, 9, 0.2);
+        }
+
+        /* === PIE DE PÁGINA TÉCNICO === */
+        .footer-tech {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background-color: #f8fafc;
+            border-top: 1px solid #e2e8f0;
+            padding: 10px 20px;
+            box-sizing: border-box;
+        }
+        .footer-table { width: 100%; vertical-align: middle; }
+        .footer-info {
+            font-family: 'Courier New', monospace;
+            font-size: 7pt;
+            color: #64748b;
+            text-align: left;
+            width: 75%;
+            line-height: 1.3;
+        }
+        .footer-qr {
+            width: 25%;
+            text-align: right;
+            vertical-align: middle;
+        }
+        .qr-img { 
+            width: 75px; 
+            height: 75px; 
+            border: 1px solid #cbd5e1;
+            padding: 2px;
+            background: #fff;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="security-background"></div>
+
+    <div class="frame-container">
+        <div class="frame-inner">
+            
+            <div class="watermark-container">
+                {% if institucion.logo %}
+                    <img src="{{ institucion.logo.url }}" class="watermark-img" alt="Marca de Agua">
+                {% endif %}
+            </div>
+
+            <table class="header-table">
+                <tr>
+                    <td class="logo-cell">
+                        {% if institucion.logo %}
+                            <img src="{{ institucion.logo.url }}" class="header-logo" alt="Logo">
+                        {% endif %}
+                    </td>
+                    <td class="info-cell">
+                        <h1 class="inst-name">{{ institucion.nombre|default:"INSTITUCIÓN EDUCATIVA EDUTECH STRATOS" }}</h1>
+                        <div class="inst-meta">
+                            Reconocimiento Oficial según Resolución No. {{ institucion.resolucion }}<br>
+                            NIT: {{ institucion.nit }} | DANE: {{ institucion.dane }}
+                        </div>
+                    </td>
+                </tr>
+            </table>
+
+            <div class="doc-title-container">
+                <div class="doc-title">Certificado de Estudios</div>
+                <span class="doc-subtitle">Acreditación Oficial de Desempeño Académico</span>
+            </div>
+
+            <div class="content">
+                <p class="certify-intro">
+                    LA RECTORÍA Y LA SECRETARÍA ACADÉMICA DE LA INSTITUCIÓN,<br>
+                    EN USO DE SUS FACULTADES LEGALES CONFERIDAS,
+                </p>
+                
+                <p style="text-align: center; margin-bottom: 5px;">HACEN CONSTAR QUE:</p>
+
+                <div class="student-name-box">
+                    <div class="student-name">{{ estudiante.get_full_name }}</div>
+                </div>
+
+                <p>
+                    Identificado(a) con documento de identidad N° 
+                    <span class="highlight-data">
+                        {% if estudiante.perfil.numero_documento %}
+                            {{ estudiante.perfil.numero_documento }}
+                        {% else %}
+                            {{ estudiante.username }}
+                        {% endif %}
+                    </span>,
+                    se encuentra debidamente <strong>MATRICULADO(A)</strong> en el Sistema de Gestión Institucional para el año lectivo 
+                    <strong>{{ anio }}</strong>, cursando el grado:
+                </p>
+
+                <span class="grade-highlight">“ {{ curso.nombre|upper }} ”</span>
+
+                <p>
+                    Se certifica que, a la fecha de expedición de este documento, el estudiante ha cumplido satisfactoriamente con los 
+                    requisitos académicos exigidos por el Ministerio de Educación Nacional y el Proyecto Educativo Institucional (PEI), 
+                    observando buena conducta y convivencia.
+                </p>
+            </div>
+
+            <div class="date-section">
+                Expedido en {{ institucion.ciudad|default:"la ciudad de Bogotá" }}, a los {{ fecha_texto }}.
+            </div>
+
+            <div class="signatures-wrapper">
+                
+                <div class="seal-css">
+                    DOCUMENTO<br>OFICIAL<br>VALIDADO
+                </div>
+
+                <table class="signatures-table">
+                    <tr>
+                        <td class="sig-cell">
+                            {% if firma_url %}
+                                <img src="{{ firma_url }}" class="sig-img" alt="Firma Rector">
+                            {% else %}
+                                <div style="height: 60px;"></div>
+                            {% endif %}
+                            <div class="sig-line"></div>
+                            <div class="sig-name">{{ institucion.rector|default:"NOMBRE DEL RECTOR(A)" }}</div>
+                            <div class="sig-role">Rectoría General</div>
+                        </td>
+                        
+                        <td class="sig-spacer"></td> <td class="sig-cell">
+                            <div style="height: 60px;"></div>
+                            <div class="sig-line"></div>
+                            <div class="sig-name">{{ institucion.secretaria|default:"SECRETARÍA ACADÉMICA" }}</div>
+                            <div class="sig-role">Secretaría General</div>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+
+            <div class="footer-tech">
+                <table class="footer-table">
+                    <tr>
+                        <td class="footer-info">
+                            <strong>VALIDACIÓN DE AUTENTICIDAD:</strong><br>
+                            Este certificado ha sido generado y firmado digitalmente por la plataforma <strong>STRATOS AI</strong>.<br>
+                            <strong>FOLIO ÚNICO:</strong> {{ folio }}<br>
+                            <strong>HASH:</strong> {{ security_hash|slice:":32" }}...<br>
+                            FECHA DE GENERACIÓN: {% now "Y-m-d H:i:s T" %}
+                        </td>
+                        <td class="footer-qr">
+                            {% if qr_src %}
+                                <img src="{{ qr_src }}" class="qr-img" alt="QR Verificación">
+                            {% else %}
+                                <div style="border:1px dashed #999; width:70px; height:70px; margin-left:auto; display:flex; align-items:center; justify-content:center; font-size:8px;">QR CODE</div>
+                            {% endif %}
+                        </td>
+                    </tr>
+                </table>
+            </div>
+
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,467 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<div class="premium-register-container">
+    <div class="premium-register-card">
+        <div class="premium-header">
+            <div class="premium-logo-container">
+                <img src="https://res.cloudinary.com/diarfrbzp/image/upload/v1745919577/logo_lab_qserfl.png" 
+                     alt="Learning Labs Logo" 
+                     class="premium-logo">
+                </div>
+            <h1 class="premium-title">Iniciar Sesión</h1>
+            <p class="premium-subtitle">Accede a tu cuenta</p>
+        </div>
+
+        {% if error %}
+        <div class="premium-alert premium-alert-error animate__animated animate__headShake">
+            <div class="premium-alert-content">
+                <i class="fas fa-exclamation-triangle"></i>
+                <span>{{ error }}</span>
+            </div>
+        </div>
+        {% endif %}
+
+        <form class="premium-form" action="/signin/" method="POST" id="loginFormSimplified">
+            {% csrf_token %}
+            
+            <div class="premium-form-group">
+                <label for="premiumUsername" class="premium-label">
+                    <i class="fas fa-user-graduate premium-icon"></i>
+                    <span>Nombre de Usuario</span>
+                </label>
+                <div class="premium-input-container">
+                    <input type="text" 
+                           id="premiumUsername" 
+                           name="username" 
+                           class="premium-input"
+                           placeholder="Nombre de usuario"
+                           required
+                           autocomplete="username">
+                    </div>
+            </div>
+
+            <div class="premium-form-group">
+                <label for="premiumPassword1" class="premium-label">
+                    <i class="fas fa-lock premium-icon"></i>
+                    <span>Contraseña</span>
+                </label>
+                <div class="premium-input-container">
+                    <input type="password" 
+                           id="premiumPassword1" 
+                           name="password" 
+                           class="premium-input"
+                           placeholder="Contraseña"
+                           required
+                           autocomplete="current-password">
+                    <button type="button" class="premium-toggle-password" aria-label="Mostrar contraseña">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                    </div>
+            </div>
+
+            <div class="premium-form-actions">
+                <button type="submit" class="premium-submit-btn" id="loginButtonSimplified">
+                    <span class="premium-btn-content">
+                        <i class="fas fa-sign-in-alt"></i>
+                        <span>Iniciar Sesión</span>
+                    </span>
+                    <div class="premium-btn-overlay"></div>
+                </button>
+            </div>
+
+            <div class="premium-footer">
+                <p>¿No tienes cuenta? <a href="/signup/" class="premium-footer-link">Regístrate aquí</a></p>
+            </div>
+        </form>
+    </div>
+</div>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+
+
+<style>
+    /* Variables de diseño (copiadas de signup.html) */
+    :root {
+        --premium-primary: #6a11cb;
+        --premium-secondary: #2575fc;
+        --premium-accent: #ff4d4d; /* No se usa directamente en signin visualmente */
+        --premium-light: #f8f9ff;
+        --premium-dark: #1a1a2e;
+        --premium-gray: #8c8c8c;
+        --premium-success: #00b894; /* Para mensajes de éxito si los hubiera */
+        --premium-warning: #fdcb6e; /* Para advertencias si las hubiera */
+        --premium-danger: #ff7675; /* Para el mensaje de error */
+        --premium-card-bg: #ffffff;
+        --premium-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+        --premium-border-radius: 16px;
+        --premium-transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.1);
+    }
+
+    /* Estructura (copiada de signup.html) */
+    .premium-register-container {
+        min-height: 100vh; /* Ajustado para que ocupe al menos toda la altura de la vista */
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        padding: 2rem;
+        font-family: 'Segoe UI', 'Roboto', 'Helvetica Neue', sans-serif;
+    }
+
+    .premium-register-card {
+        background: var(--premium-card-bg);
+        border-radius: var(--premium-border-radius);
+        box-shadow: var(--premium-shadow);
+        width: 100%;
+        max-width: 520px; /* Mismo ancho que signup */
+        padding: 2.5rem;
+        position: relative;
+        overflow: hidden;
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+    }
+
+    .premium-register-card::before { /* Borde superior degradado */
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 6px;
+        background: linear-gradient(90deg, var(--premium-primary), var(--premium-secondary));
+    }
+
+    /* Encabezado (adaptado de signup.html) */
+    .premium-header {
+        text-align: center;
+        margin-bottom: 2.5rem;
+        position: relative;
+    }
+
+    .premium-logo-container {
+        position: relative;
+        margin: 0 auto 1.5rem;
+        width: 110px; /* Mismo tamaño de logo */
+        height: 110px;
+    }
+
+    .premium-logo {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        filter: drop-shadow(0 4px 12px rgba(106, 17, 203, 0.2));
+    }
+    /* OMITIMOS .premium-badge intencionalmente */
+
+    .premium-title {
+        font-size: 2rem;
+        font-weight: 800;
+        margin: 0.5rem 0 0.3rem;
+        background: linear-gradient(90deg, var(--premium-primary), var(--premium-secondary));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        line-height: 1.2;
+    }
+
+    .premium-subtitle {
+        font-size: 1rem;
+        color: var(--premium-gray);
+        margin: 0;
+        font-weight: 400;
+    }
+
+    /* Alertas (copiado de signup.html) */
+    .premium-alert {
+        padding: 0;
+        border-radius: 12px;
+        margin-bottom: 2rem;
+        overflow: hidden;
+        border: none;
+    }
+
+    .premium-alert-error {
+        background: linear-gradient(90deg, rgba(255, 118, 117, 0.1), rgba(255, 118, 117, 0.05));
+        border-left: 4px solid var(--premium-danger);
+    }
+
+    .premium-alert-content {
+        padding: 1rem;
+        display: flex;
+        align-items: center;
+    }
+
+    .premium-alert i {
+        margin-right: 0.8rem;
+        color: var(--premium-danger);
+        font-size: 1.2rem;
+    }
+
+    /* Formulario (copiado y adaptado de signup.html) */
+    .premium-form {
+        margin-top: 1.5rem;
+    }
+
+    .premium-form-group {
+        margin-bottom: 1.8rem;
+        position: relative;
+    }
+
+    .premium-label {
+        display: flex;
+        align-items: center;
+        font-size: 0.95rem;
+        font-weight: 600;
+        color: var(--premium-dark);
+        margin-bottom: 0.8rem;
+    }
+
+    .premium-icon {
+        margin-right: 0.8rem;
+        color: var(--premium-primary);
+        font-size: 1.1rem;
+    }
+
+    .premium-input-container {
+        position: relative;
+    }
+
+    .premium-input {
+        width: 100%;
+        padding: 1rem 1rem 1rem 1rem; /* Ajustado padding izquierdo ya que el icono va en el label */
+        font-size: 1rem;
+        border: 1px solid #e0e0e0;
+        border-radius: 12px;
+        transition: var(--premium-transition);
+        background-color: rgba(255, 255, 255, 0.8);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    }
+    .premium-input-container .premium-input { /* Específico para inputs dentro del contenedor con botón de mostrar/ocultar contraseña */
+         padding: 1rem 3.5rem 1rem 1rem; /* Espacio a la derecha para el botón, padding izquierdo normal */
+    }
+
+
+    .premium-input:focus {
+        border-color: var(--premium-primary);
+        box-shadow: 0 0 0 3px rgba(106, 17, 203, 0.1);
+        outline: none;
+        background-color: white;
+    }
+
+    /* input hint si se decide usar */
+    .premium-input-hint { 
+        font-size: 0.8rem;
+        color: var(--premium-gray);
+        margin-top: 0.5rem;
+        display: flex;
+        align-items: center;
+    }
+    .premium-input-hint i {
+        margin-right: 0.4rem;
+        font-size: 0.9rem;
+    }
+
+
+    .premium-toggle-password {
+        position: absolute;
+        right: 1rem;
+        top: 50%;
+        transform: translateY(-50%);
+        background: none;
+        border: none;
+        color: var(--premium-gray);
+        cursor: pointer;
+        transition: var(--premium-transition);
+        padding: 0.4rem;
+        font-size: 1rem;
+    }
+
+    .premium-toggle-password:hover {
+        color: var(--premium-primary);
+        transform: translateY(-50%) scale(1.1);
+    }
+
+    /* Botón (copiado de signup.html) */
+    .premium-form-actions { /*Contenedor del botón*/
+        margin-top: 25px; /* Espacio arriba del botón */
+    }
+    .premium-submit-btn {
+        width: 100%;
+        padding: 0;
+        border: none;
+        border-radius: 12px;
+        overflow: hidden;
+        position: relative;
+        cursor: pointer;
+        transition: var(--premium-transition);
+        box-shadow: 0 5px 15px rgba(106, 17, 203, 0.3);
+        margin-top: 1rem; /* Espacio si está dentro de premium-form-actions */
+    }
+
+    .premium-btn-content {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 1.1rem;
+        background: linear-gradient(45deg, var(--premium-primary), var(--premium-secondary));
+        color: white;
+        font-size: 1rem;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+        position: relative;
+        z-index: 2;
+        transition: var(--premium-transition);
+    }
+
+    .premium-btn-content i {
+        margin-right: 0.8rem;
+        font-size: 1.1rem;
+    }
+
+    .premium-btn-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(45deg, var(--premium-secondary), var(--premium-primary));
+        opacity: 0;
+        transition: var(--premium-transition);
+        z-index: 1;
+    }
+
+    .premium-submit-btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 25px rgba(106, 17, 203, 0.4);
+    }
+
+    .premium-submit-btn:hover .premium-btn-overlay {
+        opacity: 1;
+    }
+
+    .premium-submit-btn:active {
+        transform: translateY(0);
+    }
+
+    /* Pie de página (copiado de signup.html) */
+    .premium-footer {
+        text-align: center;
+        margin-top: 2rem;
+        font-size: 0.9rem;
+        color: var(--premium-gray);
+    }
+
+    .premium-footer-link {
+        color: var(--premium-primary);
+        text-decoration: none;
+        font-weight: 600;
+    }
+
+    .premium-footer-link:hover {
+        text-decoration: underline;
+    }
+
+    /* Animaciones (copiado de signup.html) */
+    /* La clase animate__animated y animate__headShake vienen de animate.css */
+    /* Si no se quiere dependencia externa, se puede definir aquí: */
+    @keyframes headShake {
+        0%, 100% { transform: translateX(0); }
+        20%, 60% { transform: translateX(-5px); }
+        40%, 80% { transform: translateX(5px); }
+    }
+    .animate__headShake {
+        animation-name: headShake;
+    }
+    .animate__animated {
+       animation-duration: 0.8s; /* Duración de la animación */
+    }
+
+
+    /* Responsive (copiado de signup.html) */
+    @media (max-width: 576px) {
+        .premium-register-container {
+            padding: 1.5rem;
+            align-items: flex-start; /* Para que en móviles no se centre verticalmente si el contenido es largo */
+        }
+        
+        .premium-register-card {
+            padding: 2rem 1.5rem;
+            margin-top: 1rem; /* Pequeño margen superior en móviles */
+        }
+        
+        .premium-logo-container {
+            width: 90px;
+            height: 90px;
+        }
+        
+        .premium-title {
+            font-size: 1.8rem;
+        }
+    }
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Toggle password visibility - Adaptado de signup.html
+    const toggleButtons = document.querySelectorAll('.premium-toggle-password');
+    toggleButtons.forEach(button => {
+        button.addEventListener('click', function(e) {
+            e.preventDefault(); // Prevenir cualquier comportamiento por defecto
+            const inputContainer = this.closest('.premium-input-container');
+            if (!inputContainer) return;
+            const input = inputContainer.querySelector('.premium-input[type="password"], .premium-input[type="text"]');
+            if (!input) return;
+
+            const type = input.getAttribute('type') === 'password' ? 'text' : 'password';
+            input.setAttribute('type', type);
+            
+            const icon = this.querySelector('i');
+            if (icon) {
+                icon.className = type === 'password' ? 'fas fa-eye' : 'fas fa-eye-slash';
+            }
+            this.setAttribute('aria-label', type === 'password' ? 'Mostrar contraseña' : 'Ocultar contraseña');
+            
+            // Devolver el foco al campo de contraseña después de hacer clic en el botón
+            // setTimeout(() => input.focus(), 10); // Puede ser útil para UX
+        });
+    });
+
+    // Lógica original de signin.html para verificación de elementos (opcional, para depuración)
+    const usernameInput = document.getElementById('premiumUsername'); 
+    const passwordInput = document.getElementById('premiumPassword1'); 
+    const loginForm = document.getElementById('loginFormSimplified');
+    // const loginButton = document.getElementById('loginButtonSimplified');
+
+    if (!usernameInput) console.error("SIGNIN DEBUG ERROR: Campo de usuario ('premiumUsername') NO ENCONTRADO.");
+    if (!passwordInput) console.error("SIGNIN DEBUG ERROR: Campo de contraseña ('premiumPassword1') NO ENCONTRADO.");
+
+    // Asegurar que los campos son editables (generalmente no es necesario si no hay JS que los bloquee)
+    [usernameInput, passwordInput].forEach(input => {
+        if (input) {
+            input.disabled = false;
+            input.readOnly = false;
+        }
+    });
+
+    // Envío del formulario (lógica de validación básica, Django se encarga del resto)
+    if (loginForm) {
+        loginForm.addEventListener('submit', function(event) {
+            console.log("SIGNIN DEBUG: Evento 'submit' del formulario disparado.");
+            // La validación de required la hace el navegador.
+            // Django se encargará de la validación de credenciales.
+            if (!loginForm.checkValidity()) {
+                console.warn("SIGNIN DEBUG: Formulario no válido según checkValidity() (campos required faltantes).");
+                // No es necesario event.preventDefault() aquí si los errores de HTML5 se muestran.
+                // Si se quisiera validación más compleja aquí, se haría.
+            } else {
+                console.log("SIGNIN DEBUG: Formulario válido (campos required presentes), procediendo con el envío...");
+            }
+        });
+    }
+    console.log("SIGNIN DEBUG: Scripts de signin con nuevo estilo inicializados.");
+});
+</script>
+
+{% endblock %}

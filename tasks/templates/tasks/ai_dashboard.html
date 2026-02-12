@@ -1,0 +1,271 @@
+{% extends 'base.html' %} 
+{% load static %}
+
+{% block content %}
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+<style>
+    /* ESTILOS DEL CENTRO DE COMANDO IA */
+    .ai-container {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+        height: 85vh; /* Ocupa casi toda la pantalla */
+        padding: 20px;
+        background-color: #f4f6f9;
+    }
+
+    /* COLUMNA IZQ: ANÁLISIS */
+    .panel-analisis {
+        background: white;
+        border-radius: 15px;
+        padding: 25px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        overflow-y: auto;
+        border-left: 5px solid #4a90e2; /* Color Institucional */
+    }
+
+    /* COLUMNA DER: CHAT */
+    .panel-chat {
+        background: white;
+        border-radius: 15px;
+        display: flex;
+        flex-direction: column;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        border-right: 5px solid #2ecc71; /* Color Esperanza/Pedagogía */
+    }
+
+    .chat-header {
+        padding: 15px;
+        border-bottom: 1px solid #eee;
+        background: #fafafa;
+        border-radius: 15px 15px 0 0;
+        text-align: center;
+        font-weight: bold;
+        color: #555;
+    }
+
+    .chat-messages {
+        flex: 1;
+        padding: 20px;
+        overflow-y: auto;
+        background-color: #fff;
+    }
+
+    .chat-input-area {
+        padding: 15px;
+        border-top: 1px solid #eee;
+        display: flex;
+        gap: 10px;
+    }
+
+    /* BURBUJAS DE CHAT */
+    .message {
+        margin-bottom: 15px;
+        max-width: 80%;
+        padding: 12px 16px;
+        border-radius: 12px;
+        font-size: 0.95rem;
+        line-height: 1.5;
+    }
+
+    .message.user {
+        background-color: #e3f2fd;
+        color: #1565c0;
+        margin-left: auto; /* A la derecha */
+        border-bottom-right-radius: 2px;
+    }
+
+    .message.ai {
+        background-color: #f1f8e9;
+        color: #33691e;
+        margin-right: auto; /* A la izquierda */
+        border-bottom-left-radius: 2px;
+        border: 1px solid #dcedc8;
+    }
+
+    .message.error {
+        background-color: #ffebee;
+        color: #c62828;
+        width: 100%;
+        text-align: center;
+        font-size: 0.9rem;
+    }
+
+    /* BOTÓN MEJORAS */
+    .btn-magic {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        padding: 15px;
+        width: 100%;
+        border-radius: 10px;
+        font-size: 1.1rem;
+        cursor: pointer;
+        transition: transform 0.2s;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        margin-top: 20px;
+    }
+    .btn-magic:hover { transform: scale(1.02); }
+    .btn-magic:disabled { opacity: 0.7; cursor: wait; }
+
+    /* RESPONSIVE */
+    @media (max-width: 768px) {
+        .ai-container { grid-template-columns: 1fr; height: auto; }
+        .panel-analisis, .panel-chat { height: 500px; }
+    }
+</style>
+
+<div class="ai-container">
+    
+    <div class="panel-analisis">
+        <h2 style="color: #2c3e50;">📊 Tu Plan de Mejora</h2>
+        <p class="text-muted">Analizamos tus notas, asistencia y convivencia en tiempo real según el PEI.</p>
+        
+        <div id="resultado-analisis" style="margin-top: 20px; white-space: pre-wrap;">
+            <div style="text-align: center; color: #aaa; margin-top: 50px;">
+                <p>Presiona el botón para generar tu diagnóstico.</p>
+            </div>
+        </div>
+
+        <button id="btn-generar" class="btn-magic" onclick="generarReporteMejoras()">
+            ✨ Generar Estrategia de Mejora
+        </button>
+    </div>
+
+    <div class="panel-chat">
+        <div class="chat-header">
+            🎓 Asistente Socrático (Guía, no respuestas)
+        </div>
+        
+        <div id="chat-box" class="chat-messages">
+            <div class="message ai">
+                Hola {{ usuario_nombre }}, soy tu tutor virtual. ¿Qué tema te está costando entender hoy?
+            </div>
+        </div>
+
+        <div class="chat-input-area">
+            <input type="text" id="chat-input" class="form-control" placeholder="Escribe tu duda aquí..." onkeypress="handleEnter(event)">
+            <button class="btn btn-success" onclick="enviarMensaje()">Enviar</button>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    // ========================================================
+    // 1. CHAT SOCRÁTICO (USANDO FETCH API)
+    // ========================================================
+    async function enviarMensaje() {
+        const input = document.getElementById('chat-input');
+        const mensaje = input.value.trim();
+        
+        if (!mensaje) return;
+
+        // 1. Mostrar mi mensaje en pantalla
+        appendMessage('user', mensaje);
+        input.value = '';
+        
+        // 2. Mostrar indicador de carga ("Pensando...")
+        const loadingId = appendMessage('ai', 'Thinking... ⏳');
+
+        try {
+            // Llamamos a la vista que creamos en tasks/ai_views.py
+            const response = await fetch('/api/chat-socratico/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': '{{ csrf_token }}' // Token de seguridad obligatorio de Django
+                },
+                body: JSON.stringify({ 
+                    'mensaje': mensaje,
+                    'materia': 'General' // Podrías hacerlo dinámico después
+                })
+            });
+
+            const data = await response.json();
+            
+            // 3. Reemplazar "Thinking" con la respuesta real
+            const loadingDiv = document.getElementById(loadingId);
+            
+            if (data.status === 'success') {
+                loadingDiv.innerHTML = marked.parse(data.respuesta);
+            } else {
+                loadingDiv.innerHTML = '⚠️ ' + (data.mensaje || 'Error desconocido');
+                loadingDiv.className = 'message error';
+            }
+
+        } catch (error) {
+            console.error(error);
+            const loadingDiv = document.getElementById(loadingId);
+            loadingDiv.innerHTML = '❌ Error de conexión con el servidor.';
+            loadingDiv.className = 'message error';
+        }
+    }
+
+    function appendMessage(role, text) {
+        const chatBox = document.getElementById('chat-box');
+        const div = document.createElement('div');
+        const msgId = 'msg-' + Date.now();
+        div.id = msgId;
+        div.className = `message ${role}`;
+        
+        // Si es el usuario, texto plano. Si es IA, preparamos para Markdown después.
+        div.innerHTML = role === 'user' ? text : text; 
+        
+        chatBox.appendChild(div);
+        chatBox.scrollTop = chatBox.scrollHeight;
+        return msgId;
+    }
+
+    function handleEnter(e) { if (e.key === 'Enter') enviarMensaje(); }
+
+
+    // ========================================================
+    // 2. BOTÓN DE MEJORAS (USANDO FETCH API)
+    // ========================================================
+    async function generarReporteMejoras() {
+        const btn = document.getElementById('btn-generar');
+        const panel = document.getElementById('resultado-analisis');
+        
+        // UI de Carga
+        btn.disabled = true;
+        btn.innerHTML = '⏳ Analizando PEI y Notas...';
+        panel.innerHTML = '<div style="text-align:center; padding:20px;">Conectando con el cerebro pedagógico...</div>';
+
+        try {
+            // Llamamos a la vista de prueba del orquestador
+            const response = await fetch('/prueba-ia/'); 
+            const data = await response.json();
+
+            if (data.success) {
+                // Renderizar Markdown bonito
+                panel.innerHTML = marked.parse(data.content);
+                
+                // Feedback visual de éxito
+                btn.innerHTML = '✅ Reporte Generado';
+                btn.style.background = '#2ecc71'; // Verde
+            } else {
+                // Mostrar error controlado (ej: Límite alcanzado)
+                panel.innerHTML = `<div class="alert alert-warning" style="background:#fff3cd; padding:15px; border-radius:10px; color:#856404;">
+                    <strong>Aviso:</strong> ${data.content}
+                </div>`;
+                btn.innerHTML = '⚠️ Reintentar';
+            }
+
+        } catch (error) {
+            panel.innerHTML = `<div style="color:red; text-align:center;">Error técnico: ${error}</div>`;
+            btn.innerHTML = '❌ Error';
+        } finally {
+            // Habilitar botón de nuevo después de 5 segundos
+            setTimeout(() => {
+                if (btn.innerText !== '✅ Reporte Generado') {
+                    btn.disabled = false;
+                    btn.innerHTML = '✨ Generar Estrategia de Mejora';
+                    btn.style.background = ''; // Reset color original
+                }
+            }, 5000);
+        }
+    }
+</script>
+{% endblock %}

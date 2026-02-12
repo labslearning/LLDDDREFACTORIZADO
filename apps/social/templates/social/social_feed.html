@@ -1,0 +1,1268 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load humanize %}
+{% load widget_tweaks %}
+
+{# --- INJERTO QUIRÚRGICO: Botón de Atrás (Estética Tier 50) --- #}
+{% block back_button %}
+    <div class="mb-4 animate__animated animate__fadeInDown">
+        {% if user.perfil.rol == 'ADMINISTRADOR' %}
+            <a href="{% url 'wellbeing:admin_dashboard' %}" class="btn-back-tier-50">
+                <i class="fas fa-arrow-left"></i> <span>Volver al Admin</span>
+            </a>
+        {% elif user.perfil.rol == 'DOCENTE' %}
+             <a href="{% url 'dashboard_docente' %}" class="btn-back-tier-50">
+                <i class="fas fa-arrow-left"></i> <span>Volver a Notas</span>
+            </a>
+        {% elif user.perfil.rol == 'ESTUDIANTE' %}
+             <a href="{% url 'dashboard_estudiante' %}" class="btn-back-tier-50">
+                <i class="fas fa-arrow-left"></i> <span>Volver a Mi Panel</span>
+            </a>
+        {% elif user.perfil.rol == 'ACUDIENTE' %}
+             <a href="{% url 'dashboard_acudiente' %}" class="btn-back-tier-50">
+                <i class="fas fa-arrow-left"></i> <span>Volver al Panel</span>
+            </a>
+        {% else %}
+            <a href="{% url 'wellbeing:dashboard_bienestar' %}" class="btn-back-tier-50">
+                <i class="fas fa-arrow-left"></i> <span>Volver a Bienestar</span>
+            </a>
+        {% endif %}
+    </div>
+{% endblock %}
+
+{% block content %}
+<script src="https://cdn.jsdelivr.net/npm/@joeattardi/emoji-button@4.6.0/dist/index.min.js"></script>
+
+<style>
+    /* === EDTECH TIER 50 DESIGN SYSTEM (Premium, Clean & Responsive) === */
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+    :root {
+        --feed-bg: #f0f2f5; 
+        --card-bg: #ffffff;
+        --text-primary: #1c1e21;
+        --text-secondary: #65676b;
+        --text-tertiary: #b0b3b8;
+        
+        --primary-color: #2563eb; /* Azul Royal */
+        --primary-hover: #1d4ed8;
+        --primary-light: #eff6ff;
+        
+        --success-color: #10b981;
+        --danger-color: #ef4444;
+        --warning-color: #f59e0b;
+        
+        --border-radius-xl: 20px;
+        --border-radius-lg: 16px;
+        --border-radius-md: 12px;
+        
+        /* Sombras de alta fidelidad */
+        --shadow-xs: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+        --shadow-sm: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        --shadow-md: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.025);
+        --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.05), 0 10px 10px -5px rgba(0, 0, 0, 0.02);
+        
+        --transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    body {
+        background-color: var(--feed-bg);
+        font-family: 'Inter', sans-serif;
+        color: var(--text-primary);
+        -webkit-font-smoothing: antialiased;
+    }
+
+    /* --- Botón Atrás Premium --- */
+    .btn-back-tier-50 {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 20px;
+        background-color: white;
+        color: var(--text-secondary);
+        border-radius: 50px;
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 0.95rem;
+        box-shadow: var(--shadow-sm);
+        border: 1px solid rgba(0,0,0,0.05);
+        transition: var(--transition);
+    }
+    .btn-back-tier-50:hover {
+        background-color: white;
+        color: var(--primary-color);
+        box-shadow: var(--shadow-md);
+        transform: translateY(-2px);
+    }
+
+    .feed-container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding-top: 10px;
+        padding-bottom: 80px;
+    }
+
+    /* === TARJETAS BASE === */
+    .sidebar-card, .create-post-card, .post-card, .sidebar-search-card {
+        background: var(--card-bg);
+        border-radius: var(--border-radius-lg);
+        box-shadow: var(--shadow-sm);
+        border: 1px solid rgba(0, 0, 0, 0.03);
+        margin-bottom: 24px;
+        overflow: hidden;
+        transition: var(--transition);
+        position: relative;
+    }
+    
+    .sidebar-card:hover, .post-card:hover {
+        box-shadow: var(--shadow-md);
+        transform: translateY(-1px);
+    }
+
+    /* === SIDEBARS ESTILIZADOS === */
+    .sidebar-card { padding: 24px; }
+    
+    .sidebar-title {
+        font-size: 0.8rem;
+        font-weight: 800;
+        color: var(--text-secondary);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        margin-bottom: 1.25rem;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    .sidebar-title i { color: var(--primary-color); font-size: 1rem; }
+
+    /* Grupos */
+    .group-item {
+        display: flex;
+        align-items: center;
+        padding: 10px;
+        margin-bottom: 6px;
+        border-radius: var(--border-radius-md);
+        transition: var(--transition);
+        text-decoration: none;
+        border: 1px solid transparent;
+    }
+    .group-item:hover {
+        background-color: var(--primary-light);
+        border-color: rgba(37, 99, 235, 0.1);
+    }
+    .group-img-sidebar {
+        width: 44px;
+        height: 44px;
+        border-radius: 12px;
+        object-fit: cover;
+        margin-right: 14px;
+        box-shadow: var(--shadow-sm);
+        background-color: #e2e8f0;
+    }
+    .group-info-sidebar h6 {
+        margin: 0;
+        font-size: 0.95rem;
+        font-weight: 600;
+        color: var(--text-primary);
+        line-height: 1.2;
+    }
+    .btn-join-group {
+        font-size: 0.75rem;
+        padding: 6px 14px;
+        border-radius: 20px;
+        font-weight: 700;
+        box-shadow: 0 2px 4px rgba(37, 99, 235, 0.2);
+    }
+
+    /* Buscador */
+    .sidebar-search-card { padding: 20px; }
+    .sidebar-search-input {
+        background: #f3f4f6;
+        border: 2px solid transparent;
+        border-radius: var(--border-radius-md);
+        padding: 12px 15px 12px 45px;
+        height: 48px;
+        width: 100%;
+        font-weight: 500;
+        color: var(--text-primary);
+        transition: var(--transition);
+    }
+    .sidebar-search-input:focus {
+        background: white;
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 4px var(--primary-light);
+        outline: none;
+    }
+    .sidebar-search-button {
+        width: 100%;
+        height: 44px;
+        border-radius: var(--border-radius-md);
+        margin-top: 12px;
+        background: var(--primary-color);
+        color: white;
+        border: none;
+        font-weight: 700;
+        letter-spacing: 0.5px;
+        cursor: pointer;
+        transition: var(--transition);
+        box-shadow: 0 4px 6px rgba(37, 99, 235, 0.25);
+    }
+    .sidebar-search-button:hover {
+        background-color: var(--primary-hover);
+        transform: translateY(-1px);
+    }
+    .search-icon-container {
+        position: absolute; left: 20px; top: 20px; 
+        color: var(--text-secondary); pointer-events: none;
+        font-size: 1.1rem;
+    }
+
+    /* Video Widget */
+    .video-responsive {
+        position: relative;
+        overflow: hidden;
+        width: 100%; 
+        border-radius: var(--border-radius-md);
+        margin-bottom: 16px;
+        box-shadow: var(--shadow-md);
+        background: black;
+        border: 1px solid rgba(0,0,0,0.1);
+    }
+    .video-responsive video { width: 100%; display: block; }
+
+    /* Calendario Premium */
+    .calendar-widget-container {
+        background: white;
+        border-radius: var(--border-radius-lg);
+        overflow: hidden;
+    }
+    .calendar-header {
+        background: linear-gradient(135deg, var(--primary-color), #6366f1);
+        color: white;
+        padding: 16px;
+        font-weight: 800;
+        font-size: 1.1rem;
+        text-align: center;
+        text-transform: capitalize;
+        letter-spacing: 0.5px;
+    }
+    .calendar-body { padding: 16px; }
+    .calendar-day {
+        display: inline-block;
+        width: 14.28%;
+        text-align: center;
+        padding: 8px 0;
+        font-size: 0.9rem;
+        font-weight: 500;
+        color: var(--text-secondary);
+        border-radius: 8px;
+    }
+    .calendar-date {
+        font-weight: 600;
+        color: var(--text-primary);
+        cursor: default;
+        transition: 0.2s;
+    }
+    .calendar-date:hover:not(.calendar-today) {
+        background-color: var(--feed-bg);
+        color: var(--primary-color);
+    }
+    .calendar-today {
+        background-color: var(--primary-color);
+        color: white !important;
+        font-weight: 800;
+        box-shadow: 0 4px 10px rgba(37, 99, 235, 0.4);
+        transform: scale(1.05);
+    }
+
+    /* === FEED CENTRAL === */
+    .create-post-card { padding: 20px 24px; }
+    .post-input-trigger {
+        background: #f0f2f5;
+        border-radius: 30px;
+        padding: 12px 20px;
+        flex-grow: 1;
+        color: var(--text-secondary);
+        cursor: pointer;
+        font-size: 1rem;
+        font-weight: 500;
+        transition: var(--transition);
+        border: 1px solid transparent;
+    }
+    .post-input-trigger:hover {
+        background: #e4e6eb;
+        color: var(--text-primary);
+    }
+    .create-post-actions {
+        margin-top: 16px;
+        padding-top: 12px;
+        border-top: 1px solid var(--divider);
+        display: flex;
+        justify-content: space-around;
+    }
+    .cp-action-btn {
+        background: none; border: none;
+        padding: 8px 12px; border-radius: 8px;
+        font-weight: 600; color: var(--text-secondary);
+        font-size: 0.95rem; transition: var(--transition);
+        display: flex; align-items: center; gap: 8px;
+    }
+    .cp-action-btn:hover { background-color: var(--action-hover); }
+
+    /* Post Individual */
+    .post-header { padding: 16px 20px 8px; display: flex; align-items: center; gap: 12px; }
+    .user-avatar-post {
+        width: 44px; height: 44px; border-radius: 50%; object-fit: cover;
+        box-shadow: var(--shadow-sm); border: 1px solid rgba(0,0,0,0.05);
+    }
+    .post-info h6 a {
+        font-weight: 700; color: var(--text-primary);
+        text-decoration: none; font-size: 1rem;
+    }
+    .post-time { font-size: 0.8rem; color: var(--text-tertiary); font-weight: 500; display: flex; align-items: center; gap: 4px; }
+    
+    .post-content {
+        padding: 8px 20px 16px;
+        font-size: 1rem;
+        line-height: 1.5;
+        color: #050505;
+    }
+    
+    .post-media {
+        background-color: black;
+        display: flex; justify-content: center; align-items: center;
+        max-height: 600px; width: 100%; overflow: hidden;
+        border-top: 1px solid var(--divider);
+        border-bottom: 1px solid var(--divider);
+    }
+    .post-media img { max-width: 100%; max-height: 600px; object-fit: contain; }
+
+    /* Stats & Actions */
+    .post-stats {
+        padding: 10px 20px;
+        border-bottom: 1px solid var(--divider);
+        display: flex; justify-content: space-between;
+        font-size: 0.9rem; color: var(--text-secondary);
+    }
+    .post-actions {
+        padding: 4px 12px; display: flex; gap: 4px;
+        justify-content: space-between;
+    }
+    .action-btn {
+        flex: 1; display: flex; align-items: center; justify-content: center;
+        gap: 8px; padding: 10px; border-radius: 6px;
+        cursor: pointer; color: var(--text-secondary);
+        font-weight: 600; font-size: 0.95rem;
+        background: transparent; border: none; transition: var(--transition);
+    }
+    .action-btn:hover { background-color: var(--action-hover); }
+    .action-btn.active-primary { color: var(--primary-color) !important; }
+
+    /* Comentarios */
+    .comments-section {
+        padding: 12px 20px 20px; background-color: white;
+        border-top: 1px solid var(--divider);
+    }
+    .comment-bubble {
+        background: #f0f2f5; padding: 8px 12px;
+        border-radius: 18px; display: inline-block;
+    }
+    .comment-input {
+        background: #f0f2f5;
+        border-radius: 20px;
+        border: none;
+        padding: 8px 16px;
+        height: 40px;
+        width: 100%;
+        transition: var(--transition);
+    }
+    .comment-input:focus {
+        outline: none; background: #e4e6eb;
+    }
+
+    /* === CSS PARA RESPONSIVE Y UTILIDADES === */
+    @media (max-width: 991.98px) {
+        .feed-container {
+            padding-left: 10px;
+            padding-right: 10px;
+        }
+        
+        .sidebar-card, .post-card {
+            border-radius: 12px;
+        }
+        
+        /* En móvil, el sidebar derecho (video) tiene margen inferior extra */
+        .col-right-sidebar {
+            margin-bottom: 60px !important; 
+        }
+    }
+</style>
+
+<div class="container feed-container">
+    {# CONTENEDOR PRINCIPAL CON ORDENAMIENTO FLEXBOX #}
+    <div class="row d-flex flex-column flex-lg-row">
+        
+        {# --- COLUMNA 1: SIDEBAR IZQUIERDA (BUSCADOR Y GRUPOS) --- #}
+        {# CAMBIO: order-2 en móvil (va DESPUÉS del video) #}
+        <div class="col-12 col-lg-3 order-2 order-lg-1 col-sidebar mb-4" style="display: block !important;">
+            
+            <div class="sidebar-search-card">
+                <form method="GET" action="{% url 'social:social_feed' %}" class="position-relative">
+                    <div class="position-relative">
+                        <div class="search-icon-container">
+                            <i class="fas fa-search"></i>
+                        </div>
+                        <input type="text" 
+                               name="q" 
+                               class="form-control sidebar-search-input" 
+                               placeholder="Buscar en la comunidad..." 
+                               value="{{ request.GET.q|default:'' }}"
+                               aria-label="Buscar publicaciones">
+                    </div>
+                    <button type="submit" class="sidebar-search-button mt-2">
+                        BUSCAR
+                    </button>
+                </form>
+            </div>
+
+            <div class="sidebar-card">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h5 class="sidebar-title mb-0 text-primary">
+                        <i class="fas fa-users me-2"></i> TUS GRUPOS
+                    </h5>
+                    {% if user.perfil.rol == 'ADMINISTRADOR' or user.perfil.rol == 'DOCENTE' %}
+                    <a href="{% url 'crear_grupo' %}" class="btn btn-sm btn-primary rounded-circle shadow-sm d-flex align-items-center justify-content-center" style="width: 32px; height: 32px;" title="Crear Grupo">
+                        <i class="fas fa-plus"></i>
+                    </a>
+                    {% endif %}
+                </div>
+
+                {% if grupos_sugeridos %}
+                    <div class="d-flex flex-column gap-2">
+                        {% for grupo in grupos_sugeridos %}
+                        <div class="group-item">
+                            {% if grupo.image %}
+                                <img src="{{ grupo.image.url }}" alt="{{ grupo.name }}" class="group-img-sidebar">
+                            {% else %}
+                                <div class="group-img-sidebar d-flex align-items-center justify-content-center bg-white text-primary border">
+                                    <i class="fas fa-users fa-lg"></i>
+                                </div>
+                            {% endif %}
+                            
+                            <div class="group-info-sidebar flex-grow-1">
+                                <a href="{% url 'detalle_grupo' grupo.id %}" class="text-decoration-none text-dark">
+                                    <h6>{{ grupo.name|truncatechars:20 }}</h6>
+                                </a>
+                                <small class="text-muted fw-bold" style="font-size: 0.75rem;">{{ grupo.members.count }} miembros</small>
+                            </div>
+
+                            <form action="{% url 'unirse_grupo' grupo.id %}" method="POST" class="ms-2">
+                                {% csrf_token %}
+                                {% if request.user in grupo.members.all %}
+                                    <a href="{% url 'detalle_grupo' grupo.id %}" class="btn btn-sm btn-light btn-join-group text-success border">
+                                        <i class="fas fa-check"></i>
+                                    </a>
+                                {% else %}
+                                    <button type="submit" class="btn btn-primary btn-join-group shadow-sm border-0 text-white">
+                                        Unirse
+                                    </button>
+                                {% endif %}
+                            </form>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    
+                    <div class="text-center mt-4 pt-3 border-top">
+                        <a href="{% url 'social:lista_grupos' %}" class="btn btn-link btn-sm text-decoration-none fw-bold" style="color: var(--primary-color); letter-spacing: 0.5px;">VER TODOS</a>
+                    </div>
+                {% else %}
+                    <div class="text-center py-5">
+                        <div class="text-muted mb-3 opacity-50"><i class="far fa-compass fa-3x"></i></div>
+                        <p class="text-muted small mb-3 fw-semibold">Explora para unirte a grupos.</p>
+                        <a href="{% url 'social:lista_grupos' %}" class="btn btn-outline-primary btn-sm rounded-pill px-4 fw-bold">Explorar</a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        {# --- COLUMNA 2: FEED CENTRAL --- #}
+        {# CAMBIO: order-3 en móvil (va AL FINAL de todo) #}
+        <div class="col-12 col-lg-6 order-3 order-lg-2 col-main-feed mb-4" style="display: block !important;">
+            
+            <div class="create-post-card">
+                <div class="d-flex align-items-center gap-3 mb-3">
+                    {% if user.perfil.foto_perfil %}
+                        <img src="{{ user.perfil.foto_perfil.url }}" alt="Yo" class="user-avatar-sm" style="width: 48px; height: 48px; border-radius: 50%;">
+                    {% else %}
+                        <div class="user-avatar-sm d-flex align-items-center justify-content-center bg-secondary text-white fw-bold" style="width: 48px; height: 48px; border-radius: 50%;">
+                            {{ user.username|slice:":1"|upper }}
+                        </div>
+                    {% endif %}
+                    
+                    <div class="post-input-trigger" data-bs-toggle="modal" data-bs-target="#createPostModal">
+                        <span>¿Qué estás pensando, {{ user.first_name }}?</span>
+                    </div>
+                </div>
+                <div class="create-post-actions">
+                    <button class="cp-action-btn" data-bs-toggle="modal" data-bs-target="#createPostModal">
+                        <i class="fas fa-video text-danger"></i> <span>Video</span>
+                    </button>
+                    <button class="cp-action-btn" data-bs-toggle="modal" data-bs-target="#createPostModal">
+                        <i class="fas fa-images text-success"></i> <span>Foto</span>
+                    </button>
+                    <button class="cp-action-btn" id="emoji-trigger-main">
+                        <i class="far fa-smile text-warning" style="font-size: 1.2rem;"></i> <span>Feeling</span>
+                    </button>
+                </div>
+            </div>
+
+            <div id="posts-list">
+                {% for post in page_obj %}
+                <div class="post-card animate__animated animate__fadeIn" id="post-{{ post.id }}">
+                    <div class="post-header">
+                        <a href="{% url 'ver_perfil_social' post.autor.username %}" class="d-flex align-items-center text-decoration-none">
+                            {% if post.autor.perfil.foto_perfil %}
+                                <img src="{{ post.autor.perfil.foto_perfil.url }}" alt="{{ post.autor.username }}" class="user-avatar-post">
+                            {% else %}
+                                <div class="user-avatar-post d-flex align-items-center justify-content-center bg-primary text-white fw-bold">
+                                    {{ post.autor.username|slice:":1"|upper }}
+                                </div>
+                            {% endif %}
+                        </a>
+                        <div class="post-info flex-grow-1">
+                            <h6 class="mb-0">
+                                <a href="{% url 'ver_perfil_social' post.autor.username %}" class="text-dark text-decoration-none fw-bold">
+                                    {{ post.autor.get_full_name|default:post.autor.username }}
+                                </a>
+                                {% if post.tipo == 'ANUNCIO' %}
+                                    <span class="badge bg-danger ms-1 rounded-pill px-2" style="font-size: 0.65rem; vertical-align: middle;">ANUNCIO</span>
+                                {% endif %}
+                                {% if post.grupo %}
+                                    <span class="text-muted fw-normal ms-1" style="font-size: 0.9rem;">
+                                        <i class="fas fa-caret-right mx-1 text-secondary"></i> <a href="{% url 'detalle_grupo' post.grupo.id %}" class="text-dark fw-bold text-decoration-none">{{ post.grupo.name }}</a>
+                                    </span>
+                                {% endif %}
+                            </h6>
+                            <div class="post-time">
+                                <span title="{{ post.creado_en }}">
+                                    {{ post.creado_en|naturaltime }}
+                                </span>
+                                <i class="fas fa-globe-americas ms-2"></i>
+                            </div>
+                        </div>
+                        
+                        <div class="dropdown">
+                            <button class="btn btn-light rounded-circle text-secondary p-0 d-flex align-items-center justify-content-center" style="width: 36px; height: 36px;" type="button" data-bs-toggle="dropdown">
+                                <i class="fas fa-ellipsis-h"></i>
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0 rounded-4 overflow-hidden p-0">
+                                {% if request.user == post.autor or request.user.perfil.rol == 'ADMINISTRADOR' %}
+                                    <li>
+                                        <button class="dropdown-item text-danger rounded-3 py-2 fw-bold" onclick="moderarContenidoDirecto({{ post.id }}, 'post')">
+                                            <i class="far fa-trash-alt me-2"></i> Eliminar publicación
+                                        </button>
+                                    </li>
+                                {% else %}
+                                     <li><a class="dropdown-item rounded-3 py-2 fw-semibold" href="#"><i class="far fa-flag me-2"></i> Reportar contenido</a></li>
+                                {% endif %}
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="post-content">
+                        {{ post.contenido|linebreaksbr|urlize|safe }}
+                    </div>
+
+                    {% if post.imagen %}
+                    <div class="post-media">
+                        <img src="{{ post.imagen.url }}" alt="Imagen del post" loading="lazy">
+                    </div>
+                    {% endif %}
+                    
+                    {% if post.archivo %}
+                        {% with extension=post.archivo.url|slice:"-4:"|lower %}
+                            {% if extension == ".mp4" or extension == "webm" or extension == ".ogg" %}
+                                <div class="post-media p-0 post-video-container bg-black">
+                                    <video controls muted autoplay playsinline style="width: 100%; max-height: 500px;">
+                                        <source src="{{ post.archivo.url }}" type="video/{{ extension|slice:"1:" }}">
+                                        Tu navegador no soporta el formato de video.
+                                    </video>
+                                </div>
+                            {% else %}
+                                <div class="p-4">
+                                    <a href="{{ post.archivo.url }}" target="_blank" class="d-flex align-items-center p-3 border rounded-3 bg-white text-decoration-none text-dark shadow-sm transition-transform hover-scale">
+                                        <div class="bg-light p-3 rounded-circle me-3 text-primary">
+                                            <i class="fas fa-file-download fa-2x"></i>
+                                        </div>
+                                        <div>
+                                            <h6 class="mb-0 fw-bold">Archivo adjunto disponible</h6>
+                                            <small class="text-muted">Clic para ver o descargar</small>
+                                        </div>
+                                    </a>
+                                </div>
+                            {% endif %}
+                        {% endwith %}
+                    {% endif %}
+
+                    {# --- SECCION DE ESTADISTICAS (DONDE SE HACE CLIC PARA VER QUIEN DIO LIKE) --- #}
+                    <div class="post-stats">
+                        <div class="d-flex align-items-center cursor-pointer" onclick="verQuienDioLike({{ post.id }})" title="Ver quién reaccionó">
+                            {% if post.total_reacciones > 0 %}
+                                <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center shadow-sm" style="width: 20px; height: 20px; font-size: 10px; border: 2px solid white;">
+                                    <i class="fas fa-thumbs-up"></i>
+                                </div>
+                                <span class="ms-2 small fw-bold text-dark hover-underline" id="liked-by-text-{{ post.id }}">
+                                    {{ post.total_reacciones }}
+                                </span>
+                            {% else %}
+                                <span class="text-muted small" id="liked-by-text-{{ post.id }}">Sé el primero</span>
+                            {% endif %}
+                        </div>
+                        <div class="comments-count small fw-bold text-muted cursor-pointer" data-bs-toggle="collapse" data-bs-target="#comments-{{ post.id }}">
+                            {{ post.total_comentarios }} comentarios
+                        </div>
+                    </div>
+
+                    {# --- BOTONERIA DE ACCIONES (ESTE BOTON SOLO DA LIKE, NO ABRE LISTA) --- #}
+                    <div class="post-actions">
+                        <button class="action-btn {% if post.user_has_liked %}active-primary{% endif %}" id="like-btn-{{ post.id }}" onclick="toggleReactionDirecto({{ post.id }}, 'post', this)">
+                            <i class="{% if post.user_has_liked %}fas{% else %}far{% endif %} fa-thumbs-up fa-lg"></i>
+                            <span class="d-none d-sm-inline">Me gusta</span>
+                        </button>
+                        <button class="action-btn" type="button" data-bs-toggle="collapse" data-bs-target="#comments-{{ post.id }}">
+                            <i class="far fa-comment-alt fa-lg"></i>
+                            <span class="d-none d-sm-inline">Comentar</span>
+                        </button>
+                        <button class="action-btn" onclick="compartirPost({{ post.id }})">
+                            <i class="fas fa-share fa-lg"></i>
+                            <span class="d-none d-sm-inline">Compartir</span>
+                        </button>
+                    </div>
+
+                    <div class="collapse show" id="comments-{{ post.id }}">
+                        <div class="comments-section">
+                            {% for comentario in post.comentarios.all %}
+                                <div class="comment-item" id="comment-{{ comentario.id }}">
+                                    <a href="{% url 'ver_perfil_social' comentario.autor.username %}" class="flex-shrink-0">
+                                        {% if comentario.autor.perfil.foto_perfil %}
+                                            <img src="{{ comentario.autor.perfil.foto_perfil.url }}" class="user-avatar-post" style="width: 32px; height: 32px; border-width: 0;">
+                                        {% else %}
+                                            <div class="user-avatar-post d-flex align-items-center justify-content-center bg-info text-white fw-bold border-0" style="width: 32px; height: 32px; font-size: 0.8rem;">
+                                                {{ comentario.autor.username|slice:":1"|upper }}
+                                            </div>
+                                        {% endif %}
+                                    </a>
+                                    <div class="comment-content-wrapper ms-2">
+                                        <div class="comment-bubble">
+                                            <a href="{% url 'ver_perfil_social' comentario.autor.username %}" class="comment-author text-decoration-none">
+                                                {{ comentario.autor.get_full_name|default:comentario.autor.username }}
+                                            </a>
+                                            <div class="comment-text">
+                                                {{ comentario.contenido|urlize|safe }}
+                                            </div>
+                                        </div>
+                                        <div class="comment-meta d-flex gap-3 mt-1 ms-3 align-items-center">
+                                            <span class="text-secondary cursor-pointer fw-bold" style="font-size: 0.75rem;" onclick="toggleReactionDirecto({{ comentario.id }}, 'comment', this)">
+                                                Me gusta <span id="reaction-count-comment-{{ comentario.id }}" class="ms-1 text-primary">{% if comentario.reacciones.count > 0 %}{{ comentario.reacciones.count }}{% endif %}</span>
+                                            </span>
+                                            <span style="font-size: 0.75rem; color: #cbd5e1;">•</span>
+                                            <span style="font-size: 0.75rem;">{{ comentario.creado_en|naturaltime }}</span>
+                                            {% if request.user == comentario.autor or request.user == post.autor or request.user.perfil.rol == 'ADMINISTRADOR' %}
+                                                <span class="text-danger cursor-pointer fw-bold ms-auto me-2" style="font-size: 0.7rem; text-transform: uppercase;" onclick="moderarContenidoDirecto({{ comentario.id }}, 'comment')" title="Eliminar">
+                                                    Eliminar
+                                                </span>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                            
+                            <div class="comment-input-area d-flex gap-2 mt-4 align-items-center">
+                                {% if user.perfil.foto_perfil %}
+                                    <img src="{{ user.perfil.foto_perfil.url }}" class="user-avatar-post flex-shrink-0" style="width: 32px; height: 32px; border: 0;">
+                                {% else %}
+                                    <div class="user-avatar-post bg-secondary rounded-circle flex-shrink-0 border-0" style="width: 32px; height: 32px;"></div>
+                                {% endif %}
+                                
+                                <form method="POST" action="." class="w-100 position-relative">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="publicar_comentario" value="1">
+                                    <input type="hidden" name="post_id" value="{{ post.id }}">
+                                    
+                                    <input type="text" name="contenido" class="comment-input w-100 ps-3 pe-5" placeholder="Escribe un comentario..." required autocomplete="off">
+                                    <button type="submit" class="btn btn-link text-primary position-absolute end-0 top-50 translate-middle-y p-0 me-2 hover-scale">
+                                        <i class="fas fa-paper-plane"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                    <div class="text-center py-5 bg-white rounded-4 shadow-sm border border-light">
+                        <div class="mb-4">
+                            <div class="bg-light d-inline-block rounded-circle p-4 text-primary">
+                                <i class="fas fa-stream fa-3x"></i>
+                            </div>
+                        </div>
+                        <h4 class="fw-bold text-dark mb-2">¡Tu muro está tranquilo!</h4>
+                        <p class="text-muted mb-4">Aún no hay publicaciones recientes.</p>
+                        <button class="btn btn-primary rounded-pill px-4 fw-bold shadow-sm" data-bs-toggle="modal" data-bs-target="#createPostModal">
+                            <i class="fas fa-plus me-2"></i> Crear primera publicación
+                        </button>
+                    </div>
+                {% endfor %}
+            </div>
+
+            {% if page_obj.has_other_pages %}
+            <nav class="my-5">
+                <ul class="pagination justify-content-center">
+                    {% if page_obj.has_previous %}
+                        <li class="page-item"><a class="page-link rounded-pill px-4 me-2 border-0 shadow-sm fw-bold" href="?q={{ request.GET.q|default:'' }}&page={{ page_obj.previous_page_number }}">Anterior</a></li>
+                    {% endif %}
+                    <li class="page-item disabled"><span class="page-link border-0 bg-transparent text-dark fw-bold">Página {{ page_obj.number }}</span></li>
+                    {% if page_obj.has_next %}
+                        <li class="page-item"><a class="page-link rounded-pill px-4 ms-2 border-0 shadow-sm fw-bold" href="?q={{ request.GET.q|default:'' }}&page={{ page_obj.next_page_number }}">Siguiente</a></li>
+                    {% endif %}
+                </ul>
+            </nav>
+            {% endif %}
+        </div>
+
+        {# --- COLUMNA 3: SIDEBAR DERECHA (VIDEO Y CALENDARIO) --- #}
+        {# CAMBIO: order-1 en móvil (va PRIMERO de todo) #}
+        <div class="col-12 col-lg-3 order-1 order-lg-3 col-right-sidebar mb-5" style="display: block !important;">
+            <div class="sidebar-card">
+                <h6 class="sidebar-title mb-3"><i class="fas fa-video me-2"></i> VIDEO DESTACADO</h6>
+                <div class="video-responsive">
+                    <video controls muted autoplay playsinline>
+                        <source src="https://res.cloudinary.com/do9orhb4k/video/upload/v1739634103/WhatsApp_Video_2025-02-15_at_8.34.38_AM_v0bpfq.mp4" type="video/mp4">
+                        Tu navegador no soporta el video.
+                    </video>
+                </div>
+                <p class="small text-muted mt-2 mb-0 lh-sm">Claves para el éxito en el aprendizaje digital.</p>
+            </div>
+
+            <div class="sidebar-card p-0 overflow-hidden border-0 bg-transparent shadow-none">
+                <div class="calendar-widget-container shadow-sm border">
+                    <div class="calendar-header" id="calendar-header">Cargando...</div>
+                    
+                    <div class="calendar-body">
+                        <div class="d-flex justify-content-between small fw-bold text-muted border-bottom pb-3 mb-2 px-1">
+                            <span class="calendar-day">L</span>
+                            <span class="calendar-day">M</span>
+                            <span class="calendar-day">M</span>
+                            <span class="calendar-day">J</span>
+                            <span class="calendar-day">V</span>
+                            <span class="calendar-day">S</span>
+                            <span class="calendar-day">D</span>
+                        </div>
+                        
+                        <div class="d-flex flex-wrap" id="calendar-days">
+                            </div>
+                    </div>
+                    
+                    <div class="p-3 bg-light small border-top text-center fw-bold text-primary" id="calendar-today-display">
+                        </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{# --- MODALES --- #}
+<div class="modal fade" id="videoModal" tabindex="-1" aria-hidden="true" style="backdrop-filter: blur(5px);">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content bg-black shadow-2xl rounded-4 overflow-hidden">
+            <div class="modal-header border-0 position-absolute w-100 z-10" style="background: linear-gradient(to bottom, rgba(0,0,0,0.7), transparent); z-index: 10;">
+                <h5 class="modal-title text-white fw-bold ps-2" id="videoModalLabel">Reproductor</h5>
+                <button type="button" class="btn-close btn-close-white opacity-100" data-bs-dismiss="modal" aria-label="Close" onclick="stopVideo()"></button>
+            </div>
+            <div class="modal-body p-0">
+                <div class="video-modal-iframe-wrapper">
+                    <iframe id="youtube-player" width="100%" height="100%" src="" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="createPostModal" tabindex="-1" aria-hidden="true" style="backdrop-filter: blur(8px);">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content shadow-lg border-0" style="border-radius: 24px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);">
+            <div class="modal-header border-bottom px-4 py-3 bg-light rounded-top-4">
+                <h5 class="modal-title w-100 fw-bold text-center text-primary">Crear publicación</h5>
+                <button type="button" class="btn-close position-absolute end-0 me-4" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body px-4 py-4 bg-white">
+                <form method="POST" enctype="multipart/form-data" novalidate id="form-publicar">
+                    {% csrf_token %}
+                    <input type="hidden" name="publicar_post" value="1">
+                    
+                    <div class="d-flex align-items-center mb-4">
+                        {% if user.perfil.foto_perfil %}
+                            <img src="{{ user.perfil.foto_perfil.url }}" class="user-avatar-sm me-3 shadow-sm" style="width: 56px; height: 56px;">
+                        {% else %}
+                            <div class="user-avatar-sm d-flex align-items-center justify-content-center bg-secondary text-white fw-bold me-3 shadow-sm" style="width: 56px; height: 56px; font-size: 1.2rem;">
+                                {{ user.username|slice:":1"|upper }}
+                            </div>
+                        {% endif %}
+                        <div>
+                            <span class="fw-bold d-block text-dark" style="font-size: 1.1rem;">{{ user.get_full_name }}</span>
+                            <div class="badge bg-light text-secondary border rounded-pill fw-bold mt-1 px-3 py-1"><i class="fas fa-globe-americas me-1"></i> Público</div>
+                        </div>
+                    </div>
+
+                    <div class="mb-4 position-relative">
+                        <button type="button" id="emoji-trigger-modal" class="btn btn-light position-absolute end-0 top-0 mt-2 me-2 rounded-circle border shadow-sm" style="z-index: 10; width: 40px; height: 40px;">
+                            <i class="far fa-smile text-warning" style="font-size: 1.4rem;"></i>
+                        </button>
+                        {{ post_form.contenido|add_class:"form-control border-0 fs-5"|attr:"id:post-content-textarea"|attr:"placeholder:¿Qué estás pensando? Comparte algo con tu clase..."|attr:"style:min-height: 150px; resize: none; box-shadow: none; background-color: #f8fafc; border-radius: 16px; padding: 20px;" }} 
+                    </div>
+
+                    <div class="border rounded-4 p-3 mb-4 shadow-sm bg-light">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="fw-bold text-secondary small text-uppercase ls-1">Añadir a tu post</span>
+                            <div class="d-flex gap-3">
+                                <label for="id_imagen" class="cursor-pointer text-success p-2 rounded-circle hover-bg-white transition" title="Foto">
+                                    <i class="fas fa-images fa-2x"></i>
+                                    {{ post_form.imagen|add_class:"d-none" }}
+                                </label>
+                                <label for="id_archivo" class="cursor-pointer text-danger p-2 rounded-circle hover-bg-white transition" title="Archivo">
+                                    <i class="fas fa-file-video fa-2x"></i>
+                                    {{ post_form.archivo|add_class:"d-none" }}
+                                </label>
+                            </div>
+                        </div>
+                        <div id="file-name-display" class="file-name-display mt-2 text-primary small fw-bold text-end"></div>
+                    </div>
+                    
+                    {% if user.perfil.rol == 'ADMINISTRADOR' %}
+                    <div class="form-check form-switch mb-4 ms-2">
+                        <input class="form-check-input" type="checkbox" name="es_anuncio" id="esAnuncioCheck" style="transform: scale(1.3);">
+                        <label class="form-check-label ms-2 small fw-bold text-secondary" for="esAnuncioCheck">
+                            Marcar como Anuncio Oficial
+                        </label>
+                    </div>
+                    {% endif %}
+
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary fw-bold py-3 rounded-pill shadow-lg hover-scale" style="font-size: 1.1rem; letter-spacing: 0.5px;">Publicar ahora</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+{# --- NUEVO MODAL: LISTA DE LIKES --- #}
+<div class="modal fade" id="likesListModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content border-0 rounded-4 shadow-lg">
+            <div class="modal-header border-bottom">
+                <h5 class="modal-title fw-bold text-primary"><i class="fas fa-thumbs-up me-2"></i> Personas que reaccionaron</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-0" id="likes-modal-list">
+                </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // 1. Get CSRF Token
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+    window.csrftoken_local = getCookie('csrftoken'); 
+    
+    // File Input UX
+    function handleFileInput(event) {
+        const input = event.target;
+        const display = document.getElementById('file-name-display');
+        let filename = '';
+        if (input.files.length > 0) {
+            filename = input.files[0].name;
+            // Aesthetic icon based on file
+            const icon = input.id === 'id_imagen' ? '<i class="fas fa-image me-1"></i>' : '<i class="fas fa-paperclip me-1"></i>';
+            display.innerHTML = `${icon} ${filename}`;
+        }
+        const otherInputId = input.id === 'id_imagen' ? 'id_archivo' : 'id_imagen';
+        const otherInput = document.getElementById(otherInputId);
+        if (otherInput && otherInput.files.length > 0 && input.files.length > 0) {
+             otherInput.value = ''; 
+        }
+        const imgInput = document.getElementById('id_imagen');
+        const fileInput = document.getElementById('id_archivo');
+        if (imgInput && fileInput && imgInput.files.length === 0 && fileInput.files.length === 0) {
+             display.textContent = '';
+        }
+    }
+
+    // YouTube Utils
+    function isYouTubeLink(url) {
+        try {
+            const urlObj = new URL(url);
+            return urlObj.hostname.includes('youtube.com') || urlObj.hostname.includes('youtu.be');
+        } catch (e) {
+            return false;
+        }
+    }
+    
+    function openYouTubeInNewTab(event, url) {
+        event.preventDefault();
+        window.open(url, '_blank');
+    }
+    
+    function stopVideo() {
+        const iframe = document.getElementById('youtube-player');
+        iframe.src = ''; 
+    }
+
+    // --- NUEVA FUNCION: VER QUIEN DIO LIKE ---
+    async function verQuienDioLike(postId) {
+        // 1. Abrir modal y mostrar spinner
+        const modalEl = document.getElementById('likesListModal');
+        const modal = new bootstrap.Modal(modalEl);
+        const listContainer = document.getElementById('likes-modal-list');
+        
+        listContainer.innerHTML = `
+            <div class="text-center py-5">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Cargando...</span>
+                </div>
+            </div>`;
+        modal.show();
+
+        // 2. Intentar obtener datos del backend
+        try {
+            // NOTA: Esta URL debe existir en tu backend Django para devolver la lista de usuarios
+            const response = await fetch(`/api/social/post/${postId}/likes/`);
+            
+            if (!response.ok) throw new Error('Endpoint no encontrado');
+            
+            const data = await response.json();
+            
+            if (data.users && data.users.length > 0) {
+                let html = '<ul class="list-group list-group-flush">';
+                data.users.forEach(u => {
+                    // Asumiendo que el JSON trae: username, full_name, avatar_url
+                    const avatar = u.avatar_url ? `<img src="${u.avatar_url}" class="rounded-circle" style="width: 40px; height: 40px; object-fit: cover;">` : `<div class="rounded-circle bg-secondary text-white d-flex align-items-center justify-content-center fw-bold" style="width: 40px; height: 40px;">${u.username.charAt(0).toUpperCase()}</div>`;
+                    
+                    html += `
+                        <li class="list-group-item d-flex align-items-center p-3 border-0 border-bottom">
+                            <a href="/perfil/${u.username}/" class="text-decoration-none me-3">
+                                ${avatar}
+                            </a>
+                            <div>
+                                <a href="/perfil/${u.username}/" class="text-dark fw-bold text-decoration-none d-block">
+                                    ${u.full_name || u.username}
+                                </a>
+                                <small class="text-muted">@${u.username}</small>
+                            </div>
+                        </li>
+                    `;
+                });
+                html += '</ul>';
+                listContainer.innerHTML = html;
+            } else {
+                listContainer.innerHTML = '<div class="text-center py-5 text-muted"><i class="far fa-thumbs-up fa-2x mb-3 opacity-50"></i><p>Aún no hay reacciones.</p></div>';
+            }
+        } catch (error) {
+            console.error('Error al cargar likes:', error);
+            // Mensaje amigable si falla la conexión o no existe el endpoint
+            listContainer.innerHTML = `
+                <div class="text-center py-5">
+                    <p class="text-muted fw-bold">No se pudo cargar la lista.</p>
+                    <small class="text-danger">Asegúrate de configurar la vista en Django para: <br> /api/social/post/${postId}/likes/</small>
+                </div>`;
+        }
+    }
+
+    // Reaction Logic
+    async function toggleReactionDirecto(id, tipo, btn) {
+        const icon = btn.querySelector('i');
+        const isLiked = btn.classList.contains('active-primary');
+        if (tipo === 'post') {
+            if (isLiked) {
+                btn.classList.remove('active-primary');
+                icon.classList.remove('fas');
+                icon.classList.add('far');
+            } else {
+                btn.classList.add('active-primary');
+                icon.classList.remove('far');
+                icon.classList.add('fas');
+            }
+        }
+        try {
+            const response = await fetch('/api/social/reaction/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrftoken_local
+                },
+                body: JSON.stringify({
+                    'id': id,
+                    'type': tipo,
+                    'reaction': 'LIKE'
+                })
+            });
+            const data = await response.json();
+            if (data.success) {
+                if (tipo === 'post') {
+                    location.reload(); 
+                } else {
+                    const counterSpan = document.getElementById(`reaction-count-comment-${id}`);
+                    if (counterSpan) {
+                        counterSpan.innerText = data.total > 0 ? data.total : ''; 
+                    }
+                    if (data.action === 'added') {
+                        btn.classList.add('text-primary', 'fw-bold', 'comment-liked');
+                    } else {
+                        btn.classList.remove('text-primary', 'fw-bold', 'comment-liked');
+                    }
+                }
+            } else {
+                console.error('Error en reacción:', data.error);
+                if (tipo === 'post') {
+                    // Revert UI if error
+                    if (isLiked) {
+                        btn.classList.add('active-primary');
+                        icon.classList.remove('far');
+                        icon.classList.add('fas');
+                    } else {
+                        btn.classList.remove('active-primary');
+                        icon.classList.remove('fas');
+                        icon.classList.add('far');
+                    }
+                }
+            }
+        } catch (error) {
+            console.error('Error de red:', error);
+        }
+    }
+
+    function compartirPost(id) {
+        const url = window.location.origin + "/social/feed/#post-" + id;
+        navigator.clipboard.writeText(url).then(() => {
+            alert("¡Enlace copiado al portapapeles!\n" + url);
+        }).catch(err => {
+            console.error('Error al copiar: ', err);
+            prompt("Copia este enlace:", url);
+        });
+    }
+
+    async function moderarContenidoDirecto(id, tipo) {
+        if (!confirm("¿Estás seguro de eliminar este contenido permanentemente?")) return;
+        try {
+            const response = await fetch('/api/social/moderate/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrftoken_local
+                },
+                body: JSON.stringify({
+                    'id': id,
+                    'type': tipo,
+                    'motivo': "Eliminado por el usuario/admin desde el feed"
+                })
+            });
+            const data = await response.json();
+            if (data.success) {
+                const elemento = document.getElementById(`${tipo}-${id}`);
+                if (elemento) {
+                    elemento.style.transition = "opacity 0.5s";
+                    elemento.style.opacity = "0";
+                    setTimeout(() => elemento.remove(), 500);
+                } else {
+                    location.reload();
+                }
+            } else {
+                alert("Error al eliminar: " + data.error);
+            }
+        } catch (error) {
+            console.error('Error de moderación:', error);
+        }
+    }
+
+    async function resetNotificationCounter() {
+        const csrftoken = getCookie('csrftoken');
+        const counterElement = document.getElementById('notification-counter'); 
+        if (counterElement && parseInt(counterElement.textContent) === 0) {
+            return;
+        }
+        try {
+            const response = await fetch('{% url "social:mark_all_notifications_read" %}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrftoken
+                },
+                body: JSON.stringify({})
+            });
+            const data = await response.json();
+            if (data.success) {
+                if (counterElement) {
+                    counterElement.textContent = '0';
+                    counterElement.style.display = 'none'; 
+                }
+            }
+        } catch (error) {
+            console.error('Error de red al sincronizar notificaciones:', error);
+        }
+    }
+    
+    document.addEventListener('DOMContentLoaded', function() {
+        const imagenInput = document.getElementById('id_imagen');
+        const archivoInput = document.getElementById('id_archivo');
+        if (imagenInput) imagenInput.addEventListener('change', handleFileInput);
+        if (archivoInput) archivoInput.addEventListener('change', handleFileInput);
+
+        document.querySelectorAll('.post-content a, .comment-content-wrapper a').forEach(link => {
+            const href = link.getAttribute('href');
+            if (isYouTubeLink(href)) {
+                link.onclick = (event) => openYouTubeInNewTab(event, href);
+                link.setAttribute('target', '_blank'); 
+                if (!link.querySelector('.fa-video')) {
+                     link.innerHTML = `<i class="fas fa-video me-1 text-danger"></i> ${link.innerHTML}`; 
+                }
+            }
+        });
+
+        const picker = new EmojiButton({
+            position: 'bottom-start',
+            zIndex: 1060
+        });
+        
+        const triggerModal = document.querySelector('#emoji-trigger-modal');
+        const triggerMain = document.querySelector('#emoji-trigger-main');
+        const modalEl = document.getElementById('createPostModal');
+        
+        function insertEmoji(emoji) {
+            const postInput = document.getElementById('post-content-textarea');
+            if (postInput) {
+                try {
+                    postInput.focus(); 
+                    const start = postInput.selectionStart;
+                    const end = postInput.selectionEnd;
+                    postInput.setRangeText(emoji, start, end, 'end');
+                    postInput.focus();
+                } catch (e) {
+                    postInput.value += emoji;
+                    postInput.focus(); 
+                }
+            }
+        }
+
+        picker.on('emoji', selection => {
+            insertEmoji(selection.emoji);
+        });
+
+        if (triggerModal) {
+            triggerModal.addEventListener('click', () => {
+                picker.togglePicker(triggerModal);
+            });
+        }
+
+        if (triggerMain) {
+            triggerMain.addEventListener('click', () => {
+                const modal = new bootstrap.Modal(modalEl);
+                modal.show();
+            });
+            modalEl.addEventListener('shown.bs.modal', () => {
+                const modalTrigger = document.querySelector('#emoji-trigger-modal');
+                if (modalTrigger) {
+                    picker.showPicker(modalTrigger); 
+                    const postInput = document.querySelector('#post-content-textarea');
+                    if(postInput) postInput.focus();
+                }
+            });
+        }
+
+        const formPublicar = document.getElementById('form-publicar');
+        if(formPublicar) {
+            formPublicar.addEventListener('submit', function() {
+                const btn = this.querySelector('button[type="submit"]');
+                if(btn) {
+                    btn.disabled = true;
+                    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Publicando...';
+                }
+            });
+        }
+        
+        const notificationToggle = document.querySelector('#notification-dropdown-toggle');
+        if (notificationToggle) {
+             notificationToggle.addEventListener('click', resetNotificationCounter);
+        }
+    });
+
+    // 🔥 SCRIPT DEL CALENDARIO (TOTALMENTE AISLADO Y AUTOEJECUTABLE) 🔥
+    (function() {
+        function initRealTimeCalendar() {
+            const monthNames = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
+                                "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
+            
+            const now = new Date();
+            const year = now.getFullYear();
+            const month = now.getMonth();
+            const today = now.getDate();
+
+            // 1. Header
+            const headerEl = document.getElementById('calendar-header');
+            if (headerEl) {
+                headerEl.textContent = `${monthNames[month]} ${year}`;
+            }
+
+            // 2. Días
+            const daysContainer = document.getElementById('calendar-days');
+            if (daysContainer) {
+                // Limpiar contenido previo (por si acaso)
+                daysContainer.innerHTML = '';
+                
+                const firstDayIndex = new Date(year, month, 1).getDay(); // 0=Sun, 1=Mon...
+                // Ajustar para que Lunes sea 0 y Domingo 6
+                const adjustedStart = (firstDayIndex === 0) ? 6 : firstDayIndex - 1;
+                
+                const daysInMonth = new Date(year, month + 1, 0).getDate();
+                let html = '';
+
+                // Espacios vacíos
+                for(let i=0; i<adjustedStart; i++) {
+                    html += `<span class="calendar-day calendar-empty"></span>`;
+                }
+                // Días reales
+                for(let d=1; d<=daysInMonth; d++) {
+                    let cssClass = (d === today) ? 'calendar-today' : '';
+                    html += `<span class="calendar-day calendar-date ${cssClass}">${d}</span>`;
+                }
+                daysContainer.innerHTML = html;
+            }
+
+            // 3. Footer (Día actual)
+            const footerEl = document.getElementById('calendar-today-display');
+            if (footerEl) {
+                footerEl.innerHTML = `<strong class="text-danger">${today} ${monthNames[month].substring(0,3)} ${year}:</strong> Día actual.`;
+            }
+        }
+
+        // Ejecutar inmediatamente si el DOM está listo, o esperar
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initRealTimeCalendar);
+        } else {
+            initRealTimeCalendar();
+        }
+    })();
+</script>
+
+{% endblock %}

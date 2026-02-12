@@ -1,0 +1,23 @@
+{
+  "name": "Learning Labs",
+  "short_name": "LLabs",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f8f9fa",
+  "theme_color": "#4361ee",
+  "orientation": "portrait",
+  "scope": "/",
+  "description": "Plataforma Educativa Learning Labs",
+  "icons": [
+    {
+      "src": "/static/img/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/static/img/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

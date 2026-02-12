@@ -1,0 +1,31 @@
+{% load humanize %}
+<div class="comment-item" id="comment-{{ comentario.id }}">
+    <a href="{% url 'ver_perfil_social' comentario.autor.username %}">
+        {% if comentario.autor.perfil.foto_perfil %}
+            <img src="{{ comentario.autor.perfil.foto_perfil.url }}" class="user-avatar-sm" style="width: 32px; height: 32px;">
+        {% else %}
+            <div class="user-avatar-sm d-flex align-items-center justify-content-center bg-info text-white fw-bold" style="width: 32px; height: 32px; font-size: 0.8rem;">
+                {{ comentario.autor.username|slice:":1"|upper }}
+            </div>
+        {% endif %}
+    </a>
+    <div class="flex-grow-1">
+        <div class="comment-bubble">
+            <a href="{% url 'ver_perfil_social' comentario.autor.username %}" class="comment-author">
+                {{ comentario.autor.get_full_name|default:comentario.autor.username }}
+            </a>
+            <div class="comment-text">
+                {{ comentario.contenido }}
+            </div>
+        </div>
+        <div class="comment-meta">
+            <span class="text-secondary" onclick="toggleReaction({{ comentario.id }}, 'comment', this)">Me gusta</span>
+            <span>{{ comentario.creado_en|naturaltime }}</span>
+            {% if request.user == comentario.autor or request.user.perfil.rol == 'ADMINISTRADOR' %}
+                <span class="text-danger" onclick="moderarContenido({{ comentario.id }}, 'comment')" title="Eliminar">
+                    <i class="fas fa-times"></i>
+                </span>
+            {% endif %}
+        </div>
+    </div>
+</div>

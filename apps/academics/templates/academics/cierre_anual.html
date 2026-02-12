@@ -1,0 +1,233 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+
+<div class="container py-5" style="max-width: 1100px;">
+    
+    <div class="d-flex justify-content-between align-items-center mb-5 animate__animated animate__fadeInDown">
+        <div class="d-flex align-items-center">
+            <div class="icon-box bg-gradient-danger text-white rounded-circle p-3 me-3 shadow-lg" style="width: 70px; height: 70px; display: flex; align-items: center; justify-content: center;">
+                <i class="fas fa-biohazard fa-2x"></i>
+            </div>
+            <div>
+                <h6 class="text-uppercase text-danger fw-bold ls-2 mb-1">Zona de Administración Crítica</h6>
+                <h1 class="fw-black text-dark mb-0">Protocolo Fénix</h1>
+            </div>
+        </div>
+        <div class="text-end">
+            <span class="badge bg-light text-dark border px-3 py-2 rounded-pill fw-bold">
+                <i class="fas fa-server me-2 text-success"></i> Sistema Operativo
+            </span>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-2xl rounded-5 overflow-hidden h-100 animate__animated animate__fadeInLeft">
+                <div class="card-header bg-danger text-white py-4 px-5 border-0 position-relative overflow-hidden">
+                    <div class="position-relative z-1">
+                        <h3 class="fw-black mb-1">Cierre de Ciclo Escolar {{ anio_actual }}</h3>
+                        <p class="mb-0 opacity-75 small">Transición irreversible al periodo {{ anio_siguiente }}</p>
+                    </div>
+                    <i class="fas fa-exclamation-triangle position-absolute text-white opacity-10" style="font-size: 10rem; right: -20px; top: -30px;"></i>
+                </div>
+                
+                <div class="card-body p-5 bg-white">
+                    <div class="mb-5 text-center">
+                        <h6 class="text-muted text-uppercase x-small fw-bold ls-1 mb-4">Arquitectura de Transición de Datos</h6>
+                        <div class="d-flex justify-content-center align-items-center gap-3">
+                            <div class="text-center">
+                                <div class="icon-box bg-light text-primary rounded-4 p-3 mb-2 border border-primary-subtle shadow-sm">
+                                    <i class="fas fa-database fa-2x"></i>
+                                </div>
+                                <small class="d-block fw-bold text-dark">Datos Activos</small>
+                                <span class="badge bg-primary-subtle text-primary x-small rounded-pill">{{ anio_actual }}</span>
+                            </div>
+                            <div class="text-muted opacity-50"><i class="fas fa-long-arrow-alt-right fa-2x animate__animated animate__pulse animate__infinite"></i></div>
+                            <div class="text-center">
+                                <div class="icon-box bg-dark text-white rounded-circle p-3 mb-2 shadow-lg border-4 border-white" style="width: 60px; height: 60px; display: flex; align-items: center; justify-content: center;">
+                                    <i class="fas fa-cog fa-spin"></i>
+                                </div>
+                                <small class="d-block fw-bold text-dark x-small">Fénix Engine</small>
+                            </div>
+                            <div class="text-muted opacity-50"><i class="fas fa-long-arrow-alt-right fa-2x animate__animated animate__pulse animate__infinite"></i></div>
+                            <div class="text-center opacity-50">
+                                <div class="icon-box bg-light text-secondary rounded-4 p-3 mb-2 border">
+                                    <i class="fas fa-archive fa-2x"></i>
+                                </div>
+                                <small class="d-block fw-bold text-muted">Bóveda Histórica</small>
+                                <span class="badge bg-secondary-subtle text-secondary x-small rounded-pill">Solo Lectura</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="alert alert-warning border-warning d-flex align-items-start p-3 rounded-3 mb-4">
+                        <i class="fas fa-info-circle text-warning fa-lg mt-1 me-3"></i>
+                        <div>
+                            <h6 class="fw-bold text-dark mb-1">Impacto de la Operación</h6>
+                            <p class="small text-muted mb-0">
+                                Al ejecutar este protocolo, el sistema <strong>calculará promedios finales</strong>, 
+                                generará los <strong>Boletines PDF</strong> automáticamente y 
+                                <strong>eliminará</strong> todas las notas y asistencias actuales.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="d-grid">
+                        <button type="button" class="btn btn-danger btn-lg py-3 rounded-pill shadow-lg fw-black hover-scale" 
+                                data-bs-toggle="modal" data-bs-target="#modalConfirmacionMortal">
+                            <span class="d-flex align-items-center justify-content-center gap-2">
+                                <i class="fas fa-radiation"></i>
+                                INICIAR PROTOCOLO DE CIERRE
+                            </span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-lg rounded-5 overflow-hidden h-100 animate__animated animate__fadeInRight">
+                <div class="card-header bg-white py-3 px-4 border-bottom">
+                    <h6 class="fw-bold text-dark mb-0"><i class="fas fa-clipboard-list me-2 text-primary"></i>Auditoría Forense</h6>
+                </div>
+                <div class="card-body p-0">
+                    <div class="list-group list-group-flush">
+                        {% for log in historial %}
+                        <div class="list-group-item p-3 border-bottom-0 border-top {% if log.status == 'REVERTIDO' %}bg-light opacity-50{% endif %}">
+                            
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="badge bg-dark rounded-pill x-small">{{ log.anio_cerrado }} &rarr; {{ log.anio_nuevo }}</span>
+                                {% if log.status == 'REVERTIDO' %}
+                                    <span class="badge bg-secondary x-small">REVERTIDO</span>
+                                {% elif log.exitoso %}
+                                    <i class="fas fa-check-circle text-success" title="Exitoso"></i>
+                                {% else %}
+                                    <i class="fas fa-times-circle text-danger" title="Fallido"></i>
+                                {% endif %}
+                            </div>
+
+                            <p class="mb-1 small text-dark fw-bold">Ejecutado por: <span class="text-primary">{{ log.ejecutado_por.username }}</span></p>
+                            <div class="d-flex justify-content-between text-muted x-small mb-2">
+                                <span><i class="far fa-clock me-1"></i>{{ log.fecha_ejecucion|date:"d M, H:i" }}</span>
+                                <span>{{ log.promovidos }} Promovidos</span>
+                            </div>
+
+                            {% if forloop.first and log.exitoso and log.status != 'REVERTIDO' %}
+                                <div class="d-grid mt-2">
+                                    <button class="btn btn-outline-danger btn-sm fw-bold shadow-sm" 
+                                            data-bs-toggle="modal" 
+                                            data-bs-target="#modalRevertir{{ log.id }}">
+                                        <i class="fas fa-undo-alt me-1"></i> Deshacer (Time Machine)
+                                    </button>
+                                </div>
+                            {% endif %}
+                        </div>
+                        {% empty %}
+                        <div class="p-5 text-center text-muted">
+                            <i class="fas fa-history fa-2x mb-3 opacity-25"></i>
+                            <p class="small mb-0">Sin registros previos.</p>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                <div class="card-footer bg-light text-center py-3">
+                    <small class="text-muted x-small">Solo se muestran los últimos 10 eventos.</small>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<div class="modal fade" id="modalConfirmacionMortal" tabindex="-1" data-bs-backdrop="static">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-2xl rounded-4 overflow-hidden">
+            <div class="modal-header bg-dark text-white border-0 p-4">
+                <div class="d-flex align-items-center">
+                    <div class="icon-box bg-danger rounded-circle p-2 me-3">
+                        <i class="fas fa-lock text-white"></i>
+                    </div>
+                    <div>
+                        <h5 class="modal-title fw-bold">Verificación de Seguridad</h5>
+                        <p class="mb-0 x-small text-white-50">Confirmación de identidad y propósito.</p>
+                    </div>
+                </div>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-4 bg-light">
+                <form method="POST" class="bg-white p-4 rounded-4 shadow-sm border">
+                    {% csrf_token %}
+                    <p class="text-dark small mb-4 text-center">
+                        Para confirmar, escriba la frase de control:
+                    </p>
+                    <div class="mb-4 text-center">
+                        <div class="badge bg-danger-subtle text-danger border border-danger-subtle px-3 py-2 rounded-pill fw-black mb-3 user-select-none ls-2">
+                            CERRAR {{ anio_actual }}
+                        </div>
+                        <input type="text" name="frase_confirmacion" class="form-control form-control-lg text-center fw-bold border-danger shadow-inner bg-light" placeholder="Escriba aquí..." required autocomplete="off">
+                    </div>
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-danger btn-lg fw-black shadow-lg hover-lift">
+                            <i class="fas fa-fingerprint me-2"></i> AUTORIZAR EJECUCIÓN
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% for log in historial %}
+    {% if forloop.first and log.exitoso and log.status != 'REVERTIDO' %}
+    <div class="modal fade" id="modalRevertir{{ log.id }}" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg border-start border-5 border-danger">
+                <div class="modal-header bg-white border-bottom-0">
+                    <h6 class="modal-title fw-bold text-danger">⏪ Protocolo Time Machine</h6>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body text-start">
+                    <div class="alert alert-danger bg-danger-subtle text-danger border-0 d-flex align-items-center">
+                        <i class="fas fa-exclamation-triangle fa-2x me-3"></i>
+                        <div>
+                            <strong>¡Advertencia Crítica!</strong><br>
+                            Restaurará el sistema al: <strong>{{ log.fecha_ejecucion|date:"d M Y H:i" }}</strong>
+                        </div>
+                    </div>
+                    <p class="small text-muted mb-0 mt-3">
+                        <i class="fas fa-info-circle me-1"></i>
+                        Cualquier cambio realizado <strong>después</strong> de esa fecha se perderá para siempre.
+                        Los boletines PDF ya generados se conservarán.
+                    </p>
+                </div>
+                <div class="modal-footer bg-light border-0">
+                    <form action="{% url 'revertir_cierre' log.id %}" method="POST" class="w-100">
+                        {% csrf_token %}
+                        <div class="d-flex gap-2">
+                            <button type="button" class="btn btn-light w-50 fw-bold" data-bs-dismiss="modal">Cancelar</button>
+                            <button type="submit" class="btn btn-danger w-50 fw-black shadow-sm">
+                                <i class="fas fa-history me-1"></i> CONFIRMAR REVERSIÓN
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+{% endfor %}
+
+<style>
+    /* Estilos Premium Enterprise */
+    .bg-gradient-danger { background: linear-gradient(135deg, #dc3545 0%, #a71d2a 100%); }
+    .shadow-2xl { box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.35); }
+    .ls-2 { letter-spacing: 2px; }
+    .fw-black { font-weight: 900; }
+    .hover-scale:hover { transform: scale(1.02); transition: all 0.3s ease; }
+    .hover-lift:hover { transform: translateY(-3px); box-shadow: 0 10px 20px rgba(220, 53, 69, 0.4) !important; transition: all 0.3s ease; }
+    .shadow-inner { box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.06); }
+</style>
+{% endblock %}

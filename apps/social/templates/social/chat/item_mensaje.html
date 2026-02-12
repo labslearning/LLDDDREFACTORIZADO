@@ -1,0 +1,68 @@
+{% load static %}
+{% load humanize %}
+
+<a href="{% if msg.id %}{% url 'leer_mensaje' msg.id %}{% else %}#{% endif %}" 
+   class="list-group-item list-group-item-action message-item {{ estado_clase }}"
+   data-status="{{ estado_clase }}"
+   data-user="{{ usuario_visual.get_full_name|default:usuario_visual.username }}"
+   data-subject="{{ msg.asunto }}">
+   
+    <div class="d-flex align-items-start align-items-md-center">
+        
+        <div class="chat-avatar me-3 d-none d-sm-flex {% if tipo_bandeja == 'enviados' %}sent-avatar{% endif %}">
+            {{ usuario_visual.first_name|slice:":1"|default:usuario_visual.username|slice:":1" }}
+        </div>
+
+        <div class="flex-grow-1 min-width-0">
+            <div class="row align-items-center gx-2">
+                
+                <div class="col-12 col-md-3 mb-1 mb-md-0">
+                    <div class="d-flex align-items-center">
+                        <div class="chat-avatar me-2 d-flex d-sm-none {% if tipo_bandeja == 'enviados' %}sent-avatar{% endif %}" style="width: 30px; height: 30px; font-size: 0.9rem;">
+                            {{ usuario_visual.first_name|slice:":1"|default:usuario_visual.username|slice:":1" }}
+                        </div>
+                        
+                        <div class="text-truncate">
+                            <span class="text-muted small me-1">{{ etiqueta }}</span>
+                            <span class="fw-bold text-dark d-block d-md-inline text-truncate">
+                                {{ usuario_visual.get_full_name|default:usuario_visual.username }}
+                            </span>
+                            {% if usuario_visual.perfil %}
+                                <span class="role-badge role-{{ usuario_visual.perfil.rol }}">
+                                    {{ usuario_visual.perfil.get_rol_display }}
+                                </span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-12 col-md-7 mb-1 mb-md-0">
+                    <div class="d-flex align-items-center">
+                        {% if estado_clase == 'unread' %}
+                            <i class="fas fa-circle text-primary me-2" style="font-size: 0.5rem;"></i>
+                        {% endif %}
+                        <span class="msg-subject text-truncate me-2">
+                            {{ msg.asunto }}
+                        </span>
+                        <span class="text-muted small text-truncate d-none d-sm-inline opacity-75">
+                            - {{ msg.cuerpo|striptags|truncatechars:50 }}
+                        </span>
+                        {% if msg.archivo %}
+                            <i class="fas fa-paperclip ms-2 text-muted small" title="Archivo adjunto"></i>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="col-12 col-md-2 text-md-end">
+                    <small class="text-muted fw-medium" style="font-size: 0.8rem;">
+                        {% if msg.fecha_envio.date == today %}
+                            {{ msg.fecha_envio|date:"H:i" }}
+                        {% else %}
+                            {{ msg.fecha_envio|date:"d M" }}
+                        {% endif %}
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+</a>

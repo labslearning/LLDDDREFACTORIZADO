@@ -1,0 +1,304 @@
+{% extends 'base.html' %}
+{% load humanize %}
+
+{% block content %}
+<style>
+    .forensic-card {
+        border-left: 4px solid transparent;
+        transition: all 0.3s ease;
+    }
+    .forensic-card.risk-danger { border-left-color: #dc3545; }
+    .forensic-card.risk-warning { border-left-color: #ffc107; }
+    .forensic-card.risk-success { border-left-color: #198754; }
+    
+    .timeline-item {
+        border-left: 2px solid #e9ecef;
+        padding-left: 20px;
+        padding-bottom: 20px;
+        position: relative;
+    }
+    .timeline-item::before {
+        content: '';
+        width: 12px;
+        height: 12px;
+        background: #fff;
+        border: 2px solid #6c757d;
+        border-radius: 50%;
+        position: absolute;
+        left: -7px;
+        top: 0;
+    }
+    .timeline-item.severe::before { border-color: #dc3545; background: #dc3545; }
+    
+    .ai-insight-box {
+        background-color: #f8f9fa;
+        border: 1px dashed #6c757d;
+        border-radius: 8px;
+        font-family: 'Courier New', monospace; /* Look técnico/legal */
+        font-size: 0.9rem;
+    }
+    
+    .stat-box {
+        background: #fff;
+        border-radius: 8px;
+        padding: 15px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        text-align: center;
+    }
+    .stat-value { font-size: 1.5rem; font-weight: 800; display: block; }
+    .stat-label { font-size: 0.75rem; text-transform: uppercase; color: #6c757d; letter-spacing: 0.5px; }
+</style>
+
+<div class="container mt-4 pb-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <a href="{% url 'shadow_tenant' %}" class="text-decoration-none text-muted mb-2 d-inline-block small">
+                <i class="fas fa-arrow-left me-1"></i> VOLVER AL COMANDO CENTRAL
+            </a>
+            <h2 class="fw-bold m-0 text-dark">Expediente Forense #{{ acta.id|stringformat:"04d" }}</h2>
+            <span class="badge bg-dark mt-1">Generado por IA: {% now "d F Y, H:i" %}</span>
+        </div>
+        
+        <div class="d-flex gap-2">
+            <a href="{% url 'generar_acta_pdf' acta.id %}" class="btn btn-outline-danger shadow-sm" target="_blank">
+                <i class="fas fa-file-pdf me-2"></i> Descargar Acta Legal
+            </a>
+            <a href="{% url 'generar_reporte_integral_pdf' estudiante.id %}" class="btn btn-outline-dark shadow-sm" target="_blank">
+                <i class="fas fa-folder-open me-2"></i> Dossier Completo
+            </a>
+            <button class="btn btn-success shadow-sm" onclick="alert('Iniciando protocolo de comunicación segura vía WhatsApp...')">
+                <i class="fab fa-whatsapp me-2"></i> Notificar a Padres
+            </button>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        
+        <div class="col-lg-8">
+            
+            <div class="card shadow-sm border-0 mb-4 forensic-card risk-{{ estado.color }}">
+                <div class="card-header bg-white border-bottom-0">
+                    <ul class="nav nav-tabs card-header-tabs" id="caseTabs" role="tablist">
+                        <li class="nav-item">
+                            <a class="nav-link active fw-bold" id="acta-tab" data-bs-toggle="tab" href="#acta-content" role="tab">📜 Acta Actual</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link fw-bold" id="seg-tab" data-bs-toggle="tab" href="#seg-content" role="tab">👣 Seguimientos ({{ dossier.seguimientos.count }})</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link fw-bold" id="hist-tab" data-bs-toggle="tab" href="#hist-content" role="tab">🗄️ Antecedentes</a>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="card-body p-4 tab-content">
+                    
+                    <div class="tab-pane fade show active" id="acta-content" role="tabpanel">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h5 class="fw-bold m-0 text-dark">{{ acta.titulo }}</h5>
+                            <span class="badge bg-{{ estado.color }} px-3 py-2">{{ estado.nivel }}</span>
+                        </div>
+                        <small class="text-muted d-block mb-3"><i class="far fa-calendar-alt me-1"></i> {{ acta.fecha|date:"l, d F Y, h:i A" }}</small>
+
+                        <h6 class="fw-bold text-uppercase text-muted small mb-2">📋 Descripción de los Hechos</h6>
+                        <div class="p-3 bg-light rounded mb-4 text-secondary border">
+                            {{ acta.descargos|linebreaks }}
+                        </div>
+
+                        {% if acta.analisis_ia %}
+                        <h6 class="fw-bold text-uppercase text-muted small mb-2">🤖 Dictamen Pericial (IA Forense)</h6>
+                        <div class="ai-insight-box p-3">
+                            <div class="d-flex align-items-center mb-2 text-primary">
+                                <i class="fas fa-robot me-2"></i>
+                                <strong>Análisis de Patrones y Ley 1620:</strong>
+                            </div>
+                            {{ acta.analisis_ia|linebreaks }}
+                            
+                            <hr class="border-secondary opacity-25">
+                            <div class="d-flex align-items-start">
+                                <i class="fas fa-exclamation-circle text-danger mt-1 me-2"></i>
+                                <div>
+                                    <strong>Recomendación Inmediata:</strong><br>
+                                    {{ estado.accion }}
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="tab-pane fade" id="seg-content" role="tabpanel">
+                        <h6 class="fw-bold text-dark mb-3">Bitácora de Atención y Seguimiento</h6>
+                        {% if dossier.seguimientos %}
+                            <div class="ms-2">
+                                {% for seg in dossier.seguimientos %}
+                                <div class="timeline-item">
+                                    <div class="d-flex justify-content-between mb-1">
+                                        <strong class="text-dark">{{ seg.get_tipo_display }}</strong>
+                                        <small class="text-muted">{{ seg.fecha|date:"d M Y" }}</small>
+                                    </div>
+                                    <p class="small text-muted mb-1">{{ seg.descripcion }}</p>
+                                    <small class="text-primary fst-italic">Registrado por: {{ seg.profesional.get_full_name|default:"Sistema" }}</small>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            <div class="text-center py-5 text-muted">
+                                <i class="fas fa-clipboard-list fa-2x mb-3 opacity-50"></i>
+                                <p>No hay seguimientos registrados para este caso.</p>
+                                <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#modalSeguimiento">
+                                    <i class="fas fa-plus me-1"></i> Agregar Primer Seguimiento
+                                </button>
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="tab-pane fade" id="hist-content" role="tabpanel">
+                        <h6 class="fw-bold text-dark mb-3">Historial Disciplinario (Reincidencia)</h6>
+                        <div class="list-group list-group-flush">
+                            {% for a in dossier.otras_actas %}
+                            <a href="{% url 'shadow_case_detail' a.id %}" class="list-group-item list-group-item-action">
+                                <div class="d-flex w-100 justify-content-between">
+                                    <h6 class="mb-1 fw-bold">{{ a.titulo }}</h6>
+                                    <small class="text-muted">{{ a.fecha|date:"d/m/Y" }}</small>
+                                </div>
+                                <small class="text-muted">{{ a.get_tipo_display }}</small>
+                            </a>
+                            {% empty %}
+                            <p class="text-center text-muted py-5">No hay otros procesos disciplinarios previos.</p>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-white py-3">
+                    <h6 class="fw-bold m-0 text-dark">👁️ Observador: Últimos registros</h6>
+                </div>
+                <div class="card-body p-0">
+                    <table class="table table-hover mb-0 small">
+                        <tbody>
+                            {% for obs in dossier.observaciones_recent %}
+                            <tr>
+                                <td class="ps-4 fw-bold text-secondary" style="width: 120px;">{{ obs.fecha_creacion|date:"d M" }}</td>
+                                <td>
+                                    <span class="badge bg-light text-dark border me-2">{{ obs.get_tipo_display }}</span>
+                                    {{ obs.descripcion|truncatechars:80 }}
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr><td class="text-center py-3 text-muted">Sin observaciones recientes.</td></tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    <div class="text-center py-2 border-top">
+                        <a href="{% url 'ver_observador' estudiante.id %}" class="text-decoration-none small fw-bold">Ver Observador Completo <i class="fas fa-arrow-right"></i></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            
+            <div class="card shadow-sm border-0 mb-4 text-center position-relative overflow-hidden">
+                <div class="card-body p-4">
+                    <div class="mb-3 position-relative d-inline-block">
+                        <div class="avatar-placeholder bg-dark text-white rounded-circle d-flex align-items-center justify-content-center mx-auto shadow" style="width: 100px; height: 100px; font-size: 2.5rem;">
+                            {{ estudiante.first_name|slice:":1" }}{{ estudiante.last_name|slice:":1" }}
+                        </div>
+                        <span class="position-absolute bottom-0 end-0 p-2 bg-{{ estado.color }} border border-white rounded-circle"></span>
+                    </div>
+                    
+                    <h4 class="fw-bold mb-1">{{ estudiante.get_full_name }}</h4>
+                    <p class="text-muted mb-3 small">{{ estudiante.email }}</p>
+                    <span class="badge bg-light text-dark border mb-4">{{ estudiante.perfil.curso.nombre|default:"Sin Curso Asignado" }}</span>
+
+                    <div class="row g-2 mb-4">
+                        <div class="col-6">
+                            <div class="stat-box border-bottom border-4 border-primary">
+                                <span class="stat-value text-primary">{{ metrics.promedio }}</span>
+                                <span class="stat-label">Promedio</span>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="stat-box border-bottom border-4 border-danger">
+                                <span class="stat-value text-danger">{{ metrics.perdidas }}</span>
+                                <span class="stat-label">Pérdidas</span>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="stat-box border-bottom border-4 border-warning">
+                                <span class="stat-value text-dark">{{ metrics.graves }}</span>
+                                <span class="stat-label">Faltas G.</span>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="stat-box border-bottom border-4 border-secondary">
+                                <span class="stat-value text-secondary">{{ metrics.fallas }}</span>
+                                <span class="stat-label">Ausencias</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <h6 class="text-start fw-bold text-muted small text-uppercase mb-3">Protocolo de Activación</h6>
+                    <div class="d-grid gap-2">
+                        <a href="{% url 'ver_observador' estudiante.id %}" class="btn btn-outline-dark btn-sm text-start">
+                            <i class="fas fa-history me-2"></i> Ver Observador Completo
+                        </a>
+                        <a href="{% url 'generar_observador_pdf' estudiante.id %}" class="btn btn-outline-dark btn-sm text-start" target="_blank">
+                            <i class="fas fa-file-download me-2"></i> Descargar Hoja de Vida
+                        </a>
+                        <a href="{% url 'crear_acta' %}?estudiante={{ estudiante.id }}" class="btn btn-danger btn-sm text-start">
+                            <i class="fas fa-gavel me-2"></i> Escalar a Comité (Nueva Acta)
+                        </a>
+                    </div>
+                </div>
+                <div class="card-footer bg-light border-0 py-2">
+                    <small class="text-muted">ID Sistema: {{ estudiante.username }}</small>
+                </div>
+            </div>
+
+            <div class="card shadow-sm border-0 bg-dark text-white">
+                <div class="card-body">
+                    <div class="d-flex align-items-center mb-2">
+                        <i class="fas fa-chart-line text-warning me-2"></i>
+                        <h6 class="m-0 text-uppercase fw-bold text-warning">Riesgo de Deserción</h6>
+                    </div>
+                    <p class="small text-white-50 mb-3">Análisis predictivo basado en cruce de datos.</p>
+                    
+                    <div class="progress mb-2" style="height: 6px;">
+                        <div class="progress-bar bg-{{ estado.color }}" role="progressbar" 
+                             style="width: {% if estado.nivel == 'CRÍTICO' %}90{% elif estado.nivel == 'ALERTA' %}60{% else %}25{% endif %}%">
+                        </div>
+                    </div>
+                    <div class="d-flex justify-content-between small">
+                        <span>Probabilidad</span>
+                        <span class="fw-bold text-{{ estado.color }}">
+                            {{ estado.nivel }}
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalSeguimiento" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Nuevo Seguimiento</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Para registrar un seguimiento formal, por favor usa el módulo de Observador.</p>
+                <div class="d-grid">
+                    <a href="{% url 'crear_observacion' estudiante.id %}" class="btn btn-primary">Ir a Crear Observación</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

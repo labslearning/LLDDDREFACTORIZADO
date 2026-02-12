@@ -1,0 +1,242 @@
+{% extends 'base.html' %}
+{% load humanize %}
+
+{% block content %}
+<style>
+    .kpi-card {
+        transition: all 0.3s ease;
+        border-radius: 12px;
+        overflow: hidden;
+    }
+    .kpi-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important;
+    }
+    .icon-box {
+        width: 48px;
+        height: 48px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 10px;
+        font-size: 1.5rem;
+    }
+    .table-docket thead th {
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        color: #6c757d;
+        font-weight: 600;
+        border-bottom: 2px solid #e9ecef;
+    }
+    .avatar-circle {
+        width: 35px;
+        height: 35px;
+        background-color: #e9ecef;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        color: #495057;
+        font-size: 0.9rem;
+    }
+</style>
+
+<div class="container-fluid px-4 py-4">
+    <div class="d-flex justify-content-between align-items-center mb-5">
+        <div>
+            <div class="badge bg-dark mb-2">SHADOW TENANT v1.0</div>
+            <h2 class="fw-bold text-dark m-0">Monitor de Riesgo Institucional</h2>
+            <p class="text-muted small m-0">
+                <i class="far fa-clock me-1"></i> Actualizado: {% now "d F Y, H:i" %} | 
+                <span class="text-success"><i class="fas fa-wifi me-1"></i>IA Forense Activa</span>
+            </p>
+        </div>
+        <div class="d-flex gap-2">
+            <button class="btn btn-outline-secondary btn-sm">
+                <i class="fas fa-filter"></i> Filtrar Vista
+            </button>
+            <button class="btn btn-dark btn-sm shadow-sm" onclick="window.print()">
+                <i class="fas fa-file-pdf me-2"></i>Descargar Informe Rectoría
+            </button>
+        </div>
+    </div>
+
+    <div class="row g-4 mb-5">
+        <div class="col-lg-4 col-md-12">
+            <div class="card border-0 shadow-sm kpi-card h-100 position-relative">
+                <div class="card-body p-4">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <div>
+                            <h6 class="text-uppercase text-muted fw-bold small ls-1">Proyección Pérdida Anual</h6>
+                            <h2 class="display-6 fw-bold text-danger mb-0">${{ kpi_dinero_riesgo|intcomma }}</h2>
+                        </div>
+                        <div class="icon-box bg-danger bg-opacity-10 text-danger">
+                            <i class="fas fa-sack-dollar"></i>
+                        </div>
+                    </div>
+                    <div class="progress" style="height: 6px; margin-bottom: 10px;">
+                        <div class="progress-bar bg-danger" role="progressbar" style="width: {{ tasa_riesgo_global }}%"></div>
+                    </div>
+                    <p class="small text-muted mb-0">
+                        <i class="fas fa-arrow-trend-up text-danger me-1"></i>
+                        Representa el <strong>{{ tasa_riesgo_global }}%</strong> de tu matrícula total proyectada.
+                    </p>
+                </div>
+                <div class="card-footer bg-danger bg-opacity-10 border-0 py-2">
+                    <small class="text-danger fw-bold"><i class="fas fa-exclamation-triangle me-1"></i> Acción requerida: Retención Inmediata</small>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4 col-md-6">
+            <div class="card border-0 shadow-sm kpi-card h-100">
+                <div class="card-body p-4">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <div>
+                            <h6 class="text-uppercase text-muted fw-bold small ls-1">Riesgo Legal Latente</h6>
+                            <h2 class="display-6 fw-bold text-purple" style="color: #6f42c1;">${{ kpi_exposicion_legal|intcomma }}</h2>
+                        </div>
+                        <div class="icon-box bg-purple bg-opacity-10" style="color: #6f42c1; background-color: rgba(111, 66, 193, 0.1);">
+                            <i class="fas fa-gavel"></i>
+                        </div>
+                    </div>
+                    <div class="d-flex align-items-center mb-2">
+                        <span class="h4 fw-bold m-0 me-2">{{ count_riesgo_legal }}</span>
+                        <span class="text-muted small">Casos Críticos Activos</span>
+                    </div>
+                    <p class="small text-muted">
+                        Expedientes con faltas graves/gravísimas sin cierre de debido proceso.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4 col-md-6">
+            <div class="card border-0 shadow-sm kpi-card h-100">
+                <div class="card-body p-4">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <div>
+                            <h6 class="text-uppercase text-muted fw-bold small ls-1">Estudiantes en Riesgo</h6>
+                            <h2 class="display-6 fw-bold text-dark">{{ total_estudiantes_riesgo }}</h2>
+                        </div>
+                        <div class="icon-box bg-warning bg-opacity-10 text-warning">
+                            <i class="fas fa-user-injured"></i>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-2">
+                        <div class="d-flex justify-content-between small text-muted mb-1">
+                            <span>Académico (< 3.2)</span>
+                            <span>{{ count_riesgo_academico }}</span>
+                        </div>
+                        <div class="progress" style="height: 4px;">
+                            <div class="progress-bar bg-warning" role="progressbar" style="width: 70%"></div>
+                        </div>
+                    </div>
+                    <div class="mb-2">
+                        <div class="d-flex justify-content-between small text-muted mb-1">
+                            <span>Ausentismo (> 8 fallas)</span>
+                            <span>{{ count_ausentismo }}</span>
+                        </div>
+                        <div class="progress" style="height: 4px;">
+                            <div class="progress-bar bg-info" role="progressbar" style="width: 40%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white py-3 border-0 d-flex justify-content-between align-items-center">
+                    <h5 class="fw-bold m-0 text-dark"><i class="fas fa-folder-open me-2 text-secondary"></i>Expedientes de Alta Prioridad</h5>
+                    <a href="#" class="text-decoration-none small fw-bold">Ver Auditoría Completa <i class="fas fa-arrow-right ms-1"></i></a>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0 table-docket">
+                        <thead class="bg-light">
+                            <tr>
+                                <th class="ps-4 py-3">Estudiante / Curso</th>
+                                <th>Fecha Reporte</th>
+                                <th>Severidad IA</th>
+                                <th>Indicadores Cruzados</th>
+                                <th>Estado Legal</th>
+                                <th class="text-end pe-4">Acción</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for caso in ultimos_casos %}
+                            <tr>
+                                <td class="ps-4">
+                                    <div class="d-flex align-items-center">
+                                        <div class="avatar-circle me-3">
+                                            {{ caso.implicado.first_name|slice:":1" }}{{ caso.implicado.last_name|slice:":1" }}
+                                        </div>
+                                        <div>
+                                            <div class="fw-bold text-dark">{{ caso.implicado.get_full_name }}</div>
+                                            <div class="small text-muted">{{ caso.implicado.email }}</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="small text-dark fw-bold">{{ caso.fecha|date:"d M, Y" }}</div>
+                                    <div class="small text-muted">{{ caso.fecha|timesince }} ago</div>
+                                </td>
+                                <td>
+                                    <span class="badge bg-danger bg-opacity-10 text-danger border border-danger px-3 py-2 rounded-pill">
+                                        <i class="fas fa-fire me-1"></i> CRÍTICO
+                                    </span>
+                                </td>
+                                <td>
+                                    <div class="d-flex gap-2 text-secondary">
+                                        <span data-bs-toggle="tooltip" title="Bajo Rendimiento Detectado"><i class="fas fa-graduation-cap text-warning"></i></span>
+                                        <span data-bs-toggle="tooltip" title="Falta Disciplinaria Grave"><i class="fas fa-gavel text-danger"></i></span>
+                                        <span data-bs-toggle="tooltip" title="Patrón de Ausentismo"><i class="far fa-calendar-times text-muted"></i></span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="badge bg-warning text-dark">
+                                        <i class="fas fa-clock me-1"></i> En Proceso
+                                    </span>
+                                </td>
+                                <td class="text-end pe-4">
+                                    <a href="{% url 'shadow_case_detail' caso.id %}" class="btn btn-dark btn-sm rounded-pill px-3">
+                                        Auditar Caso
+                                    </a>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="6" class="text-center py-5">
+                                    <div class="text-muted opacity-50">
+                                        <i class="fas fa-shield-alt fa-3x mb-3"></i>
+                                        <h5>Sin alertas críticas activas</h5>
+                                        <p>El sistema de monitoreo forense está activo.</p>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                <div class="card-footer bg-white py-3 border-top-0 text-center">
+                    <small class="text-muted fst-italic">
+                        * Este reporte integra datos de Notas, Asistencia y Disciplina en tiempo real. Cifras financieras proyectadas a 10 meses.
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+      return new bootstrap.Tooltip(tooltipTriggerEl)
+    })
+</script>
+{% endblock %}

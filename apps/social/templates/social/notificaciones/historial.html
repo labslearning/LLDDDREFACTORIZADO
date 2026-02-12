@@ -1,0 +1,250 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load humanize %}
+
+{% block content %} 
+<style>
+    /* ========== ESTILOS ESPECÍFICOS DEL HISTORIAL ========== */
+    :root {
+        --timeline-line-color: #e9ecef;
+        --card-bg: #ffffff;
+        --card-bg-unread: #f8faff; /* Azul muy tenue para no leídos */
+        --card-border-unread: #cce5ff;
+    }
+
+    .history-wrapper {
+        max-width: 900px;
+        margin: 0 auto;
+        padding-bottom: 3rem;
+    }
+
+    /* Encabezado con degradado suave */
+    .history-header {
+        background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+        padding: 2rem;
+        border-radius: 16px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.04);
+        border: 1px solid rgba(0,0,0,0.05);
+        margin-bottom: 3rem;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .history-header::before {
+        content: '';
+        position: absolute;
+        top: 0; left: 0; width: 6px; height: 100%;
+        background: var(--edu-primary);
+    }
+
+    /* Estructura de Línea de Tiempo */
+    .timeline-date-label {
+        font-family: 'Poppins', sans-serif;
+        font-size: 0.95rem;
+        font-weight: 600;
+        color: #8898aa;
+        text-transform: uppercase;
+        letter-spacing: 0.8px;
+        margin: 2.5rem 0 1.5rem 0;
+        display: flex;
+        align-items: center;
+        padding-left: 1rem;
+    }
+
+    .timeline-date-label::after {
+        content: '';
+        flex: 1;
+        height: 1px;
+        background: var(--timeline-line-color);
+        margin-left: 1rem;
+    }
+
+    .timeline-date-label i {
+        margin-right: 0.5rem;
+        color: var(--edu-secondary);
+    }
+
+    /* Tarjeta de Notificación */
+    .notif-card {
+        background: var(--card-bg);
+        border-radius: 12px;
+        padding: 1.25rem;
+        margin-bottom: 1rem;
+        border: 1px solid transparent;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+        transition: all 0.25s cubic-bezier(0.25, 0.8, 0.25, 1);
+        display: flex;
+        gap: 1.25rem;
+        position: relative;
+        cursor: pointer; /* Indica que es clicable */
+    }
+
+    .notif-card:hover {
+        transform: translateY(-3px) translateX(3px);
+        box-shadow: 0 8px 15px rgba(0,0,0,0.06);
+        border-color: rgba(67, 97, 238, 0.2);
+    }
+
+    /* Estado NO LEÍDO */
+    .notif-card.unread {
+        background-color: var(--card-bg-unread);
+        border: 1px solid var(--card-border-unread);
+    }
+    
+    .notif-card.unread::after {
+        content: '';
+        position: absolute;
+        top: 1.25rem;
+        right: 1.25rem;
+        width: 10px;
+        height: 10px;
+        background-color: var(--edu-primary);
+        border-radius: 50%;
+        box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
+    }
+
+    /* Iconos Dinámicos */
+    .notif-icon {
+        width: 50px;
+        height: 50px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.3rem;
+        flex-shrink: 0;
+    }
+
+    /* Colores por tipo (Basado en tus tipos de datos) */
+    .icon-asistencia { background: #fff8e1; color: #ffc107; } /* Amarillo */
+    .icon-observador { background: #fee2e2; color: #ef4444; } /* Rojo */
+    .icon-actividad  { background: #e0f2fe; color: #0ea5e9; } /* Azul claro */
+    .icon-mensaje    { background: #dcfce7; color: #22c55e; } /* Verde */
+    .icon-default    { background: #f3f4f6; color: #6b7280; } /* Gris */
+
+    /* Textos */
+    .notif-content {
+        flex: 1;
+    }
+
+    .notif-title {
+        font-weight: 700;
+        font-size: 1rem;
+        color: var(--edu-dark);
+        margin-bottom: 0.25rem;
+        font-family: 'Poppins', sans-serif;
+    }
+
+    .notif-body {
+        font-size: 0.95rem;
+        color: #525f7f;
+        margin-bottom: 0.5rem;
+        line-height: 1.5;
+    }
+
+    .notif-meta {
+        font-size: 0.8rem;
+        color: #8898aa;
+        font-weight: 500;
+    }
+
+    /* Empty State */
+    .empty-state {
+        text-align: center;
+        padding: 4rem 1rem;
+        opacity: 0.7;
+    }
+    .empty-state i {
+        font-size: 4rem;
+        color: #cbd5e1;
+        margin-bottom: 1.5rem;
+    }
+</style>
+
+<div class="container py-5 animate__animated animate__fadeIn">
+    <div class="history-wrapper">
+        
+        <div class="history-header d-flex justify-content-between align-items-center">
+            <div>
+                <h2 class="fw-bold mb-1 text-dark">Tu Historial</h2>
+                <p class="text-muted mb-0">Revisa tus alertas académicas y notificaciones recientes.</p>
+            </div>
+            <div class="d-none d-sm-block">
+                <i class="fas fa-history fa-3x text-light" style="color: #e9ecef !important;"></i>
+            </div>
+        </div>
+
+        {% if notificaciones %}
+            
+            {% regroup notificaciones by fecha_creacion.date as fechas_list %}
+
+            {% for fecha in fechas_list %}
+                
+                <div class="timeline-date-label">
+                    <i class="far fa-calendar-check"></i>
+                    {{ fecha.grouper|naturalday|capfirst }}
+                </div>
+
+                {% for n in fecha.list %}
+                    
+                    <a href="{% if n.link_destino %}{{ n.link_destino }}{% else %}#{% endif %}" class="text-decoration-none">
+                        
+                        <div class="notif-card {% if not n.leido %}unread{% endif %}">
+                            
+                            <div class="notif-icon 
+                                {% if n.tipo == 'ASISTENCIA' %}icon-asistencia
+                                {% elif n.tipo == 'OBSERVADOR' %}icon-observador
+                                {% elif n.tipo == 'ACTIVIDAD' %}icon-actividad
+                                {% elif n.tipo == 'MENSAJE' %}icon-mensaje
+                                {% else %}icon-default{% endif %}">
+                                
+                                {% if n.tipo == 'ASISTENCIA' %}<i class="fas fa-user-clock"></i>
+                                {% elif n.tipo == 'OBSERVADOR' %}<i class="fas fa-exclamation-triangle"></i>
+                                {% elif n.tipo == 'ACTIVIDAD' %}<i class="fas fa-book-reader"></i>
+                                {% elif n.tipo == 'MENSAJE' %}<i class="fas fa-comment-alt"></i>
+                                {% else %}<i class="fas fa-bell"></i>{% endif %}
+                            </div>
+
+                            <div class="notif-content">
+                                <div class="notif-title">
+                                    {% if n.titulo %}
+                                        {{ n.titulo }}
+                                    {% else %}
+                                        Notificación de {{ n.tipo|title }}
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="notif-body">
+                                    {{ n.mensaje }}
+                                </div>
+                                
+                                <div class="notif-meta d-flex justify-content-between align-items-center">
+                                    <span>
+                                        <i class="far fa-clock me-1"></i>
+                                        {{ n.fecha_creacion|naturaltime }}
+                                    </span>
+                                    
+                                    {% if not n.leido %}
+                                        <span class="badge bg-primary fw-light rounded-pill px-3">Nueva</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                        </div>
+                    </a>
+                {% endfor %}
+
+            {% endfor %}
+
+        {% else %}
+            <div class="empty-state">
+                <i class="fas fa-check-circle animate__animated animate__pulse animate__infinite"></i>
+                <h4 class="fw-bold text-dark">¡Estás al día!</h4>
+                <p class="text-muted">No tienes notificaciones pendientes en tu historial.</p>
+                <a href="/" class="btn btn-edu btn-edu-primary mt-3">Volver al Panel</a>
+            </div>
+        {% endif %}
+
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,108 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="text-center mb-5">
+        <i class="fas fa-users-cog fa-3x text-primary mb-3"></i>
+        <h2 class="fw-bold">Gestión de Perfiles de Usuario</h2>
+        <p class="text-muted">Busca, filtra y administra los usuarios de la plataforma.</p>
+    </div>
+
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-light">
+            <h5 class="mb-0 fw-semibold"><i class="fas fa-filter me-2"></i>Filtrar y Buscar</h5>
+        </div>
+        <div class="card-body">
+            <form method="get" class="row g-3 align-items-end">
+                <div class="col-md-5">
+                    <label for="id_query" class="form-label">Buscar por término:</label>
+                    {{ form.query }}
+                </div>
+                <div class="col-md-4">
+                    <label for="id_rol" class="form-label">Filtrar por rol:</label>
+                    {{ form.rol }}
+                </div>
+                <div class="col-md-3 d-grid">
+                    <button type="submit" class="btn btn-primary"><i class="fas fa-search me-2"></i>Buscar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-light">
+            <h5 class="mb-0 fw-semibold"><i class="fas fa-bolt me-2"></i>Acciones Rápidas</h5>
+        </div>
+        <div class="card-body">
+            <h6 class="card-title">Resetear Contraseña de Usuario</h6>
+            <form method="post" action="{% url 'admin_reset_password' %}">
+                {% csrf_token %}
+                <div class="input-group">
+                    <input type="text" name="username" class="form-control" placeholder="Escribe el nombre de usuario exacto" required>
+                    <button class="btn btn-warning" type="submit" title="Genera una nueva contraseña temporal y obliga al usuario a cambiarla.">
+                        <i class="fas fa-key me-2"></i>Resetear
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="card-header bg-light">
+            <h5 class="mb-0 fw-semibold"><i class="fas fa-list me-2"></i>Resultados</h5>
+        </div>
+        <div class="card-body table-responsive">
+            <table class="table table-hover align-middle">
+                <thead>
+                    <tr>
+                        <th>Usuario</th>
+                        <th>Nombre Completo</th>
+                        <th>Rol</th>
+                        <th class="text-center">Requiere Cambio de Clave</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for u in users %}
+                    <tr>
+                        <td><code>{{ u.username }}</code></td>
+                        <td>{{ u.get_full_name|default:"--" }}</td>
+                        <td>
+                            <span class="badge bg-secondary bg-opacity-25 text-dark-emphasis">{{ u.perfil.get_rol_display|default:"Sin perfil" }}</span>
+                        </td>
+                        <td class="text-center">
+                            {% if u.perfil and u.perfil.requiere_cambio_clave %}
+                                <span class="badge rounded-pill bg-danger"><i class="fas fa-exclamation-triangle me-1"></i> Sí</span>
+                            {% else %}
+                                <span class="badge rounded-pill bg-success"><i class="fas fa-check-circle me-1"></i> No</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="4" class="text-center text-muted p-4">
+                            <p class="mb-0">No se encontraron usuarios con los criterios de búsqueda.</p>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+// Pequeño script para añadir clases de Bootstrap a los campos del formulario de Django
+document.addEventListener('DOMContentLoaded', function() {
+    const queryInput = document.getElementById('id_query');
+    if(queryInput) {
+        queryInput.classList.add('form-control');
+    }
+
+    const rolSelect = document.getElementById('id_rol');
+    if(rolSelect) {
+        rolSelect.classList.add('form-select');
+    }
+});
+</script>
+
+{% endblock %}

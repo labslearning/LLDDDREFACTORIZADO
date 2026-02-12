@@ -1,0 +1,835 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load humanize %}
+
+{% block content %}
+<script src="https://cdn.jsdelivr.net/npm/@joeattardi/emoji-button@4.6.0/dist/index.min.js"></script>
+
+<style>
+    /* ... (Estilos CSS existentes) ... */
+    :root { 
+        --group-bg: #f0f2f5; 
+        --card-bg: #ffffff; 
+        --shadow-md: 0 2px 4px rgba(0, 0, 0, 0.1);
+        --text-primary: #050505;
+        --text-secondary: #65676b;
+        --edu-primary: #4361ee;
+        --divider: #dadde1;
+        --action-hover: #e4e6eb;
+        --edu-success: #38b000;
+    }
+    
+    body { background-color: var(--group-bg); }
+    
+    .group-main-container {
+        max-width: 900px;
+        margin: 0 auto;
+        padding-top: 20px;
+    }
+    
+    /* === CABECERA Y PORTADA === */
+    .group-header-card {
+        background: var(--card-bg);
+        border-radius: 12px;
+        box-shadow: var(--shadow-md);
+        margin-bottom: 25px;
+        overflow: hidden;
+    }
+    
+    .group-cover {
+        height: 250px;
+        background-color: #4361ee;
+        position: relative;
+    }
+    
+    .group-cover img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+    
+    /* Botón flotante para cambiar foto */
+    .cover-edit-button {
+        position: absolute;
+        bottom: 15px;
+        right: 15px;
+        background-color: rgba(255, 255, 255, 0.9);
+        color: var(--text-primary);
+        border: none;
+        padding: 8px 15px;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+        z-index: 10;
+        transition: background-color 0.2s;
+    }
+    .cover-edit-button:hover {
+        background-color: #ffffff;
+    }
+
+
+    .group-info-main {
+        padding: 20px 30px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 1px solid var(--divider);
+    }
+    
+    .group-title h1 {
+        font-size: 1.8rem;
+        font-weight: 700;
+        margin-bottom: 5px;
+        color: var(--text-primary);
+    }
+    
+    .group-stats {
+        font-size: 0.9rem;
+        color: var(--text-secondary);
+    }
+    
+    .btn-join-style {
+        font-weight: 600;
+        padding: 8px 20px;
+        border-radius: 8px;
+    }
+
+    /* === CONTENIDO DEL MURO === */
+    .post-card, .create-post-card {
+        background: var(--card-bg);
+        border-radius: 12px;
+        box-shadow: var(--shadow-md);
+        margin-bottom: 20px;
+    }
+
+    .post-header { padding: 16px; display: flex; align-items: center; gap: 10px; }
+    .user-avatar-sm { width: 48px; height: 48px; border-radius: 50%; object-fit: cover; }
+    .post-info h6 { font-size: 0.95rem; font-weight: 600; }
+    .post-time { font-size: 0.8rem; color: var(--text-secondary); }
+    .post-content { padding: 4px 16px 16px; color: var(--text-primary); font-size: 1.0rem; white-space: pre-line; }
+
+    /* Estilo del input de post */
+    .create-post-input {
+        background-color: #f0f2f5;
+        border: none;
+        border-radius: 24px;
+        padding: 10px 15px;
+        width: 100%;
+        cursor: pointer;
+        color: var(--text-secondary);
+    }
+    .create-post-top { display: flex; align-items: center; gap: 10px; padding: 10px 16px 0; }
+    .create-post-actions { display: flex; justify-content: space-around; padding: 10px 16px; border-top: 1px solid var(--divider); margin-top: 10px; }
+    
+    .cp-action-btn {
+        flex: 1; display: flex; align-items: center; justify-content: center;
+        gap: 8px; padding: 8px; border-radius: 8px; cursor: pointer;
+        color: var(--text-secondary); font-weight: 600; font-size: 0.9rem;
+        transition: background 0.2s;
+        border: none;
+        background-color: transparent;
+    }
+    .cp-action-btn:hover { background-color: var(--action-hover); }
+
+    /* INFO SIDEBAR */
+    .info-card {
+        background: var(--card-bg);
+        border-radius: 12px;
+        box-shadow: var(--shadow-md);
+        padding: 20px;
+        position: sticky;
+        top: 100px;
+    }
+    
+    /* POST ACTIONS STYLES (Mantener del feed) */
+    .post-actions { 
+        padding: 4px 16px; 
+        display: flex; 
+        gap: 4px; 
+        border-top: 1px solid var(--divider);
+    }
+    .action-btn {
+        flex: 1; display: flex; align-items: center; justify-content: center;
+        gap: 6px; padding: 8px; border-radius: 8px; cursor: pointer;
+        color: var(--text-secondary); font-weight: 600; font-size: 0.9rem;
+        transition: background 0.2s, color 0.2s; background-color: transparent;
+        border: none;
+    }
+    .action-btn:hover { background-color: var(--action-hover); }
+    .action-btn.active-primary { color: var(--edu-primary) !important; font-weight: 700; }
+
+    /* COMMENTS STYLES (Mantener del feed) */
+    .comments-section { padding: 12px 16px 16px; background-color: #ffffff; border-radius: 0 0 12px 12px; }
+    .comment-item { display: flex; align-items: flex-start; margin-bottom: 10px; gap: 8px; }
+    .comment-bubble { 
+        background-color: #f0f2f5; 
+        padding: 8px 12px; 
+        border-radius: 18px; 
+        line-height: 1.3; 
+    }
+    .comment-input-area form { display: flex; gap: 8px; align-items: center; width: 100%; }
+    .comment-input {
+        flex-grow: 1;
+        border: none;
+        border-radius: 20px;
+        background-color: #f0f2f5;
+        padding: 8px 12px;
+        font-size: 0.9rem;
+        height: 38px; /* Altura correcta */
+    }
+
+    /* Avatar para comentarios */
+    .user-avatar-sm-comment {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        object-fit: cover;
+        background-color: #ddd;
+        flex-shrink: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: bold;
+    }
+    
+    /* Estilo para la reproducción de video en línea */
+    .post-video-container {
+        max-width: 100%;
+        margin: 10px 0;
+        border-radius: 8px;
+        overflow: hidden;
+    }
+
+    /* Estilo para los labels de file input en el modal */
+    .custom-file-upload {
+        position: relative;
+        overflow: hidden;
+        display: inline-block;
+        padding: 8px 15px;
+        border: 1px solid var(--divider);
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: 600;
+        font-size: 0.9rem;
+        transition: background 0.2s;
+    }
+    .custom-file-upload:hover {
+        background-color: var(--action-hover);
+    }
+    .custom-file-upload input[type="file"] {
+        position: absolute;
+        left: 0;
+        top: 0;
+        opacity: 0; /* Oculta el input, pero permite el clic */
+        cursor: pointer;
+        font-size: 0; 
+        width: 100%;
+        height: 100%;
+    }
+    .file-name-display {
+        font-size: 0.75rem;
+        color: var(--edu-primary);
+        margin-left: 10px;
+        max-width: 150px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        display: inline-block;
+        vertical-align: middle;
+    }
+    
+    @media (max-width: 768px) {
+        .group-main-container { padding-top: 0; }
+        .group-info-main { flex-direction: column; align-items: flex-start; padding: 15px; }
+        .group-actions-bar { padding: 10px 15px; justify-content: flex-start; }
+        .group-title h1 { font-size: 1.5rem; }
+        .group-actions-bar .btn { width: 100%; margin-top: 10px; }
+    }
+</style>
+
+<div class="group-main-container container">
+    
+    <div class="group-header-card">
+        <div class="group-cover">
+            {% if grupo.image %}
+                <img src="{{ grupo.image.url }}" alt="{{ grupo.name }}" loading="lazy">
+            {% else %}
+                <div class="d-flex align-items-center justify-content-center h-100 text-white" style="background-color: var(--edu-primary);">
+                    <i class="fas fa-users fa-5x opacity-75"></i>
+                </div>
+            {% endif %}
+
+            {% if es_administrador_grupo %}
+                <button 
+                    class="cover-edit-button" 
+                    data-bs-toggle="modal" 
+                    data-bs-target="#changeCoverModal">
+                    <i class="fas fa-camera me-1"></i> Cambiar Foto de Portada
+                </button>
+            {% endif %}
+        </div>
+        
+        <div class="group-info-main">
+            <div class="group-title">
+                <div class="d-flex align-items-center gap-2">
+                    <h1>{{ grupo.name }}</h1>
+                    
+                    {% if es_administrador_grupo %}
+                        <div class="dropdown">
+                            <button class="btn btn-sm btn-light rounded-circle text-secondary" data-bs-toggle="dropdown">
+                                <i class="fas fa-cog"></i>
+                            </button>
+                            <ul class="dropdown-menu shadow">
+                                <li>
+                                    <button class="dropdown-item" data-bs-toggle="modal" data-bs-target="#editInfoModal">
+                                        <i class="fas fa-pen me-2 text-primary"></i> Editar Info
+                                    </button>
+                                </li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <button class="dropdown-item text-danger" data-bs-toggle="modal" data-bs-target="#deleteGroupModal">
+                                        <i class="fas fa-trash-alt me-2"></i> Eliminar Grupo
+                                    </button>
+                                </li>
+                            </ul>
+                        </div>
+                    {% endif %}
+                </div>
+                <div class="group-stats">{{ grupo.members.count }} miembros</div>
+            </div>
+            
+            <div class="group-actions-bar p-0">
+                {% if es_miembro %}
+                    <div class="dropdown">
+                        <button class="btn btn-success dropdown-toggle btn-join-style" type="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-check me-2"></i>Eres miembro
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end shadow">
+                            <li><a class="dropdown-item text-danger" href="{% url 'unirse_grupo' grupo.id %}">Salir del grupo</a></li>
+                        </ul>
+                    </div>
+                {% else %}
+                    <a href="{% url 'unirse_grupo' grupo.id %}" class="btn btn-primary btn-join-style">
+                        <i class="fas fa-plus me-2"></i>Unirse al Grupo
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        
+        <div class="col-md-4 mb-4">
+            <div class="info-card">
+                <h6 class="fw-bold mb-3"><i class="fas fa-info-circle me-2 text-primary"></i>Acerca del Grupo</h6>
+                <p class="small text-muted mb-3">{{ grupo.description|default:"Este grupo no tiene una descripción definida." }}</p>
+                <hr>
+                <div class="small">
+                    <div class="mb-2"><i class="fas fa-globe-americas me-2 text-secondary"></i> Público (Visible para todos)</div>
+                    <div class="mb-2"><i class="fas fa-history me-2 text-secondary"></i> Creado {{ grupo.created_at|naturaltime }}</div>
+                    
+                    
+                    <div><i class="fas fa-crown me-2 text-warning"></i> Administrador: <strong>{{ grupo.creator.get_full_name|default:grupo.creator.username|default:"Desconocido" }}</strong></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-8">
+            
+            {% if es_miembro %}
+                <div class="create-post-card">
+                    <div class="create-post-top">
+                        {% if user.perfil.foto_perfil %}
+                            <img src="{{ user.perfil.foto_perfil.url }}" class="user-avatar-sm">
+                        {% else %}
+                            <div class="user-avatar-sm bg-secondary d-flex align-items-center justify-content-center text-white fw-bold">{{ user.username|slice:":1" }}</div>
+                        {% endif %}
+                        <div class="create-post-input" data-bs-toggle="modal" data-bs-target="#createGroupPostModal">
+                            Escribe algo en {{ grupo.name }}...
+                        </div>
+                    </div>
+                    <div class="create-post-actions">
+                        <button class="cp-action-btn" data-bs-toggle="modal" data-bs-target="#createGroupPostModal">
+                            <i class="fas fa-video text-danger"></i> Video
+                        </button>
+                        <button class="cp-action-btn" data-bs-toggle="modal" data-bs-target="#createGroupPostModal">
+                            <i class="fas fa-images text-success"></i> Foto
+                        </button>
+                    </div>
+                </div>
+            {% else %}
+                <div class="alert alert-info text-center shadow-sm">
+                    <i class="fas fa-lock me-2"></i> Únete al grupo para publicar y ver contenido exclusivo.
+                </div>
+            {% endif %}
+
+            <div id="posts-list">
+                {% for post in posts %}
+                    <div class="post-card" id="post-{{ post.id }}">
+                        <div class="post-header">
+                            <a href="{% url 'ver_perfil_social' post.autor.username %}" class="d-flex align-items-center text-decoration-none">
+                                <div class="user-avatar-sm bg-primary text-white d-flex align-items-center justify-content-center fw-bold me-2" style="background-color: {{ post.autor.perfil.color_rol|default:'#4361ee' }};">
+                                    {{ post.autor.username|slice:":1"|upper }}
+                                </div>
+                            </a>
+                            <div class="post-info flex-grow-1">
+                                <h6>
+                                    <a href="{% url 'ver_perfil_social' post.autor.username %}" class="text-decoration-none text-primary">
+                                        {{ post.autor.get_full_name|default:post.autor.username }}
+                                    </a>
+                                </h6>
+                                <div class="post-time">
+                                    <span class="text-secondary" title="{{ post.creado_en }}">
+                                        {{ post.creado_en|naturaltime }}
+                                    </span>
+                                </div>
+                            </div>
+                            
+                            <div class="dropdown">
+                                <button class="btn btn-link text-secondary p-0" type="button" data-bs-toggle="dropdown">
+                                    <i class="fas fa-ellipsis-h"></i>
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0">
+                                    {% if request.user == post.autor or request.user == grupo.creator or request.user.perfil.rol == 'ADMINISTRADOR' %}
+                                        <li>
+                                            <button class="dropdown-item text-danger" onclick="moderarContenidoDirecto({{ post.id }}, 'post')">
+                                                <i class="far fa-trash-alt me-2"></i> Eliminar
+                                            </button>
+                                        </li>
+                                    {% else %}
+                                         <li><a class="dropdown-item" href="#"><i class="far fa-flag me-2"></i> Reportar</a></li>
+                                    {% endif %}
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div class="post-content">
+                            {{ post.contenido|linebreaksbr|urlize|safe }}
+                        </div>
+
+                        {% if post.imagen %}
+                        <div class="post-media mb-2">
+                            <img src="{{ post.imagen.url }}" alt="Imagen del post" class="img-fluid rounded">
+                        </div>
+                        {% endif %}
+                        
+                        {% if post.archivo %}
+                            {% with extension=post.archivo.url|slice:"-4:"|lower %}
+                                {% if extension == ".mp4" or extension == ".mov" or extension == ".webm" or extension == ".ogg" %}
+                                    <div class="post-media p-3 post-video-container">
+                                        <video controls playsinline style="width: 100%; max-height: 400px; display: block; border-radius: 8px;">
+                                            <source src="{{ post.archivo.url }}" type="video/{{ extension|slice:"1:" }}">
+                                            Tu navegador no soporta el formato de video.
+                                        </video>
+                                    </div>
+                                {% else %}
+                                    <div class="post-media p-3">
+                                        <a href="{{ post.archivo.url }}" target="_blank" class="text-decoration-none d-block p-3 border rounded text-dark bg-light" style="max-width: 300px;">
+                                            <i class="fas fa-file-download me-2 text-danger"></i> Descargar archivo adjunto ({{ extension|slice:"1:"|upper }})
+                                        </a>
+                                    </div>
+                                {% endif %}
+                            {% endwith %}
+                        {% endif %}
+
+
+                        <div class="post-stats">
+                            <div class="reaction-count text-primary d-flex align-items-center">
+                                <i class="fas fa-thumbs-up me-1"></i>
+                                <span id="reaction-count-post-{{ post.id }}">{{ post.reacciones.count }}</span>
+                            </div>
+                            <div class="comments-count">
+                                {{ post.comentarios.count }} comentarios
+                            </div>
+                        </div>
+
+                        <div class="post-actions">
+                            <button class="action-btn {% if post.user_has_liked %}active-primary{% endif %}" id="like-btn-{{ post.id }}-group" onclick="toggleReactionDirecto({{ post.id }}, 'post', this)">
+                                <i class="{% if post.user_has_liked %}fas{% else %}far{% endif %} fa-thumbs-up me-2"></i> Me gusta
+                            </button>
+                            <button class="action-btn" type="button" data-bs-toggle="collapse" data-bs-target="#comments-{{ post.id }}-group">
+                                <i class="far fa-comment-alt me-2"></i> Comentar
+                            </button>
+                            <button class="action-btn" onclick="compartirPost({{ post.id }})">
+                                <i class="fas fa-share me-2"></i> Compartir
+                            </button>
+                        </div>
+                        
+                        <div class="collapse show" id="comments-{{ post.id }}-group">
+                            <div class="comments-section">
+                                {% for comentario in post.comentarios.all %}
+                                    <div class="comment-item" id="comment-{{ comentario.id }}">
+                                        <a href="{% url 'ver_perfil_social' comentario.autor.username %}">
+                                            {% if comentario.autor.perfil.foto_perfil %}
+                                                <img src="{{ comentario.autor.perfil.foto_perfil.url }}" class="user-avatar-sm-comment">
+                                            {% else %}
+                                                <div class="user-avatar-sm-comment bg-info">
+                                                    {{ comentario.autor.username|slice:":1"|upper }}
+                                                </div>
+                                            {% endif %}
+                                        </a>
+                                        <div class="comment-content-wrapper">
+                                            <div class="comment-bubble">
+                                                <a href="{% url 'ver_perfil_social' comentario.autor.username %}" class="comment-author text-decoration-none">
+                                                    {{ comentario.autor.get_full_name|default:comentario.autor.username }}
+                                                </a>
+                                                <div class="comment-text d-inline-block">
+                                                    {{ comentario.contenido|urlize|safe }}
+                                                </div>
+                                            </div>
+                                            <div class="comment-meta">
+                                                <span class="text-secondary cursor-pointer" onclick="toggleReactionDirecto({{ comentario.id }}, 'comment', this)">
+                                                    Me gusta 
+                                                    <span id="reaction-count-comment-{{ comentario.id }}" class="ms-1 fw-bold">
+                                                        {% if comentario.reacciones.count > 0 %}{{ comentario.reacciones.count }}{% endif %}
+                                                    </span>
+                                                </span>
+                                                <span>{{ comentario.creado_en|naturaltime }}</span>
+                                                {% if request.user == comentario.autor or request.user == post.autor or request.user.perfil.rol == 'ADMINISTRADOR' %}
+                                                    <span class="text-danger ms-2" onclick="moderarContenidoDirecto({{ comentario.id }}, 'comment')" title="Eliminar">
+                                                        Eliminar
+                                                    </span>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% empty %}
+                                    <p class="text-center text-muted small my-2">Sé el primero en comentar.</p>
+                                {% endfor %}
+
+                                <div class="comment-input-area">
+                                    <div class="user-avatar-sm-comment bg-secondary">
+                                        {{ user.username|slice:":1"|upper }}
+                                    </div>
+                                    
+                                    <form method="POST" action="{% url 'detalle_grupo' grupo.id %}" class="w-100 d-flex gap-2 align-items-center">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="publicar_comentario" value="1">
+                                        <input type="hidden" name="post_id" value="{{ post.id }}">
+                                        
+                                        <input type="text" name="contenido" class="comment-input" placeholder="Escribe un comentario..." required autocomplete="off">
+                                        <button type="submit" class="btn btn-primary btn-sm rounded-circle p-0" style="width: 35px; height: 35px; display: flex; align-items: center; justify-content: center;">
+                                            <i class="fas fa-paper-plane" style="font-size: 0.9rem;"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                        
+                    </div>
+                {% empty %}
+                    <div class="text-center py-5">
+                        <i class="fas fa-box-open fa-3x text-muted mb-3"></i>
+                        <h4>¡Muro Vacío!</h4>
+                        <p class="text-muted">Sé el primero en publicar algo en {{ grupo.name }}.</p>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="changeCoverModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title fw-bold">Cambiar Portada del Grupo</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form method="POST" action="{% url 'detalle_grupo' grupo.id %}" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <input type="hidden" name="cambiar_portada" value="1">
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Seleccionar nueva imagen (JPEG, PNG)</label>
+                        <input type="file" name="imagen" class="form-control" accept="image/*" required>
+                        <div class="form-text">La imagen debe ser ancha (mínimo 800x300px) para un buen resultado.</div>
+                    </div>
+
+                    <div class="d-grid mt-4">
+                        <button type="submit" class="btn btn-primary fw-bold">Subir y Guardar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="modal fade" id="createGroupPostModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header border-bottom-0">
+                <h5 class="modal-title fw-bold">Publicar en {{ grupo.name }}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form method="POST" action="{% url 'detalle_grupo' grupo.id %}" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <input type="hidden" name="publicar_post" value="1">
+                    <input type="hidden" name="grupo_id" value="{{ grupo.id }}">
+                    
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="user-avatar-sm bg-primary text-white d-flex align-items-center justify-content-center fw-bold me-2">{{ user.username|slice:":1" }}</div>
+                        <h6 class="mb-0">{{ user.get_full_name }}</h6>
+                    </div>
+
+                    <div class="mb-3 position-relative">
+                        {{ post_form.contenido }} 
+                        <button type="button" id="emoji-trigger-group-modal" class="btn btn-sm btn-light position-absolute end-0 top-0 mt-1 me-1 rounded-circle" style="z-index: 10;">
+                            <i class="far fa-smile text-warning" style="font-size: 1.2rem;"></i>
+                        </button>
+                    </div>
+                    
+                    <div class="border rounded p-3 mb-3 d-flex justify-content-between align-items-center">
+                        <span class="fw-semibold small">Agregar archivo multimedia</span>
+                        <div class="d-flex gap-2">
+                            <label for="id_imagen_group" class="custom-file-upload text-success">
+                                <i class="fas fa-images me-1"></i> Foto
+                                <input type="file" name="imagen" id="id_imagen_group" accept="image/*" onchange="handleGroupFileInput(event)">
+                            </label>
+                            <label for="id_archivo_group" class="custom-file-upload text-danger">
+                                <i class="fas fa-file-video me-1"></i> Video/Archivo
+                                <input type="file" name="archivo" id="id_archivo_group" accept="video/*, .pdf, .doc, .docx, .ppt, .pptx" onchange="handleGroupFileInput(event)">
+                            </label>
+                            <span id="file-name-display-group" class="file-name-display"></span>
+                        </div>
+                    </div>
+
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary fw-bold">Publicar en Grupo</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="editInfoModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title fw-bold">Editar Información del Grupo</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form method="POST" action="{% url 'detalle_grupo' grupo.id %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="editar_info_grupo" value="1">
+                    
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Nombre del Grupo</label>
+                        <input type="text" name="nombre_grupo" class="form-control" value="{{ grupo.name }}" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Descripción</label>
+                        <textarea name="descripcion_grupo" class="form-control" rows="4">{{ grupo.description }}</textarea>
+                    </div>
+
+                    <div class="d-flex justify-content-end gap-2 mt-4">
+                        <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="deleteGroupModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-danger">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title fw-bold"><i class="fas fa-exclamation-triangle me-2"></i> Eliminar Grupo</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body text-center py-4">
+                <p class="mb-1">¿Estás seguro de que deseas eliminar <strong>{{ grupo.name }}</strong>?</p>
+                <p class="text-danger small fw-bold">Esta acción es irreversible y borrará todas las publicaciones.</p>
+                
+                <div class="d-flex justify-content-center gap-3 mt-4">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <a href="{% url 'eliminar_grupo' grupo.id %}" class="btn btn-danger fw-bold">Sí, eliminar grupo</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="videoModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="videoModalLabel">Video Incrustado</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" onclick="stopVideo()"></button>
+            </div>
+            <div class="modal-body">
+                <div class="video-modal-iframe-wrapper">
+                    <iframe id="youtube-player" width="100%" height="100%" src="" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // --- LÓGICA DE ARCHIVOS EN EL MODAL DE GRUPO ---
+    function handleGroupFileInput(event) {
+        const input = event.target;
+        const display = document.getElementById('file-name-display-group');
+        
+        let filename = '';
+        if (input.files.length > 0) {
+            filename = input.files[0].name;
+            display.textContent = filename;
+        }
+
+        // Asegurar que solo se suba un tipo de archivo (imagen o archivo/video)
+        const isImageInput = input.id === 'id_imagen_group';
+        const otherInputId = isImageInput ? 'id_archivo_group' : 'id_imagen_group';
+        const otherInput = document.getElementById(otherInputId);
+
+        if (otherInput && input.files.length > 0) {
+            otherInput.value = ''; // Limpia el valor del otro input
+        }
+
+        // Si no hay archivos en ninguno, limpiar display
+        const imgInput = document.getElementById('id_imagen_group');
+        const fileInput = document.getElementById('id_archivo_group');
+        if (imgInput && fileInput && imgInput.files.length === 0 && fileInput.files.length === 0) {
+             display.textContent = '';
+        }
+    }
+
+
+    // --- LÓGICA AJAX BÁSICA ---
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+    const csrftoken_local = getCookie('csrftoken');
+
+    // Toggle Reaction (Me Gusta)
+    async function toggleReactionDirecto(id, tipo, btn) {
+        // Lógica de feedback visual aquí (si no está en el JS global)
+        
+        try {
+            const response = await fetch('/api/social/reaction/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrftoken_local
+                },
+                body: JSON.stringify({
+                    'id': id,
+                    'type': tipo,
+                    'reaction': 'LIKE'
+                })
+            });
+
+            if (response.ok) {
+                location.reload(); 
+            } else {
+                 const data = await response.json();
+                 alert("Error al reaccionar: " + (data.error || response.statusText));
+            }
+        } catch (error) {
+            alert("Error de red.");
+        }
+    }
+    
+    // Compartir
+    function compartirPost(id) {
+        const url = window.location.origin + "/social/grupos/{{ grupo.id }}/#post-" + id;
+        navigator.clipboard.writeText(url).then(() => {
+            alert("¡Enlace copiado al portapapeles!\n" + url);
+        });
+    }
+
+    // Moderar (Eliminar)
+    async function moderarContenidoDirecto(id, tipo) {
+        if (!confirm("¿Estás seguro de eliminar este contenido?")) return;
+
+        try {
+            const response = await fetch('/api/social/moderate/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrftoken_local
+                },
+                body: JSON.stringify({
+                    'id': id,
+                    'type': tipo, 
+                    'motivo': "Eliminado por Administrador de Grupo"
+                })
+            });
+
+            if (response.ok) {
+                location.reload(); 
+            } else {
+                 const data = await response.json();
+                 alert("Error al eliminar: " + (data.error || response.statusText));
+            }
+        } catch (error) {
+            alert("Error de red.");
+        }
+    }
+
+    // Inicialización de Emojis y Archivos
+    document.addEventListener('DOMContentLoaded', function() {
+        // --- Manejadores de Archivos en el Modal de Grupo ---
+        const imagenInputGroup = document.getElementById('id_imagen_group');
+        const archivoInputGroup = document.getElementById('id_archivo_group');
+
+        if (imagenInputGroup) imagenInputGroup.addEventListener('change', handleGroupFileInput);
+        if (archivoInputGroup) archivoInputGroup.addEventListener('change', handleGroupFileInput);
+
+        // --- Lógica de Emojis ---
+        const picker = new EmojiButton({ position: 'bottom-start', zIndex: 1060 });
+        const trigger = document.querySelector('#emoji-trigger-group-modal');
+        const contentTextarea = document.querySelector('#createGroupPostModal textarea[name="contenido"]');
+        
+        function insertEmoji(emoji) {
+            // Usa el campo que hemos cacheado
+            if (contentTextarea) {
+                const start = contentTextarea.selectionStart;
+                const end = contentTextarea.selectionEnd;
+                const value = contentTextarea.value;
+
+                // Inserta el emoji en la posición actual del cursor
+                contentTextarea.value = value.substring(0, start) + emoji + value.substring(end);
+                
+                // Mueve el cursor después del emoji insertado
+                const newCursorPosition = start + emoji.length;
+                contentTextarea.selectionStart = newCursorPosition;
+                contentTextarea.selectionEnd = newCursorPosition;
+
+                contentTextarea.focus();
+            }
+        }
+
+        picker.on('emoji', selection => insertEmoji(selection.emoji));
+
+        if (trigger) {
+            trigger.addEventListener('click', (event) => {
+                event.preventDefault(); 
+                picker.togglePicker(trigger);
+            });
+        }
+    });
+
+</script>
+{% endblock %}

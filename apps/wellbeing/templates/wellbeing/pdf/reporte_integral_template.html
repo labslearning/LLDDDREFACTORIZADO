@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Expediente Integral - {{ estudiante.username }}</title>
+    <style>
+        @page {
+            size: A4;
+            margin: 2.5cm 1.5cm 3cm 1.5cm; /* Márgenes amplios para encuadernación */
+            
+            @top-center {
+                content: element(header);
+            }
+            @bottom-center {
+                content: element(footer);
+            }
+        }
+
+        body {
+            font-family: 'Segoe UI', 'Roboto', Helvetica, Arial, sans-serif;
+            font-size: 10pt;
+            color: #2c3e50;
+            line-height: 1.5;
+        }
+
+        /* --- MARCA DE AGUA (Fondo) --- */
+        .watermark {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(-45deg);
+            font-size: 80pt;
+            color: rgba(200, 200, 200, 0.1);
+            z-index: -1;
+            font-weight: bold;
+            text-transform: uppercase;
+            width: 100%;
+            text-align: center;
+        }
+
+        /* --- ENCABEZADO Y PIE DE PÁGINA (WeasyPrint) --- */
+        header {
+            position: running(header);
+            width: 100%;
+            border-bottom: 2px solid #003366;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+        
+        footer {
+            position: running(footer);
+            width: 100%;
+            border-top: 1px solid #ccc;
+            padding-top: 10px;
+            text-align: center;
+            font-size: 8pt;
+            color: #7f8c8d;
+        }
+
+        /* --- LAYOUT DEL HEADER --- */
+        .header-grid {
+            display: table;
+            width: 100%;
+        }
+        .header-logo {
+            display: table-cell;
+            width: 20%;
+            vertical-align: middle;
+        }
+        .header-logo img {
+            max-height: 70px;
+            max-width: 100%;
+        }
+        .header-text {
+            display: table-cell;
+            width: 80%;
+            vertical-align: middle;
+            text-align: right;
+        }
+        .header-text h1 {
+            margin: 0;
+            font-size: 16pt;
+            color: #003366;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .header-text h2 {
+            margin: 2px 0 0 0;
+            font-size: 9pt;
+            font-weight: normal;
+            color: #555;
+        }
+
+        /* --- SECCIÓN DE PERFIL (Resumen Ejecutivo) --- */
+        .profile-section {
+            background-color: #f8f9fa;
+            border-left: 5px solid #003366;
+            padding: 15px;
+            margin-bottom: 25px;
+            border-radius: 0 5px 5px 0;
+            box-shadow: 2px 2px 5px rgba(0,0,0,0.05);
+        }
+        .profile-table { width: 100%; }
+        .profile-label { 
+            font-weight: bold; 
+            color: #003366; 
+            font-size: 9pt; 
+            text-transform: uppercase;
+            width: 15%;
+        }
+        .profile-value { 
+            font-size: 11pt; 
+            width: 35%;
+        }
+
+        /* --- KPIS ESTRATÉGICOS --- */
+        .kpi-container {
+            display: table;
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 10px 0;
+            margin-bottom: 30px;
+        }
+        .kpi-card {
+            display: table-cell;
+            width: 33%;
+            background: #fff;
+            border: 1px solid #e0e0e0;
+            padding: 15px;
+            text-align: center;
+            border-radius: 8px;
+        }
+        .kpi-card.highlight {
+            background-color: #f4f8fb;
+            border-color: #b6d4fe;
+        }
+        .kpi-number {
+            display: block;
+            font-size: 22pt;
+            font-weight: bold;
+            color: #2c3e50;
+            line-height: 1;
+            margin-bottom: 5px;
+        }
+        .kpi-label {
+            font-size: 8pt;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #7f8c8d;
+        }
+
+        /* --- ANÁLISIS IA (Caja destacada) --- */
+        .ai-insight {
+            background-color: #eef2f7;
+            border: 1px solid #d1d9e6;
+            border-radius: 6px;
+            padding: 15px 20px;
+            margin-bottom: 30px;
+            position: relative;
+        }
+        .ai-insight::before {
+            content: "🧠 ANÁLISIS DE INTELIGENCIA";
+            position: absolute;
+            top: -10px;
+            left: 20px;
+            background: #003366;
+            color: #fff;
+            padding: 2px 10px;
+            font-size: 8pt;
+            border-radius: 3px;
+            font-weight: bold;
+        }
+        .ai-text {
+            font-style: italic;
+            color: #444;
+            font-size: 10pt;
+            margin-top: 5px;
+            text-align: justify;
+        }
+
+        /* --- TÍTULOS DE SECCIÓN --- */
+        .section-header {
+            border-bottom: 2px solid #003366;
+            margin-bottom: 15px;
+            margin-top: 30px;
+            padding-bottom: 5px;
+        }
+        .section-header h3 {
+            margin: 0;
+            color: #003366;
+            font-size: 12pt;
+            text-transform: uppercase;
+        }
+
+        /* --- TABLAS DE DATOS PROFESIONALES --- */
+        .pro-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 9pt;
+            margin-bottom: 20px;
+        }
+        .pro-table th {
+            background-color: #2c3e50;
+            color: #fff;
+            padding: 10px;
+            text-align: left;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 8pt;
+        }
+        .pro-table td {
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+            vertical-align: top;
+        }
+        .pro-table tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        .pro-table tr:last-child td {
+            border-bottom: 2px solid #2c3e50;
+        }
+
+        /* Badges Minimalistas */
+        .tag {
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 7pt;
+            font-weight: bold;
+            text-transform: uppercase;
+            color: #fff;
+            display: inline-block;
+        }
+        .tag-conv { background-color: #e67e22; }
+        .tag-acad { background-color: #3498db; }
+        .tag-psico { background-color: #9b59b6; }
+        .tag-gray { background-color: #95a5a6; }
+
+        /* --- FIRMAS --- */
+        .signature-section {
+            margin-top: 50px;
+            page-break-inside: avoid;
+        }
+        .signature-grid {
+            display: table;
+            width: 100%;
+        }
+        .signature-box {
+            display: table-cell;
+            width: 45%;
+            padding-top: 30px;
+            border-top: 1px solid #000;
+            text-align: center;
+            font-size: 9pt;
+        }
+        .signature-gap {
+            display: table-cell;
+            width: 10%;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="watermark">CONFIDENCIAL</div>
+
+    <header>
+        <div class="header-grid">
+            <div class="header-logo">
+                {% if institucion.logo %}
+                    <img src="{{ institucion.logo.url }}" alt="Logo">
+                {% else %}
+                    <strong>{{ institucion.nombre|default:"INSTITUCIÓN" }}</strong>
+                {% endif %}
+            </div>
+            <div class="header-text">
+                <h1>{{ institucion.nombre|default:"Nombre Institución" }}</h1>
+                <h2>NIT: {{ institucion.nit|default:"---" }} | Resolución: {{ institucion.resolucion|default:"---" }}</h2>
+                <h2>{{ institucion.direccion }} | {{ institucion.telefono }}</h2>
+            </div>
+        </div>
+    </header>
+
+    <footer>
+        <p>
+            Documento generado el {{ fecha_impresion|date:"d/m/Y H:i" }} por el sistema Learning Labs.<br>
+            La información contenida es de carácter confidencial y para uso exclusivo institucional. Página <span class="pageNumber"></span>
+        </p>
+    </footer>
+
+    <div style="text-align: center; margin-bottom: 25px;">
+        <h2 style="font-size: 18pt; color: #2c3e50; margin: 0; text-transform: uppercase;">Expediente Integral de Seguimiento</h2>
+        <span style="font-size: 10pt; color: #7f8c8d;">Informe Académico y Convivencial Consolidado</span>
+    </div>
+
+    <div class="profile-section">
+        <table class="profile-table">
+            <tr>
+                <td class="profile-label">Estudiante:</td>
+                <td class="profile-value"><strong>{{ estudiante.get_full_name|upper }}</strong></td>
+                <td class="profile-label">Identificación:</td>
+                <td class="profile-value">{{ estudiante.username }}</td>
+            </tr>
+            <tr>
+                <td class="profile-label">Curso Actual:</td>
+                <td class="profile-value">{{ curso.nombre|default:"No asignado" }}</td>
+                <td class="profile-label">Acudiente:</td>
+                <td class="profile-value">
+                    {% with acudiente=estudiante.acudientes_asignados.first %}
+                        {{ acudiente.acudiente.get_full_name|default:"No registrado" }}
+                    {% endwith %}
+                </td>
+            </tr>
+        </table>
+    </div>
+
+    <div class="kpi-container">
+        <div class="kpi-card">
+            <span class="kpi-number" style="color: #e74c3c;">{{ resumen.total_obs }}</span>
+            <span class="kpi-label">Observaciones Totales</span>
+        </div>
+        <div class="kpi-card highlight">
+            <span class="kpi-number" style="color: #3498db;">{{ resumen.promedio_actual|default:"-" }}</span>
+            <span class="kpi-label">Promedio Académico</span>
+        </div>
+        <div class="kpi-card">
+            <span class="kpi-number" style="color: #27ae60;">{{ resumen.total_seg }}</span>
+            <span class="kpi-label">Seguimientos Realizados</span>
+        </div>
+    </div>
+
+    {% if concepto_ia %}
+    <div class="ai-insight">
+        <div class="ai-text">
+            {{ concepto_ia|linebreaksbr }}
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="section-header">
+        <h3>I. Historial de Eventos y Observaciones</h3>
+    </div>
+    
+    {% if observaciones %}
+    <table class="pro-table">
+        <thead>
+            <tr>
+                <th width="12%">Fecha</th>
+                <th width="15%">Categoría</th>
+                <th width="40%">Descripción del Evento</th>
+                <th width="33%">Compromisos Adquiridos</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for obs in observaciones %}
+            <tr>
+                <td>
+                    <strong>{{ obs.fecha_creacion|date:"d/m/Y" }}</strong><br>
+                    <span style="font-size: 7pt; color: #999;">{{ obs.autor.username }}</span>
+                </td>
+                <td>
+                    {% if obs.tipo == 'CONVIVENCIA' %}<span class="tag tag-conv">Convivencia</span>
+                    {% elif obs.tipo == 'ACADEMICA' %}<span class="tag tag-acad">Académica</span>
+                    {% elif obs.tipo == 'PSICOLOGIA' %}<span class="tag tag-psico">Psicología</span>
+                    {% else %}<span class="tag tag-gray">{{ obs.get_tipo_display }}</span>
+                    {% endif %}
+                </td>
+                <td>
+                    {{ obs.descripcion|linebreaksbr }}
+                </td>
+                <td>
+                    {% if obs.compromisos_estudiante %}
+                        <div style="margin-bottom: 5px;"><strong>Estudiante:</strong> {{ obs.compromisos_estudiante }}</div>
+                    {% endif %}
+                    {% if obs.compromisos_familia %}
+                        <div><strong>Familia:</strong> {{ obs.compromisos_familia }}</div>
+                    {% endif %}
+                    {% if not obs.compromisos_estudiante and not obs.compromisos_familia %}
+                        <em style="color: #ccc;">Sin compromisos registrados</em>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+        <div style="text-align: center; padding: 20px; background: #f9f9f9; color: #7f8c8d; border: 1px dashed #ccc;">
+            El estudiante no presenta observaciones registradas en el sistema.
+        </div>
+    {% endif %}
+
+    <div class="section-header" style="page-break-before: always;"> <h3>II. Gestión Institucional y Seguimiento</h3>
+    </div>
+
+    {% if seguimientos %}
+    <table class="pro-table">
+        <thead>
+            <tr>
+                <th width="15%">Fecha / Hora</th>
+                <th width="25%">Profesional</th>
+                <th width="60%">Detalle de la Intervención</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for seg in seguimientos %}
+            <tr>
+                <td>{{ seg.fecha|date:"d/m/Y" }}<br><small style="color:#777;">{{ seg.fecha|date:"h:i A" }}</small></td>
+                <td>
+                    <strong>{{ seg.profesional.get_full_name }}</strong>
+                    <br><span style="font-size: 8pt; color: #666;">Docente / Staff</span>
+                </td>
+                <td>
+                    {{ seg.descripcion|linebreaksbr }}
+                    
+                    {% if seg.observaciones_adicionales %}
+                        <div style="margin-top: 8px; padding: 8px; background-color: #fffde7; border-left: 3px solid #f1c40f; font-size: 8.5pt;">
+                            <strong>Nota Confidencial / Adicional:</strong><br>
+                            {{ seg.observaciones_adicionales }}
+                        </div>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+        <div style="text-align: center; padding: 20px; background: #f9f9f9; color: #7f8c8d; border: 1px dashed #ccc;">
+            No se han registrado seguimientos o intervenciones profesionales.
+        </div>
+    {% endif %}
+
+    <div class="signature-section">
+        <div class="signature-grid">
+            <div class="signature-box">
+                <strong>{{ generado_por|upper }}</strong><br>
+                Quien Genera el Reporte<br>
+                <small>Fecha: {% now "d/m/Y" %}</small>
+            </div>
+            <div class="signature-gap"></div>
+            <div class="signature-box">
+                <strong>COORDINACIÓN / BIENESTAR</strong><br>
+                Visto Bueno Institucional<br>
+                <small>Sello Oficial</small>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>

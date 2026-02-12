@@ -1,0 +1,90 @@
+{% load humanize %}
+<div class="post-card" id="post-{{ post.id }}">
+    <div class="post-header">
+        <a href="{% url 'ver_perfil_social' post.autor.username %}">
+            {% if post.autor.perfil.foto_perfil %}
+                <img src="{{ post.autor.perfil.foto_perfil.url }}" alt="{{ post.autor.username }}" class="user-avatar-sm">
+            {% else %}
+                <div class="user-avatar-sm d-flex align-items-center justify-content-center bg-primary text-white fw-bold">
+                    {{ post.autor.username|slice:":1"|upper }}
+                </div>
+            {% endif %}
+        </a>
+        <div class="post-info flex-grow-1">
+            <h6>
+                <a href="{% url 'ver_perfil_social' post.autor.username %}">
+                    {{ post.autor.get_full_name|default:post.autor.username }}
+                </a>
+                {% if post.tipo == 'ANUNCIO' %}
+                    <span class="badge bg-danger ms-1" style="font-size: 0.65rem;">ANUNCIO</span>
+                {% endif %}
+            </h6>
+            <div class="post-time">
+                <a href="#" class="text-secondary text-decoration-none" title="{{ post.creado_en }}">
+                    {{ post.creado_en|naturaltime }}
+                </a>
+                <i class="fas fa-globe-americas ms-1"></i>
+            </div>
+        </div>
+        
+        <div class="dropdown">
+            <button class="btn btn-link text-secondary p-0" type="button" data-bs-toggle="dropdown">
+                <i class="fas fa-ellipsis-h"></i>
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0">
+                {% if request.user == post.autor or request.user.perfil.rol == 'ADMINISTRADOR' or request.user.perfil.rol == 'DOCENTE' %}
+                    <li>
+                        <button class="dropdown-item text-danger" onclick="moderarContenido({{ post.id }}, 'post')">
+                            <i class="far fa-trash-alt me-2"></i> Eliminar
+                        </button>
+                    </li>
+                {% else %}
+                     <li><a class="dropdown-item" href="#"><i class="far fa-flag me-2"></i> Reportar</a></li>
+                {% endif %}
+            </ul>
+        </div>
+    </div>
+
+    <div class="post-content">
+        {{ post.contenido|linebreaksbr }}
+    </div>
+
+    {% if post.imagen %}
+    <div class="post-media">
+        <img src="{{ post.imagen.url }}" alt="Imagen del post" loading="lazy">
+    </div>
+    {% endif %}
+
+    <div class="post-stats">
+        <div class="reaction-count text-primary">
+            <i class="fas fa-thumbs-up"></i>
+            <span id="reaction-count-post-{{ post.id }}">{{ post.total_reacciones }}</span>
+        </div>
+        <div class="comments-count">
+            {{ post.total_comentarios }} comentarios
+        </div>
+    </div>
+
+    <div class="post-actions">
+        <button class="action-btn" onclick="toggleReaction({{ post.id }}, 'post', this)">
+            <i class="far fa-thumbs-up"></i> Me gusta
+        </button>
+        <button class="action-btn" type="button" data-bs-toggle="collapse" data-bs-target="#comments-{{ post.id }}">
+            <i class="far fa-comment-alt"></i> Comentar
+        </button>
+    </div>
+
+    <div class="collapse" id="comments-{{ post.id }}">
+        <div class="comments-section">
+            {% for comentario in post.comentarios.all %}
+                {% include "partials/_comment.html" with comentario=comentario %}
+            {% empty %}
+                <p class="text-center text-muted small my-2">Sé el primero en comentar.</p>
+            {% endfor %}
+            
+            <div class="comment-input-area">
+                 <input type="text" class="comment-input" placeholder="Escribe un comentario..." readonly onclick="alert('Funcionalidad de comentarios en desarrollo.')">
+            </div>
+        </div>
+    </div>
+</div>
