@@ -36,7 +36,7 @@
 
                 <div class="vr mx-2 opacity-25 d-none d-lg-block"></div>
 
-                <a href="{% url 'reporte_consolidado' %}" class="btn btn-white border shadow-sm text-success fw-bold hover-scale px-4 py-2" title="Descargar Sábana Excel">
+                <a href="{% url 'wellbeing:reporte_consolidado' %}" class="btn btn-white border shadow-sm text-success fw-bold hover-scale px-4 py-2" title="Descargar Sábana Excel">
                     <i class="fas fa-file-excel me-2"></i>Sábana
                 </a>
 
@@ -144,7 +144,7 @@
                                            <div class="display-6 fw-black text-danger mb-0">{{ riesgo.materias_perdidas }}</div>
                                            <small class="text-uppercase text-muted fw-bold" style="font-size: 0.5rem;">Asignaturas</small>
                                            <div class="mt-3">
-                                               <a href="{% url 'ver_observador' riesgo.estudiante.id %}" class="btn btn-sm btn-primary rounded-circle shadow-sm">
+                                               <a href="{% url 'wellbeing:ver_observador' riesgo.estudiante.id %}" class="btn btn-sm btn-primary rounded-circle shadow-sm">
                                                    <i class="fas fa-search-plus"></i>
                                                </a>
                                            </div>
@@ -491,7 +491,7 @@
                                        <span class="badge bg-danger rounded-pill px-3 py-2 shadow-sm fw-bold">{{ alerta.total }}</span>
                                    </td>
                                    <td class="text-end pe-4">
-                                       <a href="{% url 'ver_observador' alerta.estudiante__id %}" class="btn btn-sm btn-light text-primary border rounded-circle shadow-sm"><i class="fas fa-eye"></i></a>
+                                       <a href="{% url 'wellbeing:ver_observador' alerta.estudiante__id %}" class="btn btn-sm btn-light text-primary border rounded-circle shadow-sm"><i class="fas fa-eye"></i></a>
                                    </td>
                                </tr>
                                {% empty %}
@@ -626,7 +626,7 @@
                                        <div class="btn-group btn-group-sm shadow-sm rounded-pill overflow-hidden border">
                                            <a href="{% url 'ai_engine' %}?action=analisis_convivencia&target_id={{ obj_est.obj.id }}" class="btn btn-white text-purple" title="Analítica IA"><i class="fas fa-robot"></i></a>
                                            <a href="{% url 'crear_observacion' obj_est.obj.id %}" ... ></a>
-                                           <a href="{% url 'ver_observador' obj_est.obj.id %}" class="btn btn-white text-dark" title="Abrir Historial"><i class="fas fa-folder-open"></i></a>
+                                           <a href="{% url 'wellbeing:ver_observador' obj_est.obj.id %}" class="btn btn-white text-dark" title="Abrir Historial"><i class="fas fa-folder-open"></i></a>
                                        </div>
                                    </td>
                                </tr>

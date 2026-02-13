@@ -305,7 +305,7 @@
         </div>
         
         <div class="col-md-4 text-md-end">
-            <a href="{% url 'enviar_mensaje' %}" class="btn btn-primary shadow-sm px-4 py-2 rounded-pill fw-bold btn-compose-responsive transition-hover">
+            <a href="{% url 'social:enviar_mensaje' %}" class="btn btn-primary shadow-sm px-4 py-2 rounded-pill fw-bold btn-compose-responsive transition-hover">
                 <i class="fas fa-plus me-2"></i> <span>Redactar Mensaje</span>
             </a>
         </div>
@@ -345,7 +345,7 @@
                 
                 {% if tipo_bandeja == 'enviados' %}
                     {% if msg.destinatarios_count > 1 %}
-                        <a href="{% url 'leer_mensaje' msg.referencia_id %}" 
+                        <a href="{% url 'social:leer_mensaje' msg.referencia_id %}" 
                            class="message-item d-flex align-items-center gap-3 read" 
                            data-user="Envío Masivo" 
                            data-subject="{{ msg.asunto }}" 
@@ -370,7 +370,7 @@
                         </a>
                     {% else %}
                         {% with usuario_visual=msg.ultimo_destinatario_obj estado_clase="read" %}
-                            <a href="{% url 'leer_mensaje' msg.referencia_id %}" 
+                            <a href="{% url 'social:leer_mensaje' msg.referencia_id %}" 
                                class="message-item d-flex align-items-center gap-3 {{ estado_clase }}" 
                                data-user="{{ usuario_visual.get_full_name|default:'[Usuario]' }}" 
                                data-subject="{{ msg.asunto }}" 
@@ -404,7 +404,7 @@
                 
                 {% else %}
                     {% with usuario_visual=msg.remitente estado_clase=msg.leido|yesno:"read,unread" %}
-                        <a href="{% url 'leer_mensaje' msg.id %}" 
+                        <a href="{% url 'social:leer_mensaje' msg.id %}" 
                            class="message-item d-flex align-items-center gap-3 {{ estado_clase }}" 
                            data-user="{{ usuario_visual.get_full_name|default:'[Usuario]' }}" 
                            data-subject="{{ msg.asunto }}" 
@@ -463,7 +463,7 @@
                         {% endif %}
                     </p>
                     {% if tipo_bandeja == 'enviados' %}
-                        <a href="{% url 'enviar_mensaje' %}" class="btn btn-outline-success rounded-pill px-4">Comenzar a escribir</a>
+                        <a href="{% url 'social:enviar_mensaje' %}" class="btn btn-outline-success rounded-pill px-4">Comenzar a escribir</a>
                     {% endif %}
                 </div>
             {% endfor %}

@@ -16,21 +16,53 @@ from django.conf import settings
 from django.core.paginator import Paginator
 from django.contrib.auth import get_user_model
 
-# 🩸 CONEXIÓN CON EL LEGACY (Modelos y Utilidades)
-from tasks.models import (
-    User, Perfil, Matricula, Institucion, Periodo, Nota, Asistencia,
-    Observacion, Seguimiento, ActaInstitucional, ObservadorArchivado, BoletinArchivado,
-    Curso, Materia # Necesarios para dashboards y reportes
-)
+User = get_user_model()
+
+# ---------------------------------------------------------
+# 🟢 1. IMPORTACIONES DE CAPA DE DOMINIO Y TENANCY
+# ---------------------------------------------------------
+from apps.tenancy.utils import get_current_tenant
 from tasks.decorators import role_required
+# Importamos el Perfil si aún vive en tasks, o lo cambiamos a social
+from tasks.models import Perfil 
 
-# 🟢 IMPORTACIÓN CORRECTA DE FORMULARIOS (Desde su propia app)
-from .forms import ObservacionForm, ActaInstitucionalForm, SeguimientoForm
+# ---------------------------------------------------------
+# 📦 2. MODELOS ACADÉMICOS (De su nueva app)
+# ---------------------------------------------------------
+from apps.academics.models import Curso, Materia, Periodo, Nota, AsignacionMateria, Matricula, BoletinArchivado
 
-# Los de perfil, si se usan aquí, se traen de la app social
-from apps.social.forms import UserEditForm, EditarPerfilForm
+# ---------------------------------------------------------
+# 🛡️ 3. MODELOS DE BIENESTAR (Nativos de esta app)
+# ---------------------------------------------------------
+from .models import (
+    Asistencia, Observacion, Seguimiento, Convivencia, 
+    ActaInstitucional, ObservadorArchivado, Institucion
+)
 
-# Librería de PDF (Manejo de error si no está instalada)
+# Formularios (Temporales hasta crear forms.py oficial)
+from django import forms
+class ObservacionForm(forms.ModelForm):
+    class Meta:
+        model = Observacion
+        fields = ['periodo', 'tipo', 'descripcion']
+    def __init__(self, *args, **kwargs):
+        self.user = kwargs.pop('user', None)
+        self.estudiante = kwargs.pop('estudiante', None)
+        super().__init__(*args, **kwargs)
+
+class ActaInstitucionalForm(forms.ModelForm):
+    class Meta:
+        model = ActaInstitucional
+        fields = '__all__'
+        exclude = ['creador', 'tenant']
+
+class SeguimientoForm(forms.ModelForm):
+    class Meta:
+        model = Seguimiento
+        fields = '__all__'
+        exclude = ['profesional', 'tenant']
+
+
 try:
     from weasyprint import HTML
 except ImportError:
@@ -48,30 +80,29 @@ STAFF_ROLES = ['PSICOLOGO', 'COORD_CONVIVENCIA', 'COORD_ACADEMICO', 'ADMINISTRAD
 @role_required(STAFF_ROLES)
 def dashboard_bienestar(request):
     """
-    VISTA MAESTRA DE INTELIGENCIA INSTITUCIONAL - STRATOS (VERSIÓN CIRUGÍA DE PRECISIÓN)
+    VISTA MAESTRA DE INTELIGENCIA INSTITUCIONAL - STRATOS (MULTI-TENANT)
     """
+    tenant = get_current_tenant()
+    
     # 0. GESTIÓN DOCUMENTAL (PEI Y MANUAL)
     if request.method == 'POST':
-        if 'pei_file' in request.FILES:
-            if request.user.perfil.rol in ['COORD_ACADEMICO', 'ADMINISTRADOR']:
-                institucion, _ = Institucion.objects.get_or_create(id=1)
-                archivo = request.FILES['pei_file']
-                if archivo.name.lower().endswith('.pdf'):
-                    institucion.archivo_pei = archivo
-                    institucion.save()
-                    messages.success(request, "✅ PEI actualizado correctamente.")
-                else:
-                    messages.error(request, "❌ Error: El archivo debe ser PDF.")
-        elif 'manual_file' in request.FILES:
-            if request.user.perfil.rol in ['COORD_CONVIVENCIA', 'ADMINISTRADOR']:
-                institucion, _ = Institucion.objects.get_or_create(id=1)
-                archivo = request.FILES['manual_file']
-                if archivo.name.lower().endswith('.pdf'):
-                    institucion.archivo_manual_convivencia = archivo
-                    institucion.save()
-                    messages.success(request, "✅ Manual de Convivencia actualizado.")
-                else:
-                    messages.error(request, "❌ Error: El archivo debe ser PDF.")
+        institucion, _ = Institucion.objects.get_or_create(tenant=tenant)
+        if 'pei_file' in request.FILES and request.user.perfil.rol in ['COORD_ACADEMICO', 'ADMINISTRADOR']:
+            archivo = request.FILES['pei_file']
+            if archivo.name.lower().endswith('.pdf'):
+                institucion.archivo_pei = archivo
+                institucion.save()
+                messages.success(request, "✅ PEI actualizado correctamente.")
+            else:
+                messages.error(request, "❌ Error: El archivo debe ser PDF.")
+        elif 'manual_file' in request.FILES and request.user.perfil.rol in ['COORD_CONVIVENCIA', 'ADMINISTRADOR']:
+            archivo = request.FILES['manual_file']
+            if archivo.name.lower().endswith('.pdf'):
+                institucion.archivo_manual_convivencia = archivo
+                institucion.save()
+                messages.success(request, "✅ Manual de Convivencia actualizado.")
+            else:
+                messages.error(request, "❌ Error: El archivo debe ser PDF.")
         return redirect('dashboard_bienestar')
 
     # 1. MOTOR DE BÚSQUEDA (ESTUDIANTES)
@@ -79,12 +110,12 @@ def dashboard_bienestar(request):
     estudiantes_busqueda = []
     if query:
         estudiantes_busqueda = User.objects.filter(
-            Q(perfil__rol='ESTUDIANTE') &
+            Q(perfil__rol='ESTUDIANTE', perfil__tenant=tenant) &
             (Q(username__icontains=query) | Q(first_name__icontains=query) | Q(last_name__icontains=query))
         ).select_related('perfil').distinct()[:25]
 
     # 2. RADAR DE RIESGO ACADÉMICO
-    matriculas_activas = Matricula.objects.filter(activo=True).select_related('estudiante', 'curso')
+    matriculas_activas = Matricula.objects.filter(activo=True, tenant=tenant).select_related('estudiante', 'curso')
     riesgo_academico_total = []
     total_materias_perdidas_institucional = 0
 
@@ -94,7 +125,8 @@ def dashboard_bienestar(request):
             estudiante=est,
             numero_nota=5,    # Nota definitiva
             valor__lt=3.0,    # Reprobado
-            materia__curso=mat.curso
+            materia__curso=mat.curso,
+            tenant=tenant
         ).exclude(
             Q(materia__nombre__icontains="Convivencia") | 
             Q(materia__nombre__icontains="Comportamiento")
@@ -118,10 +150,10 @@ def dashboard_bienestar(request):
     riesgo_academico_total.sort(key=lambda x: (-x['materias_perdidas'], x['promedio_riesgo']))
 
     # 3. ANALÍTICA DE GESTIÓN POR CURSOS
-    cursos_activos = Curso.objects.filter(activo=True).order_by('grado', 'seccion')
+    cursos_activos = Curso.objects.filter(activo=True, tenant=tenant).order_by('grado', 'seccion')
     periodos_header = []
     if cursos_activos.exists():
-        periodos_header = Periodo.objects.filter(curso=cursos_activos.first(), activo=True).order_by('id')
+        periodos_header = Periodo.objects.filter(curso=cursos_activos.first(), activo=True, tenant=tenant).order_by('id')
 
     total_estudiantes_colegio = matriculas_activas.count()
     suma_promedios_acad = 0.0
@@ -140,7 +172,8 @@ def dashboard_bienestar(request):
 
         val_acad = Nota.objects.filter(
             materia__curso=curso,
-            numero_nota=5 
+            numero_nota=5,
+            tenant=tenant 
         ).exclude(materia__nombre__icontains="Convivencia").aggregate(avg=Avg('valor'))['avg']
         
         prom_acad_curso = float(val_acad) if val_acad is not None else 0.0
@@ -148,7 +181,8 @@ def dashboard_bienestar(request):
         val_conv = Nota.objects.filter(
             materia__curso=curso,
             materia__nombre__icontains="Convivencia",
-            numero_nota=5 
+            numero_nota=5,
+            tenant=tenant
         ).aggregate(avg=Avg('valor'))['avg']
 
         prom_conv_curso = float(val_conv) if val_conv is not None else 0.0
@@ -165,8 +199,7 @@ def dashboard_bienestar(request):
                 suma_promedios_conv += prom_conv_curso
                 cursos_con_datos_conv += 1
 
-        # Detalle estudiantes
-        periodos_del_curso = list(Periodo.objects.filter(curso=curso, activo=True).order_by('id'))
+        periodos_del_curso = list(Periodo.objects.filter(curso=curso, activo=True, tenant=tenant).order_by('id'))
         lista_estudiantes_curso = []
         ranking_academico_curso = []
         
@@ -179,7 +212,8 @@ def dashboard_bienestar(request):
                     periodo=p, 
                     materia__curso=curso,
                     materia__nombre__icontains="Convivencia",
-                    numero_nota=5 
+                    numero_nota=5,
+                    tenant=tenant
                 ).first()
                 
                 if nota_real_obj:
@@ -195,7 +229,8 @@ def dashboard_bienestar(request):
             p_ind = Nota.objects.filter(
                 estudiante=estudiante, 
                 materia__curso=curso,
-                numero_nota=5
+                numero_nota=5,
+                tenant=tenant
             ).exclude(materia__nombre__icontains="Convivencia").aggregate(p=Avg('valor'))['p']
             
             ranking_academico_curso.append({
@@ -222,13 +257,13 @@ def dashboard_bienestar(request):
     prom_global_conv = round(suma_promedios_conv / cursos_con_datos_conv, 2) if cursos_con_datos_conv > 0 else 0
 
     stats_asistencia = {
-        'asistio': Asistencia.objects.filter(estado='ASISTIO').count(),
-        'falla': Asistencia.objects.filter(estado='FALLA').count(),
-        'excusa': Asistencia.objects.filter(estado='EXCUSA').count(),
-        'tarde': Asistencia.objects.filter(estado='TARDE').count(),
+        'asistio': Asistencia.objects.filter(estado='ASISTIO', tenant=tenant).count(),
+        'falla': Asistencia.objects.filter(estado='FALLA', tenant=tenant).count(),
+        'excusa': Asistencia.objects.filter(estado='EXCUSA', tenant=tenant).count(),
+        'tarde': Asistencia.objects.filter(estado='TARDE', tenant=tenant).count(),
     }
     
-    top_fallas = Asistencia.objects.filter(estado='FALLA')\
+    top_fallas = Asistencia.objects.filter(estado='FALLA', tenant=tenant)\
         .values('estudiante__id', 'estudiante__first_name', 'estudiante__last_name', 'curso__nombre')\
         .annotate(total=Count('id'))\
         .order_by('-total')[:5]
@@ -237,17 +272,18 @@ def dashboard_bienestar(request):
         materia__nombre__icontains="Convivencia",
         materia__curso__activo=True,
         numero_nota=5, 
-        valor__lt=3.5  
+        valor__lt=3.5,
+        tenant=tenant
     ).values(
         'estudiante__id', 'estudiante__first_name', 'estudiante__last_name', 'materia__curso__nombre'
     ).annotate(
         promedio=Avg('valor')
     ).order_by('promedio')[:5]
     
-    institucion = Institucion.objects.first()
+    institucion = Institucion.objects.filter(tenant=tenant).first()
 
     # 5. HISTORIAL OBSERVACIONES
-    all_observaciones = Observacion.objects.all()
+    all_observaciones = Observacion.objects.filter(tenant=tenant)
     kpi_obs = {
         'total': all_observaciones.count(),
         'convivencia': all_observaciones.filter(tipo='CONVIVENCIA').count(),
@@ -255,9 +291,9 @@ def dashboard_bienestar(request):
         'psicologia': all_observaciones.filter(Q(tipo='PSICOLOGIA') | Q(tipo='PSICOLOGICA')).count()
     }
 
-    historial_seguimientos = Seguimiento.objects.select_related('estudiante', 'profesional').all().order_by('-fecha')[:100]
+    historial_seguimientos = Seguimiento.objects.filter(tenant=tenant).select_related('estudiante', 'profesional').order_by('-fecha')[:100]
     
-    base_observaciones = Observacion.objects.select_related('estudiante', 'autor').all().order_by('-fecha_creacion')
+    base_observaciones = Observacion.objects.filter(tenant=tenant).select_related('estudiante', 'autor').order_by('-fecha_creacion')
     if query:
         base_observaciones = base_observaciones.filter(
             Q(estudiante__username__icontains=query) |
@@ -294,7 +330,6 @@ def dashboard_bienestar(request):
         'observaciones': observaciones,
     }
 
-    # 🏥 CORRECCIÓN DE RUTA: Apunta a 'wellbeing'
     return render(request, 'wellbeing/dashboard_bienestar.html', context)
 
 
@@ -304,10 +339,11 @@ def dashboard_bienestar(request):
 
 @role_required(STAFF_ROLES)
 def historial_asistencia(request):
+    tenant = get_current_tenant()
     curso_id = request.GET.get('curso')
     estado = request.GET.get('estado')
     
-    asistencias = Asistencia.objects.select_related('estudiante', 'curso', 'materia', 'registrado_por').all().order_by('-fecha')
+    asistencias = Asistencia.objects.filter(tenant=tenant).select_related('estudiante', 'curso', 'materia', 'registrado_por').order_by('-fecha')
 
     if curso_id:
         asistencias = asistencias.filter(curso_id=curso_id)
@@ -318,9 +354,8 @@ def historial_asistencia(request):
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
     
-    cursos = Curso.objects.filter(activo=True).order_by('grado', 'seccion')
+    cursos = Curso.objects.filter(activo=True, tenant=tenant).order_by('grado', 'seccion')
     
-    # 🏥 CORRECCIÓN DE RUTA: Apunta a 'wellbeing'
     return render(request, 'wellbeing/historial_asistencia.html', {
         'page_obj': page_obj,
         'cursos': cursos,
@@ -335,8 +370,8 @@ def historial_asistencia(request):
 
 @role_required(['ADMINISTRADOR', 'COORD_ACADEMICO', 'COORD_CONVIVENCIA', 'PSICOLOGO'])
 def historial_global_observaciones(request):
-    # Reutilizamos lógica simplificada para no duplicar demasiado código
-    observaciones = Observacion.objects.select_related('estudiante', 'autor').all().order_by('-fecha_creacion')
+    tenant = get_current_tenant()
+    observaciones = Observacion.objects.filter(tenant=tenant).select_related('estudiante', 'autor').order_by('-fecha_creacion')
     query = request.GET.get('q')
     if query:
         observaciones = observaciones.filter(
@@ -346,11 +381,10 @@ def historial_global_observaciones(request):
             Q(descripcion__icontains=query)
         )
     
-    # 🏥 CORRECCIÓN DE RUTA: Apunta a 'wellbeing'
     return render(request, 'wellbeing/historial_global_observaciones.html', {
         'observaciones': observaciones,
         'query': query,
-        'institucion': Institucion.objects.first(),
+        'institucion': Institucion.objects.filter(tenant=tenant).first(),
     })
 
 
@@ -360,13 +394,13 @@ def historial_global_observaciones(request):
 
 @role_required(STAFF_ROLES)
 def ver_observador(request, estudiante_id):
+    tenant = get_current_tenant()
     estudiante = get_object_or_404(User, id=estudiante_id)
     if not hasattr(estudiante, 'perfil') or estudiante.perfil.rol != 'ESTUDIANTE':
         messages.error(request, "El usuario seleccionado no es un estudiante.")
         return redirect('dashboard_bienestar')
 
-    observaciones = Observacion.objects.filter(estudiante=estudiante).select_related('autor', 'periodo').order_by('-fecha_creacion')
-    # 🏥 CORRECCIÓN DE RUTA: Apunta a 'wellbeing'
+    observaciones = Observacion.objects.filter(estudiante=estudiante, tenant=tenant).select_related('autor', 'periodo').order_by('-fecha_creacion')
     return render(request, 'wellbeing/ver_observador.html', {
         'estudiante': estudiante,
         'observaciones': observaciones
@@ -374,6 +408,7 @@ def ver_observador(request, estudiante_id):
 
 @role_required(STAFF_ROLES)
 def crear_observacion(request, estudiante_id):
+    tenant = get_current_tenant()
     estudiante = get_object_or_404(User, id=estudiante_id)
     if request.method == 'POST':
         form = ObservacionForm(request.POST, user=request.user, estudiante=estudiante)
@@ -381,17 +416,18 @@ def crear_observacion(request, estudiante_id):
             observacion = form.save(commit=False)
             observacion.estudiante = estudiante
             observacion.autor = request.user
+            observacion.tenant = tenant
             observacion.save()
             messages.success(request, "Observación registrada correctamente.")
             return redirect('ver_observador', estudiante_id=estudiante.id)
     else:
         form = ObservacionForm(user=request.user, estudiante=estudiante)
-    # 🏥 CORRECCIÓN DE RUTA: Apunta a 'wellbeing'
     return render(request, 'wellbeing/form_observacion.html', {'form': form, 'estudiante': estudiante, 'titulo': 'Nueva Observación'})
 
 @role_required(STAFF_ROLES)
 def editar_observacion(request, observacion_id):
-    observacion = get_object_or_404(Observacion, id=observacion_id)
+    tenant = get_current_tenant()
+    observacion = get_object_or_404(Observacion, id=observacion_id, tenant=tenant)
     es_admin = request.user.perfil.rol == 'ADMINISTRADOR'
     es_autor = observacion.autor == request.user
 
@@ -411,11 +447,11 @@ def editar_observacion(request, observacion_id):
             return redirect('ver_observador', estudiante_id=observacion.estudiante.id)
     else:
         form = ObservacionForm(instance=observacion, user=request.user, estudiante=observacion.estudiante)
-    # 🏥 CORRECCIÓN DE RUTA: Apunta a 'wellbeing'
     return render(request, 'wellbeing/form_observacion.html', {'form': form, 'estudiante': observacion.estudiante, 'titulo': 'Editar Observación'})
 
 @role_required(STAFF_ROLES)
 def guardar_seguimiento(request):
+    tenant = get_current_tenant()
     try:
         estudiante_id = request.POST.get('estudiante_id')
         tipo = request.POST.get('tipo')
@@ -432,6 +468,7 @@ def guardar_seguimiento(request):
             descripcion=descripcion,
             observaciones_adicionales=observaciones_adicionales,
             profesional=request.user, 
+            tenant=tenant
         )
         return JsonResponse({'success': True, 'id': nuevo_seguimiento.id})
     except Exception as e:
@@ -443,19 +480,16 @@ def guardar_seguimiento(request):
 
 @role_required('ADMINISTRADOR')
 def gestionar_staff(request):
+    tenant = get_current_tenant()
     staff_roles = [
         ('PSICOLOGO', 'Psicólogo'),
         ('COORD_CONVIVENCIA', 'Coord. Convivencia'),
         ('COORD_ACADEMICO', 'Coord. Académico')
     ]
-    institucion = Institucion.objects.first()
-    if not institucion:
-        institucion = Institucion.objects.create(nombre="Institución Educativa")
+    institucion, _ = Institucion.objects.get_or_create(tenant=tenant, defaults={'nombre': "Institución Educativa"})
 
     if request.method == 'POST':
-        if 'pei_file' in request.FILES:
-             pass
-        elif 'username' in request.POST:
+        if 'username' in request.POST:
             username = request.POST.get('username')
             first_name = request.POST.get('first_name')
             last_name = request.POST.get('last_name')
@@ -468,15 +502,14 @@ def gestionar_staff(request):
                         username=username, first_name=first_name, last_name=last_name,
                         email=email, password=settings.DEFAULT_TEMP_PASSWORD
                     )
-                    Perfil.objects.create(user=user, rol=rol, requiere_cambio_clave=True)
+                    Perfil.objects.create(user=user, rol=rol, requiere_cambio_clave=True, tenant=tenant)
                     messages.success(request, f"Usuario {username} creado.")
             except Exception as e:
                 messages.error(request, f"Error: {e}")
         return redirect('gestionar_staff')
 
-    staff_users = User.objects.filter(perfil__rol__in=[r[0] for r in staff_roles], is_active=True).select_related('perfil')
+    staff_users = User.objects.filter(perfil__rol__in=[r[0] for r in staff_roles], perfil__tenant=tenant, is_active=True).select_related('perfil')
     
-    # 🏥 CORRECCIÓN DE RUTA: Apunta a 'wellbeing' (Asumiendo que moviste este archivo o usas la estructura modular)
     return render(request, 'wellbeing/gestionar_staff.html', {'staff_users': staff_users, 'roles': staff_roles, 'institucion': institucion})
 
 @role_required('ADMINISTRADOR')
@@ -494,9 +527,10 @@ def desactivar_staff(request, user_id):
 @require_POST
 @csrf_protect
 def toggle_observador_permiso(request):
+    tenant = get_current_tenant()
     try:
         data = json.loads(request.body)
-        matricula = Matricula.objects.filter(estudiante_id=data.get('estudiante_id'), activo=True).first()
+        matricula = Matricula.objects.filter(estudiante_id=data.get('estudiante_id'), activo=True, tenant=tenant).first()
         if not matricula: return JsonResponse({'status': 'error', 'message': 'Matrícula no encontrada'}, status=404)
         
         matricula.puede_ver_observador = bool(data.get('estado'))
@@ -511,21 +545,23 @@ def toggle_observador_permiso(request):
 
 @login_required
 def historial_actas(request):
+    tenant = get_current_tenant()
     if request.user.perfil.rol in ['ADMINISTRADOR', 'DIRECTOR_CURSO', 'PSICOLOGO', 'COORD_CONVIVENCIA', 'COORD_ACADEMICO']:
-        actas = ActaInstitucional.objects.all()
+        actas = ActaInstitucional.objects.filter(tenant=tenant)
     else:
-        actas = ActaInstitucional.objects.filter(Q(creador=request.user) | Q(participantes=request.user)).distinct()
-    # 🏥 CORRECCIÓN DE RUTA: Apunta a 'wellbeing'
+        actas = ActaInstitucional.objects.filter(Q(creador=request.user) | Q(participantes=request.user), tenant=tenant).distinct()
     return render(request, 'wellbeing/historial_actas.html', {'actas': actas})
 
 @login_required
 def crear_acta(request):
+    tenant = get_current_tenant()
     if request.method == 'POST':
         form = ActaInstitucionalForm(request.POST, request.FILES)
         if form.is_valid():
             try:
                 acta = form.save(commit=False)
                 acta.creador = request.user
+                acta.tenant = tenant
                 acta.save()
                 form.save_m2m()
                 messages.success(request, f"Acta #{acta.consecutivo} generada.")
@@ -536,7 +572,6 @@ def crear_acta(request):
             messages.error(request, "Formulario inválido.")
     else:
         form = ActaInstitucionalForm(initial={'fecha': timezone.now()})
-    # 🏥 CORRECCIÓN DE RUTA: Apunta a 'wellbeing'
     return render(request, 'wellbeing/crear_acta.html', {'form': form})
 
 # ==========================================================
@@ -545,22 +580,22 @@ def crear_acta(request):
 
 @login_required
 def generar_observador_pdf(request, estudiante_id):
+    tenant = get_current_tenant()
     es_staff = request.user.perfil.rol in STAFF_ROLES
     es_acudiente = request.user.perfil.rol == 'ACUDIENTE'
     estudiante = get_object_or_404(User, id=estudiante_id)
-    matricula = Matricula.objects.filter(estudiante=estudiante, activo=True).first()
+    matricula = Matricula.objects.filter(estudiante=estudiante, activo=True, tenant=tenant).first()
 
     if es_acudiente:
         pass
     elif not es_staff:
         return redirect('home')
 
-    observaciones = Observacion.objects.filter(estudiante=estudiante).select_related('autor__perfil', 'periodo').order_by('periodo__id', 'fecha_creacion')
-    institucion = Institucion.objects.first()
+    observaciones = Observacion.objects.filter(estudiante=estudiante, tenant=tenant).select_related('autor__perfil', 'periodo').order_by('periodo__id', 'fecha_creacion')
+    institucion = Institucion.objects.filter(tenant=tenant).first()
 
     if HTML is None: return HttpResponse("Error: WeasyPrint no instalado.", status=500)
 
-    # 🏥 CORRECCIÓN DE RUTA: Apunta a 'wellbeing/pdf/'
     html_string = render_to_string('wellbeing/pdf/observador_template.html', {
         'estudiante': estudiante, 'observaciones': observaciones,
         'institucion': institucion, 'curso': matricula.curso if matricula else None,
@@ -574,13 +609,13 @@ def generar_observador_pdf(request, estudiante_id):
 
 @login_required
 def generar_seguimiento_pdf(request, seguimiento_id):
-    seguimiento = get_object_or_404(Seguimiento.objects.select_related('estudiante', 'profesional'), id=seguimiento_id)
-    institucion = Institucion.objects.first() 
+    tenant = get_current_tenant()
+    seguimiento = get_object_or_404(Seguimiento.objects.select_related('estudiante', 'profesional'), id=seguimiento_id, tenant=tenant)
+    institucion = Institucion.objects.filter(tenant=tenant).first() 
     context = {
         'seguimiento': seguimiento, 'estudiante': seguimiento.estudiante,
         'profesional': seguimiento.profesional, 'institucion': institucion, 'request': request,
     }
-    # 🏥 CORRECCIÓN DE RUTA: Apunta a 'wellbeing/pdf/'
     html_string = render_to_string('wellbeing/pdf/seguimiento_pdf.html', context)
     pdf_file = HTML(string=html_string, base_url=request.build_absolute_uri('/')).write_pdf()
     response = HttpResponse(pdf_file, content_type='application/pdf')
@@ -589,9 +624,9 @@ def generar_seguimiento_pdf(request, seguimiento_id):
 
 @login_required
 def generar_acta_pdf(request, acta_id):
-    acta = get_object_or_404(ActaInstitucional, id=acta_id)
-    institucion = Institucion.objects.first()
-    # 🏥 CORRECCIÓN DE RUTA: Apunta a 'wellbeing/pdf/'
+    tenant = get_current_tenant()
+    acta = get_object_or_404(ActaInstitucional, id=acta_id, tenant=tenant)
+    institucion = Institucion.objects.filter(tenant=tenant).first()
     html_string = render_to_string('wellbeing/pdf/acta_institucional_weasy.html', {'acta': acta, 'institucion': institucion, 'request': request})
     response = HttpResponse(content_type='application/pdf')
     response['Content-Disposition'] = f'attachment; filename="Acta_{acta.consecutivo}.pdf"'
@@ -600,14 +635,15 @@ def generar_acta_pdf(request, acta_id):
 
 @role_required(['ADMINISTRADOR', 'COORD_CONVIVENCIA', 'PSICOLOGO', 'COORD_ACADEMICO', 'DIRECTOR_CURSO'])
 def generar_reporte_integral_bienestar(request, estudiante_id):
+    tenant = get_current_tenant()
     estudiante = get_object_or_404(User, id=estudiante_id)
-    matricula = Matricula.objects.filter(estudiante=estudiante, activo=True).first()
-    institucion = Institucion.objects.first()
+    matricula = Matricula.objects.filter(estudiante=estudiante, activo=True, tenant=tenant).first()
+    institucion = Institucion.objects.filter(tenant=tenant).first()
     
-    observaciones = Observacion.objects.filter(estudiante=estudiante).order_by('-fecha_creacion')
-    seguimientos = Seguimiento.objects.filter(estudiante=estudiante).order_by('-fecha')
-    promedio_global = Nota.objects.filter(estudiante=estudiante).aggregate(Avg('valor'))['valor__avg'] or 0.0
-    total_fallas = Asistencia.objects.filter(estudiante=estudiante, estado='FALLA').count()
+    observaciones = Observacion.objects.filter(estudiante=estudiante, tenant=tenant).order_by('-fecha_creacion')
+    seguimientos = Seguimiento.objects.filter(estudiante=estudiante, tenant=tenant).order_by('-fecha')
+    promedio_global = Nota.objects.filter(estudiante=estudiante, tenant=tenant).aggregate(Avg('valor'))['valor__avg'] or 0.0
+    total_fallas = Asistencia.objects.filter(estudiante=estudiante, estado='FALLA', tenant=tenant).count()
 
     resumen = {
         'total_obs': observaciones.count(),
@@ -625,8 +661,8 @@ def generar_reporte_integral_bienestar(request, estudiante_id):
         'generado_por': request.user.get_full_name(), 'request': request
     }
     
-    # 🏥 CORRECCIÓN DE RUTA: Apunta a 'wellbeing/pdf/'
     html_string = render_to_string('wellbeing/pdf/reporte_integral_template.html', context)
+    if HTML is None: return HttpResponse("Error: WeasyPrint no instalado.", status=500)
     pdf_file = HTML(string=html_string, base_url=request.build_absolute_uri('/')).write_pdf()
     response = HttpResponse(pdf_file, content_type='application/pdf')
     response['Content-Disposition'] = f'inline; filename="Expediente_{estudiante.username}.pdf"'
@@ -634,9 +670,10 @@ def generar_reporte_integral_bienestar(request, estudiante_id):
 
 @role_required(['ADMINISTRADOR', 'COORD_CONVIVENCIA', 'PSICOLOGO', 'COORD_ACADEMICO', 'DIRECTOR_CURSO'])
 def generar_acta_historial_integral(request, estudiante_id):
+    tenant = get_current_tenant()
     estudiante = get_object_or_404(User, id=estudiante_id)
-    institucion = Institucion.objects.first()
-    observaciones = Observacion.objects.filter(estudiante=estudiante).order_by('-fecha_creacion')[:10]
+    institucion = Institucion.objects.filter(tenant=tenant).first()
+    observaciones = Observacion.objects.filter(estudiante=estudiante, tenant=tenant).order_by('-fecha_creacion')[:10]
     
     acta_virtual = {
         'consecutivo': 'AUTO-GEN', 'fecha': timezone.now(), 'hora_fin': timezone.now(),
@@ -649,18 +686,24 @@ def generar_acta_historial_integral(request, estudiante_id):
     }
 
     context = {'acta': acta_virtual, 'institucion': institucion, 'observaciones_adjuntas': observaciones}
-    # 🏥 CORRECCIÓN DE RUTA: Apunta a 'wellbeing/pdf/'
     html_string = render_to_string('wellbeing/pdf/acta_institucional_weasy.html', context)
+    if HTML is None: return HttpResponse("Error: WeasyPrint no instalado.", status=500)
     pdf_file = HTML(string=html_string, base_url=request.build_absolute_uri('/')).write_pdf()
     response = HttpResponse(pdf_file, content_type='application/pdf')
     response['Content-Disposition'] = f'inline; filename="Acta_Oficial_{estudiante.username}.pdf"'
     return response
 
 
-from django.shortcuts import render
-from django.contrib.auth.decorators import login_required
-
 @login_required
 def documentos_institucionales(request):
-    # Aquí puedes pasar una lista de archivos o PDFs si los tienes
-    return render(request, 'wellbeing/documentos.html')
+    tenant = get_current_tenant()
+    institucion = Institucion.objects.filter(tenant=tenant).first()
+    return render(request, 'institucion/documentos_publicos.html', {'institucion': institucion})
+
+
+# Temporal placeholders for views that might be called
+def reporte_consolidado(request):
+    return render(request, 'wellbeing/reporte_consolidado.html')
+
+def descargar_pdf_bienestar(request):
+    pass    

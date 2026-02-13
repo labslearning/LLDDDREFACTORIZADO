@@ -1,7 +1,7 @@
 {% load static %}
 {% load humanize %}
 
-<a href="{% if msg.id %}{% url 'leer_mensaje' msg.id %}{% else %}#{% endif %}" 
+<a href="{% if msg.id %}{% url 'social:leer_mensaje' msg.id %}{% else %}#{% endif %}" 
    class="list-group-item list-group-item-action message-item {{ estado_clase }}"
    data-status="{{ estado_clase }}"
    data-user="{{ usuario_visual.get_full_name|default:usuario_visual.username }}"

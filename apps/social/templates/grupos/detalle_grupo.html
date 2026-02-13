@@ -368,14 +368,14 @@
                 {% for post in posts %}
                     <div class="post-card" id="post-{{ post.id }}">
                         <div class="post-header">
-                            <a href="{% url 'ver_perfil_social' post.autor.username %}" class="d-flex align-items-center text-decoration-none">
+                            <a href="{% url 'social:ver_perfil_social' post.autor.username %}" class="d-flex align-items-center text-decoration-none">
                                 <div class="user-avatar-sm bg-primary text-white d-flex align-items-center justify-content-center fw-bold me-2" style="background-color: {{ post.autor.perfil.color_rol|default:'#4361ee' }};">
                                     {{ post.autor.username|slice:":1"|upper }}
                                 </div>
                             </a>
                             <div class="post-info flex-grow-1">
                                 <h6>
-                                    <a href="{% url 'ver_perfil_social' post.autor.username %}" class="text-decoration-none text-primary">
+                                    <a href="{% url 'social:ver_perfil_social' post.autor.username %}" class="text-decoration-none text-primary">
                                         {{ post.autor.get_full_name|default:post.autor.username }}
                                     </a>
                                 </h6>
@@ -460,7 +460,7 @@
                             <div class="comments-section">
                                 {% for comentario in post.comentarios.all %}
                                     <div class="comment-item" id="comment-{{ comentario.id }}">
-                                        <a href="{% url 'ver_perfil_social' comentario.autor.username %}">
+                                        <a href="{% url 'social:ver_perfil_social' comentario.autor.username %}">
                                             {% if comentario.autor.perfil.foto_perfil %}
                                                 <img src="{{ comentario.autor.perfil.foto_perfil.url }}" class="user-avatar-sm-comment">
                                             {% else %}
@@ -471,7 +471,7 @@
                                         </a>
                                         <div class="comment-content-wrapper">
                                             <div class="comment-bubble">
-                                                <a href="{% url 'ver_perfil_social' comentario.autor.username %}" class="comment-author text-decoration-none">
+                                                <a href="{% url 'social:ver_perfil_social' comentario.autor.username %}" class="comment-author text-decoration-none">
                                                     {{ comentario.autor.get_full_name|default:comentario.autor.username }}
                                                 </a>
                                                 <div class="comment-text d-inline-block">
@@ -503,7 +503,7 @@
                                         {{ user.username|slice:":1"|upper }}
                                     </div>
                                     
-                                    <form method="POST" action="{% url 'detalle_grupo' grupo.id %}" class="w-100 d-flex gap-2 align-items-center">
+                                    <form method="POST" action="{% url 'social:detalle_grupo' grupo.id %}" class="w-100 d-flex gap-2 align-items-center">
                                         {% csrf_token %}
                                         <input type="hidden" name="publicar_comentario" value="1">
                                         <input type="hidden" name="post_id" value="{{ post.id }}">
@@ -538,7 +538,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
-                <form method="POST" action="{% url 'detalle_grupo' grupo.id %}" enctype="multipart/form-data">
+                <form method="POST" action="{% url 'social:detalle_grupo' grupo.id %}" enctype="multipart/form-data">
                     {% csrf_token %}
                     <input type="hidden" name="cambiar_portada" value="1">
                     
@@ -566,7 +566,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
-                <form method="POST" action="{% url 'detalle_grupo' grupo.id %}" enctype="multipart/form-data">
+                <form method="POST" action="{% url 'social:detalle_grupo' grupo.id %}" enctype="multipart/form-data">
                     {% csrf_token %}
                     <input type="hidden" name="publicar_post" value="1">
                     <input type="hidden" name="grupo_id" value="{{ grupo.id }}">
@@ -615,7 +615,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
-                <form method="POST" action="{% url 'detalle_grupo' grupo.id %}">
+                <form method="POST" action="{% url 'social:detalle_grupo' grupo.id %}">
                     {% csrf_token %}
                     <input type="hidden" name="editar_info_grupo" value="1">
                     

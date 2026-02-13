@@ -225,7 +225,7 @@
                 
                 <div class="profile-actions mt-3">
                     {% if is_own_profile %}
-                        <a href="{% url 'editar_perfil' %}" class="btn btn-secondary fw-bold">
+                        <a href="{% url 'social:editar_perfil' %}" class="btn btn-secondary fw-bold">
                             <i class="fas fa-pen me-2"></i>Editar perfil
                         </a>
                     {% else %}
@@ -237,7 +237,7 @@
                                 <i class="fas fa-user-plus me-2"></i>Seguir
                             {% endif %}
                         </button>
-                        <a href="{% url 'buzon_mensajes' %}?destinatario={{ perfil_user.id }}" class="btn btn-secondary fw-bold">
+                        <a href="{% url 'social:buzon_mensajes' %}?destinatario={{ perfil_user.id }}" class="btn btn-secondary fw-bold">
                             <i class="fas fa-comment-dots me-2"></i>Mensaje
                         </a>
                     {% endif %}
@@ -367,7 +367,7 @@
                                 {{ perfil_user.username|slice:":1"|upper }}
                             </div>
                         {% endif %}
-                        <input type="text" class="form-control rounded-pill bg-light border-0" placeholder="¿Qué estás pensando?" onclick="window.location.href='{% url 'social_feed' %}'">
+                        <input type="text" class="form-control rounded-pill bg-light border-0" placeholder="¿Qué estás pensando?" onclick="window.location.href='{% url 'social:social_feed' %}'">
                     </div>
                 </div>
                 {% endif %}

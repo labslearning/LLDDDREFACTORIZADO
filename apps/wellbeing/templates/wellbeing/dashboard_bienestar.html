@@ -344,7 +344,7 @@
                  <i class="fas fa-certificate me-2"></i>Emitir Certificados
             </a>
 
-            <a href="{% url 'historial_global_observaciones' %}" class="btn btn-primary bg-gradient-primary border-0 btn-pill-modern shadow-lg text-white hover-lift">
+            <a href="{% url 'wellbeing:historial_global_observaciones' %}" class="btn btn-primary bg-gradient-primary border-0 btn-pill-modern shadow-lg text-white hover-lift">
                 <i class="fas fa-rocket me-2"></i>Gestión
             </a>
             
@@ -649,7 +649,7 @@
                     <i class="fas fa-table fa-2x text-purple mb-3"></i>
                     <h5 class="card-title fw-bold">Sábana de Notas</h5>
                     <p class="card-text text-muted small">Reporte consolidado de calificaciones por curso y periodo.</p>
-                    <a href="{% url 'reporte_consolidado' %}" class="btn btn-outline-purple mt-auto fw-bold">
+                    <a href="{% url 'wellbeing:reporte_consolidado' %}" class="btn btn-outline-purple mt-auto fw-bold">
                         <i class="fas fa-eye me-2"></i>Ver Consolidado
                     </a>
                 </div>
@@ -751,7 +751,7 @@
                             <span class="input-group-text bg-white border-0 ps-3 text-muted"><i class="fas fa-filter"></i></span>
                             <input type="text" name="q" class="form-control bg-white border-0 shadow-none" placeholder="Buscar por nombre, ID..." value="{{ query|default:'' }}">
                             {% if query %}
-                                <a href="{% url 'historial_global_observaciones' %}" class="btn btn-white border-0 text-muted px-3"><i class="fas fa-times"></i></a>
+                                <a href="{% url 'wellbeing:historial_global_observaciones' %}" class="btn btn-white border-0 text-muted px-3"><i class="fas fa-times"></i></a>
                             {% endif %}
                         </div>
                         <button type="submit" class="btn btn-dark rounded-pill px-4 fw-bold hover-lift x-small text-uppercase ls-1 w-sm-auto w-100">
@@ -845,7 +845,7 @@
                                 <ul class="dropdown-menu dropdown-menu-end shadow-xl border-0 rounded-4 p-2 animate__animated animate__fadeIn">
                                     <li><h6 class="dropdown-header text-uppercase x-small fw-bold text-muted ls-1">Acciones</h6></li>
                                     <li>
-                                        <a class="dropdown-item rounded-3 py-2 mb-1" href="{% url 'ver_observador' obs.estudiante.id %}">
+                                        <a class="dropdown-item rounded-3 py-2 mb-1" href="{% url 'wellbeing:ver_observador' obs.estudiante.id %}">
                                             <i class="fas fa-folder-open text-primary me-2"></i>Ver Expediente
                                         </a>
                                     </li>
@@ -1121,7 +1121,7 @@
     // LOGICA 3: ENVIAR A BACKEND
     // ============================================
     async function guardarEnBackend(estudianteId, tipo, descripcion, observaciones) {
-        const url = "{% url 'guardar_seguimiento' %}";
+        const url = "{% url 'wellbeing:guardar_seguimiento' %}";
         const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
 
         // DEBUG: Para ver si el dato viaja correctamente
@@ -1331,7 +1331,7 @@ ${soluciones}
     }
 
 <div class="d-flex justify-content-end mb-4">
-    <a href="{% url 'descargar_pdf_bienestar' %}" class="btn btn-lg px-4 py-2 shadow-sm d-flex align-items-center gap-3" 
+    <a href="{% url 'wellbeing:descargar_pdf_bienestar' %}" class="btn btn-lg px-4 py-2 shadow-sm d-flex align-items-center gap-3" 
        style="background: linear-gradient(135deg, #002B5B 0%, #1A4270 100%); color: #C5A059; border: 1px solid #C5A059; border-radius: 8px; transition: transform 0.2s;">
         
         <div style="background: rgba(197, 160, 89, 0.2); padding: 8px; border-radius: 6px;">
